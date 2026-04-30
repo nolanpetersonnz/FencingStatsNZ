@@ -9,3 +9,5 @@ ingest/__pycache__/
 ingest/cache/
 *.pyc
 *.pyo
+
+.claude/
