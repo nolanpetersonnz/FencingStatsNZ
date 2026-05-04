@@ -5,7 +5,7 @@ import { strengthTier } from '../data/pipeline.js';
 export default function Competitions({ competitions, weapon, gender, onSelectComp }) {
   const filtered = competitions.filter(c =>
     c.weapon === weapon
-    && (!gender || !c.genders || c.genders.size === 0 || c.genders.has(gender))
+    && (!gender || c.genders?.has(gender))
   );
   const [sort, setSort] = useState('date');
 

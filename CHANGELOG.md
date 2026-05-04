@@ -7,6 +7,10 @@ Initial release.
 -  Made minor design decisions such as elo system and styling.
 - Ran into issues pulling the CSV results from Fencingtimelive so looking for a workaround.
 
+## [0.1.2] - 2026-05-04
+### Fixed
+- Fencers with no recorded gender no longer appear in both Men's and Women's categories — gender filter now requires an explicit match in Leaderboard, Competitions, and FencerPicker
+
 ## [0.1.1] - 2026-04-30
 ### Added
 - Leaderboard with separate pool and DE ratings per fencer per weapon
