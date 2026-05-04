@@ -18,7 +18,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, onSelectFe
       })
       .filter(x => x && (x.totalBouts >= minBouts))
       .filter(x => club === 'all' || x.f.club === club)
-      .filter(x => !gender || !x.f.genders || x.f.genders.size === 0 || x.f.genders.has(gender));
+      .filter(x => !gender || x.f.genders?.has(gender));
 
     list.sort((a, b) => {
       if (sort === 'pool') return b.pool.rating - a.pool.rating;
