@@ -46,7 +46,16 @@ export function processBouts(rawBouts, settings) {
     return '';
   };
 
-  const ensure = (name, club, weapon, gender) => {
+  // Scan anywhere in a string for gender keywords (mirrors Python extract_gender).
+  // "women" is checked before "men" because "women" contains "men" as a substring.
+  const genderFromText = (text) => {
+    const x = (text || '').toLowerCase();
+    if (x.includes('women') || x.includes('ladies') || x.includes('female')) return 'W';
+    if (x.includes('men') || x.includes('male')) return 'M';
+    return '';
+  };
+
+  const ensure = (name, club, weapon, gender, competition) => {
     const k = nameKey(name);
     if (!k) return null;
     if (!fencers[k]) fencers[k] = { key: k, name: name.trim(), club: (club || '').trim(), byWeapon: {}, genders: new Set() };
@@ -58,8 +67,12 @@ export function processBouts(rawBouts, settings) {
       fencers[k].byWeapon[weapon] = { pool: fresh(), de: fresh() };
     }
     if (club && !fencers[k].club) fencers[k].club = club.trim();
-    const g = normGender(gender);
-    if (g) fencers[k].genders.add(g);
+    // Only assign gender once — lock fencer to first gender found so a name
+    // collision or data error can't place them in both categories.
+    if (fencers[k].genders.size === 0) {
+      const g = normGender(gender) || genderFromText(competition);
+      if (g) fencers[k].genders.add(g);
+    }
     return fencers[k];
   };
 
@@ -85,8 +98,8 @@ export function processBouts(rawBouts, settings) {
     const snapDe = {};
 
     for (const b of periodBouts) {
-      const fA = ensure(b.fencer_a, b.club_a, weapon, b.gender);
-      const fB = ensure(b.fencer_b, b.club_b, weapon, b.gender);
+      const fA = ensure(b.fencer_a, b.club_a, weapon, b.gender, b.competition);
+      const fB = ensure(b.fencer_b, b.club_b, weapon, b.gender, b.competition);
       if (!fA || !fB) continue;
       const wA = fA.byWeapon[weapon], wB = fB.byWeapon[weapon];
       if (!snapPool[fA.key]) snapPool[fA.key] = { rating: wA.pool.rating, rd: wA.pool.rd, volatility: wA.pool.volatility };

@@ -7,6 +7,11 @@ Initial release.
 -  Made minor design decisions such as elo system and styling.
 - Ran into issues pulling the CSV results from Fencingtimelive so looking for a workaround.
 
+## [0.1.3] - 2026-05-04
+### Fixed
+- Fencers now infer gender from competition name when the gender CSV field is blank, using the same keyword logic as the ingest script ("women" checked before "men")
+- Each fencer is locked to the first gender determined — subsequent bouts cannot reassign them to a different category, preventing name-collision cross-contamination
+
 ## [0.1.2] - 2026-05-04
 ### Fixed
 - Fencers with no recorded gender no longer appear in both Men's and Women's categories — gender filter now requires an explicit match in Leaderboard, Competitions, and FencerPicker
