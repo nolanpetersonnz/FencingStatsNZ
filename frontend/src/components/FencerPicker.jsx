@@ -11,7 +11,7 @@ export default function FencerPicker({ fencers, weapon, gender, selected, onSele
   const results = useMemo(() => {
     const list = Object.values(fencers).filter(x =>
       x.byWeapon[weapon]
-      && (!gender || !x.genders || x.genders.size === 0 || x.genders.has(gender))
+      && (!gender || x.genders?.has(gender))
     );
     if (!q.trim()) return list.slice(0, 10);
     return list.filter(x => x.name.toLowerCase().includes(q.toLowerCase())).slice(0, 10);
