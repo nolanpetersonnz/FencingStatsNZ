@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { fmtRating, fmtRD } from '../utils/formatters.js';
+import { fmtRD, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 
-export default function Leaderboard({ fencers, bouts, weapon, gender, onSelectFencer }) {
+export default function Leaderboard({ fencers, bouts, weapon, gender, settings, onSelectFencer }) {
   const [minBouts, setMinBouts] = useState(1);
   const [club, setClub] = useState('all');
   const [sort, setSort] = useState('pool');
+  const k = settings?.displayK ?? 1;
 
   const ranked = useMemo(() => {
     const list = Object.values(fencers)
@@ -14,15 +15,17 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, onSelectFe
         const totalBouts = w.pool.bouts + w.de.bouts;
         const totalWins = w.pool.wins + w.de.wins;
         const totalLosses = w.pool.losses + w.de.losses;
-        return { f, pool: w.pool, de: w.de, totalBouts, totalWins, totalLosses };
+        const poolDisplay = conservativeRating(w.pool.rating, w.pool.rd, k);
+        const deDisplay = conservativeRating(w.de.rating, w.de.rd, k);
+        return { f, pool: w.pool, de: w.de, poolDisplay, deDisplay, totalBouts, totalWins, totalLosses };
       })
       .filter(x => x && (x.totalBouts >= minBouts))
       .filter(x => club === 'all' || x.f.club === club)
       .filter(x => !gender || x.f.genders?.has(gender));
 
     list.sort((a, b) => {
-      if (sort === 'pool') return b.pool.rating - a.pool.rating;
-      if (sort === 'de') return b.de.rating - a.de.rating;
+      if (sort === 'pool') return b.poolDisplay - a.poolDisplay;
+      if (sort === 'de') return b.deDisplay - a.deDisplay;
       if (sort === 'bouts') return b.totalBouts - a.totalBouts;
       if (sort === 'winrate') {
         const wa = a.totalBouts ? a.totalWins / a.totalBouts : 0;
@@ -32,7 +35,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, onSelectFe
       return 0;
     });
     return list;
-  }, [fencers, weapon, gender, minBouts, club, sort]);
+  }, [fencers, weapon, gender, minBouts, club, sort, k]);
 
   const clubs = useMemo(() => {
     const s = new Set();
@@ -109,7 +112,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, onSelectFe
             <div className="fl-italic fl-hide-mobile" style={{ color: 'var(--ink-soft)', fontSize: '0.92rem' }}>{f.club}</div>
             <div style={{ textAlign: 'right', opacity: pool.bouts > 0 ? 1 : 0.35 }}>
               <div className="fl-mono" style={{ fontSize: sort === 'pool' ? '1.2rem' : '1.05rem', fontWeight: sort === 'pool' ? 600 : 500 }}>
-                {pool.bouts > 0 ? fmtRating(pool.rating) : '—'}
+                {pool.bouts > 0 ? fmtConservativeRating(pool.rating, pool.rd, k) : '—'}
               </div>
               <div className="fl-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)' }}>
                 {pool.bouts > 0 ? `${fmtRD(pool.rd)} · ${pool.bouts}b` : ''}
@@ -117,7 +120,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, onSelectFe
             </div>
             <div style={{ textAlign: 'right', opacity: de.bouts > 0 ? 1 : 0.35 }}>
               <div className="fl-mono" style={{ fontSize: sort === 'de' ? '1.2rem' : '1.05rem', fontWeight: sort === 'de' ? 600 : 500 }}>
-                {de.bouts > 0 ? fmtRating(de.rating) : '—'}
+                {de.bouts > 0 ? fmtConservativeRating(de.rating, de.rd, k) : '—'}
               </div>
               <div className="fl-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)' }}>
                 {de.bouts > 0 ? `${fmtRD(de.rd)} · ${de.bouts}b` : ''}

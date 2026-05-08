@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.4] - 2026-05-09
+### Added
+- `Conservative display k` setting (default 1) — controls how much rating uncertainty is subtracted from the displayed number
+- `conservativeRating` / `fmtConservativeRating` helpers in `utils/formatters.js`
+### Changed
+- Default initial RD lowered from 350 to 200 — fits an established league where most imported fencers already have years of history; new fencers settle into their true rating faster, at the cost of slightly less headroom for veterans on first import
+- Displayed rating is now `rating − k × RD` (TrueSkill-style conservative rating) across the Leaderboard, fencer profile headline numbers, weapon pills, rating-progression chart, and the head-to-head fencer picker — a fencer with `1800 ± 300` shows as 1500 and climbs toward 1800 as their RD shrinks
+- Leaderboard pool and DE sorts now order by conservative rating, so a steady 1500 outranks an uncertain 1800
+- Peak rating on fencer profiles is now computed as the highest conservative rating over history; raw rating and RD still appear as a secondary line so the underlying Glicko-2 number stays inspectable
+### Notes
+- Per-bout before/after deltas (FencerProfile bout rows, CompetitionDetail) and competition median/top remain raw — those snapshots don't carry an RD alongside the rating
+- Existing users' saved settings persist; click *Defaults* in the Settings panel to pick up the new `initialRD` and `displayK`
+
 ## [0.1.0] — 2026-04-29
 
 Initial release.

@@ -1,16 +1,21 @@
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
-import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort } from '../utils/formatters.js';
+import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 
-export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, weapon: globalWeapon }) {
+export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, weapon: globalWeapon, settings }) {
   const f = fencers[fencerKey];
   const [weapon, setWeapon] = useState(() => {
     if (f && f.byWeapon[globalWeapon]) return globalWeapon;
     return f ? Object.keys(f.byWeapon)[0] : globalWeapon;
   });
 
+  const k = settings?.displayK ?? 1;
   const w = f ? f.byWeapon[weapon] : null;
+  const peakConservative = (stream) => {
+    if (!stream || !stream.history?.length) return null;
+    return Math.max(...stream.history.map(h => conservativeRating(h.rating, h.rd, k)));
+  };
   const fencerBouts = useMemo(() => {
     if (!f) return [];
     return bouts.filter(b => (b.keyA === fencerKey || b.keyB === fencerKey) && b.weapon === weapon)
@@ -23,15 +28,15 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
     w.pool.history.forEach(h => allDates.add(h.date));
     w.de.history.forEach(h => allDates.add(h.date));
     const dates = Array.from(allDates).sort();
-    const poolByDate = Object.fromEntries(w.pool.history.map(h => [h.date, h.rating]));
-    const deByDate = Object.fromEntries(w.de.history.map(h => [h.date, h.rating]));
+    const poolByDate = Object.fromEntries(w.pool.history.map(h => [h.date, conservativeRating(h.rating, h.rd, k)]));
+    const deByDate = Object.fromEntries(w.de.history.map(h => [h.date, conservativeRating(h.rating, h.rd, k)]));
     let lastPool = null, lastDe = null;
     return dates.map((d, i) => {
       if (poolByDate[d] !== undefined) lastPool = poolByDate[d];
       if (deByDate[d] !== undefined) lastDe = deByDate[d];
       return { idx: i + 1, date: d, pool: lastPool, de: lastDe };
     });
-  }, [w]);
+  }, [w, k]);
 
   if (!f) return <div style={{ padding: 60, textAlign: 'center' }} className="fl-italic">Fencer not found.</div>;
 
@@ -58,10 +63,10 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
           if (!has) return null;
           const totalB = has.pool.bouts + has.de.bouts;
           if (totalB === 0) return null;
-          const primary = has.pool.bouts >= has.de.bouts ? has.pool.rating : has.de.rating;
+          const primaryStream = has.pool.bouts >= has.de.bouts ? has.pool : has.de;
           return (
             <button key={wp} className={`fl-pill ${weapon === wp ? 'active' : ''}`} onClick={() => setWeapon(wp)}>
-              {wp === 'epee' ? 'Épée' : wp} · {fmtRating(primary)}
+              {wp === 'epee' ? 'Épée' : wp} · {fmtConservativeRating(primaryStream.rating, primaryStream.rd, k)}
             </button>
           );
         })}
@@ -81,10 +86,12 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
               <div key={s.label} style={{ padding: '24px 20px', borderRight: i === 0 ? '1px solid var(--rule)' : 'none', opacity: s.stream.bouts > 0 ? 1 : 0.4 }}>
                 <div className="fl-smallcaps" style={{ marginBottom: 10, color: s.accent }}>{s.label}</div>
                 <div className="fl-mono" style={{ fontSize: '2.6rem', fontWeight: 700, lineHeight: 1, color: s.accent }}>
-                  {s.stream.bouts > 0 ? fmtRating(s.stream.rating) : '—'}
+                  {s.stream.bouts > 0 ? fmtConservativeRating(s.stream.rating, s.stream.rd, k) : '—'}
                 </div>
                 <div className="fl-mono" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginTop: 6 }}>
-                  {s.stream.bouts > 0 ? `${fmtRD(s.stream.rd)}  ·  peak ${fmtRating(s.stream.peak)}` : 'no bouts'}
+                  {s.stream.bouts > 0
+                    ? `${fmtRD(s.stream.rd)}  ·  raw ${fmtRating(s.stream.rating)}  ·  peak ${fmtRating(peakConservative(s.stream) ?? s.stream.peak)}`
+                    : 'no bouts'}
                 </div>
                 <div className="fl-mono" style={{ fontSize: '0.92rem', marginTop: 14 }}>
                   <span style={{ color: 'var(--green)' }}>{s.stream.wins}W</span>

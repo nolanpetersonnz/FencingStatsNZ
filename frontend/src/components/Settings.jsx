@@ -20,11 +20,12 @@ export default function Settings({ settings, setSettings, onRecompute }) {
       <div style={{ marginTop: 28, borderTop: '1px solid var(--ink)' }}>
         {[
           { k: 'initialRating', l: 'Initial rating', help: 'Starting rating for unknown fencers (default 1500).' },
-          { k: 'initialRD', l: 'Initial RD', help: 'Starting rating deviation. Higher = less certain (default 350).' },
+          { k: 'initialRD', l: 'Initial RD', help: 'Starting rating deviation. Lower = new fencers settle faster, but imported veterans also have less headroom (default 200).' },
           { k: 'initialVolatility', l: 'Initial volatility (σ)', help: 'How much rating fluctuates over time (default 0.06).', step: 0.01 },
           { k: 'tau', l: 'Volatility constraint (τ)', help: 'Lower = ratings change more smoothly. Default 0.5.', step: 0.1 },
           { k: 'upsetThreshold', l: 'Upset threshold', help: 'Rating gap (in points) for a result to count as an upset (default 75).' },
           { k: 'upsetMultiplier', l: 'Upset multiplier', help: 'Magnitude scaling applied when an upset occurs (default 1.25).', step: 0.05 },
+          { k: 'displayK', l: 'Conservative display k', help: 'Displayed rating = rating − k × RD. Higher k punishes uncertainty more. Set to 0 to show raw rating (default 1).', step: 0.1 },
         ].map((row, i, arr) => (
           <div key={row.k} style={{ display: 'grid', gridTemplateColumns: '1fr 140px', alignItems: 'center', padding: '16px 4px', borderBottom: i < arr.length - 1 ? '1px solid var(--rule-soft)' : 'none' }}>
             <div>
