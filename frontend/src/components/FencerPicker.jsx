@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { fmtRating } from '../utils/formatters.js';
+import { fmtConservativeRating } from '../utils/formatters.js';
 
-export default function FencerPicker({ fencers, weapon, gender, selected, onSelect, placeholder }) {
+export default function FencerPicker({ fencers, weapon, gender, selected, onSelect, placeholder, settings }) {
+  const k = settings?.displayK ?? 1;
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -34,7 +35,7 @@ export default function FencerPicker({ fencers, weapon, gender, selected, onSele
               <div style={{ opacity: w.pool.bouts > 0 ? 1 : 0.4 }}>
                 <div className="fl-smallcaps" style={{ fontSize: '0.6rem', color: 'var(--ink)' }}>POOL</div>
                 <div className="fl-mono" style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--ink)' }}>
-                  {w.pool.bouts > 0 ? fmtRating(w.pool.rating) : '—'}
+                  {w.pool.bouts > 0 ? fmtConservativeRating(w.pool.rating, w.pool.rd, k) : '—'}
                 </div>
                 <div className="fl-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)' }}>
                   {w.pool.bouts > 0 ? `${w.pool.bouts}b` : ''}
@@ -43,7 +44,7 @@ export default function FencerPicker({ fencers, weapon, gender, selected, onSele
               <div style={{ opacity: w.de.bouts > 0 ? 1 : 0.4 }}>
                 <div className="fl-smallcaps" style={{ fontSize: '0.6rem', color: 'var(--ox)' }}>DE</div>
                 <div className="fl-mono" style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--ox)' }}>
-                  {w.de.bouts > 0 ? fmtRating(w.de.rating) : '—'}
+                  {w.de.bouts > 0 ? fmtConservativeRating(w.de.rating, w.de.rd, k) : '—'}
                 </div>
                 <div className="fl-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)' }}>
                   {w.de.bouts > 0 ? `${w.de.bouts}b` : ''}
@@ -69,12 +70,12 @@ export default function FencerPicker({ fencers, weapon, gender, selected, onSele
               {results.length === 0 && <div className="fl-italic" style={{ padding: 14, color: 'var(--ink-soft)' }}>No matches.</div>}
               {results.map(r => {
                 const rw = r.byWeapon[weapon];
-                const primaryRating = rw.pool.bouts >= rw.de.bouts ? rw.pool.rating : rw.de.rating;
+                const primaryStream = rw.pool.bouts >= rw.de.bouts ? rw.pool : rw.de;
                 return (
                   <div key={r.key} className="fl-link fl-row-hover" style={{ padding: '8px 12px', borderBottom: '1px solid var(--rule-soft)' }}
                     onClick={() => { onSelect(r.key); setQ(''); setOpen(false); }}>
                     <div className="fl-display" style={{ fontWeight: 600 }}>{r.name}</div>
-                    <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)' }}>{r.club} · {fmtRating(primaryRating)}</div>
+                    <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)' }}>{r.club} · {fmtConservativeRating(primaryStream.rating, primaryStream.rd, k)}</div>
                   </div>
                 );
               })}

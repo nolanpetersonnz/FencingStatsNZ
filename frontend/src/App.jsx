@@ -86,11 +86,11 @@ export default function App() {
         {!hasData && view !== 'import' && view !== 'settings' ? (
           <EmptyState onLoadDemo={handleLoadDemo} onGotoImport={() => setView('import')} />
         ) : view === 'leaderboard' ? (
-          <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} onSelectFencer={goFencer} />
+          <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
         ) : view === 'competitions' ? (
           <Competitions competitions={competitions} weapon={weapon} gender={gender} onSelectComp={goComp} />
         ) : view === 'h2h' ? (
-          <HeadToHead fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} onSelectFencer={goFencer} />
+          <HeadToHead fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
         ) : view === 'import' ? (
           <Import onImport={handleImport} onLoadDemo={handleLoadDemo} hasData={hasData} onClear={handleClear} rawBouts={rawBouts} />
         ) : view === 'settings' ? (
@@ -102,6 +102,7 @@ export default function App() {
             bouts={bouts}
             competitions={competitions}
             weapon={weapon}
+            settings={settings}
             onBack={() => setView('leaderboard')}
             onSelectFencer={goFencer}
             onSelectComp={goComp}

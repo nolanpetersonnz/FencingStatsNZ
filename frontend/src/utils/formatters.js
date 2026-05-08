@@ -1,5 +1,8 @@
 export const fmtRating = (r) => Math.round(r).toString();
 export const fmtRD = (rd) => `±${Math.round(rd)}`;
+export const conservativeRating = (rating, rd, k = 1) => rating - k * rd;
+export const fmtConservativeRating = (rating, rd, k = 1) =>
+  Math.round(conservativeRating(rating, rd, k)).toString();
 export const fmtDelta = (d) => {
   const v = Math.round(d);
   if (v === 0) return '·0';

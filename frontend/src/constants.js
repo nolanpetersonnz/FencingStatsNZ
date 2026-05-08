@@ -1,10 +1,11 @@
 export const DEFAULT_SETTINGS = {
   initialRating: 1500,
-  initialRD: 350,
+  initialRD: 200,
   initialVolatility: 0.06,
   tau: 0.5,
   upsetThreshold: 75,
   upsetMultiplier: 1.25,
+  displayK: 1,
 };
 
 export const CSV_HEADER = 'date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_b,de_round';

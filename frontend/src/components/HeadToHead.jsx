@@ -3,7 +3,7 @@ import { toG2, gFn } from '../engine/glicko2.js';
 import { fmtRating, fmtDateShort } from '../utils/formatters.js';
 import FencerPicker from './FencerPicker.jsx';
 
-export default function HeadToHead({ fencers, bouts, weapon: globalWeapon, gender, onSelectFencer }) {
+export default function HeadToHead({ fencers, bouts, weapon: globalWeapon, gender, settings, onSelectFencer }) {
   const [aKey, setAKey] = useState(null);
   const [bKey, setBKey] = useState(null);
   const [weapon, setWeapon] = useState(globalWeapon);
@@ -56,11 +56,11 @@ export default function HeadToHead({ fencers, bouts, weapon: globalWeapon, gende
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 1fr', gap: 0, alignItems: 'stretch', borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', marginBottom: 36 }}>
-        <FencerPicker fencers={fencers} weapon={weapon} gender={gender} selected={aKey} onSelect={setAKey} placeholder="Select first fencer…" />
+        <FencerPicker fencers={fencers} weapon={weapon} gender={gender} settings={settings} selected={aKey} onSelect={setAKey} placeholder="Select first fencer…" />
         <div style={{ borderLeft: '1px solid var(--rule-soft)', borderRight: '1px solid var(--rule-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--paper-deep)' }}>
           <span className="fl-display" style={{ fontSize: '1.6rem', fontStyle: 'italic', color: 'var(--ox)' }}>vs.</span>
         </div>
-        <FencerPicker fencers={fencers} weapon={weapon} gender={gender} selected={bKey} onSelect={setBKey} placeholder="Select second fencer…" />
+        <FencerPicker fencers={fencers} weapon={weapon} gender={gender} settings={settings} selected={bKey} onSelect={setBKey} placeholder="Select second fencer…" />
       </div>
 
       {a && b && (
