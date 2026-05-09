@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.5] - 2026-05-09
+### Fixed
+- Competitions tab column headers (Date, Field size, Strength) are now part of an aligned column-header row instead of a floating widget — "Field size" no longer reads as the label for the tier letter column
+- Competition list now sorts chronologically when CSVs use `D/M/YYYY` or `M/D/YYYY` instead of ISO — `processBouts` detects the date format from the dataset and normalizes all dates to `YYYY-MM-DD` before sorting or formatting
+- Same-day competitions now have a deterministic order (name tiebreaker) instead of reshuffling on each render
+- Added column gap between the Top and Strength headers so they no longer visually run together
+### Changed
+- Leaderboard default sort changed from Pool rating to DE rating
+- Competition sort headers are now reversible — click an active header to flip direction (newest↔oldest, strongest↔weakest, largest↔smallest); arrow indicator updates accordingly
+
 ## [0.1.4] - 2026-05-09
 ### Added
 - `Conservative display k` setting (default 1) — controls how much rating uncertainty is subtracted from the displayed number
@@ -12,13 +22,6 @@
 ### Notes
 - Per-bout before/after deltas (FencerProfile bout rows, CompetitionDetail) and competition median/top remain raw — those snapshots don't carry an RD alongside the rating
 - Existing users' saved settings persist; click *Defaults* in the Settings panel to pick up the new `initialRD` and `displayK`
-
-## [0.1.0] — 2026-04-29
-
-Initial release.
-- Built the prototype of the app using ClaudeCode
--  Made minor design decisions such as elo system and styling.
-- Ran into issues pulling the CSV results from Fencingtimelive so looking for a workaround.
 
 ## [0.1.3] - 2026-05-04
 ### Fixed
@@ -38,3 +41,10 @@ Initial release.
 - CSV import from FENZ Database (file upload or paste) and fictional demo dataset
 - Configurable rating parameters (initial rating/RD/volatility, tau, upset threshold and multiplier)
 - Python ingest script (`ingest/fenz_ingest.py`) for pulling bout data from the FeNZ public API
+
+## [0.1.0] — 2026-04-29
+
+Initial release.
+- Built the prototype of the app using ClaudeCode
+-  Made minor design decisions such as elo system and styling.
+- Ran into issues pulling the CSV results from Fencingtimelive so looking for a workaround.

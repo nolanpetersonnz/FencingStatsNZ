@@ -8,14 +8,37 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
     && (!gender || c.genders?.has(gender))
   );
   const [sort, setSort] = useState('date');
+  const [dir, setDir] = useState('desc');
+
+  const toggleSort = (key) => {
+    if (sort === key) {
+      setDir(dir === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSort(key);
+      setDir('desc');
+    }
+  };
 
   const sorted = useMemo(() => {
+    const sign = dir === 'asc' ? -1 : 1;
     return [...filtered].sort((a, b) => {
-      if (sort === 'strength') return b.median - a.median;
-      if (sort === 'size') return b.size - a.size;
-      return b.date.localeCompare(a.date);
+      if (sort === 'strength') {
+        const d = (b.median - a.median) * sign;
+        if (d !== 0) return d;
+        return b.date.localeCompare(a.date) || a.name.localeCompare(b.name);
+      }
+      if (sort === 'size') {
+        const d = (b.size - a.size) * sign;
+        if (d !== 0) return d;
+        return b.date.localeCompare(a.date) || a.name.localeCompare(b.name);
+      }
+      const d = b.date.localeCompare(a.date) * sign;
+      if (d !== 0) return d;
+      return a.name.localeCompare(b.name);
     });
-  }, [filtered, sort]);
+  }, [filtered, sort, dir]);
+
+  const arrow = dir === 'desc' ? '↓' : '↑';
 
   const genderLabel = gender === 'W' ? 'Womens' : 'Mens';
   const weaponLabel = weapon === 'epee' ? 'Épée' : weapon.charAt(0).toUpperCase() + weapon.slice(1);
@@ -26,23 +49,33 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
     </div>;
   }
 
+  const gridCols = '110px 1fr 90px 110px 110px 80px';
+
   return (
     <div className="fl-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <div className="fl-smallcaps">Field strength · {genderLabel} {weaponLabel}</div>
-          <h2 className="fl-display" style={{ fontSize: '2rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
-            {filtered.length} competitions on record
-          </h2>
-        </div>
-        <div className="fl-smallcaps" style={{ display: 'flex', gap: 18 }}>
-          <span className="fl-link" style={{ color: sort === 'date' ? 'var(--ink)' : 'var(--ink-soft)' }} onClick={() => setSort('date')}>Date</span>
-          <span className="fl-link" style={{ color: sort === 'strength' ? 'var(--ink)' : 'var(--ink-soft)' }} onClick={() => setSort('strength')}>Strength</span>
-          <span className="fl-link" style={{ color: sort === 'size' ? 'var(--ink)' : 'var(--ink-soft)' }} onClick={() => setSort('size')}>Field size</span>
-        </div>
+      <div style={{ marginBottom: 20 }}>
+        <div className="fl-smallcaps">Field strength · {genderLabel} {weaponLabel}</div>
+        <h2 className="fl-display" style={{ fontSize: '2rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
+          {filtered.length} competitions on record
+        </h2>
       </div>
 
-      <div style={{ borderTop: '1px solid var(--ink)' }}>
+      <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: gridCols, columnGap: 20, alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--rule)' }} className="fl-smallcaps">
+          <div className="fl-link" onClick={() => toggleSort('date')} style={{ color: sort === 'date' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+            Date {sort === 'date' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
+          </div>
+          <div>Competition</div>
+          <div className="fl-link fl-hide-mobile" onClick={() => toggleSort('size')} style={{ textAlign: 'right', color: sort === 'size' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+            Field size {sort === 'size' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
+          </div>
+          <div className="fl-hide-mobile" style={{ textAlign: 'right' }}>Median</div>
+          <div className="fl-hide-mobile" style={{ textAlign: 'right' }}>Top</div>
+          <div className="fl-link" onClick={() => toggleSort('strength')} style={{ textAlign: 'right', color: sort === 'strength' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+            Strength {sort === 'strength' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
+          </div>
+        </div>
+
         {sorted.map(c => {
           const tier = strengthTier(c.median);
           return (
@@ -50,7 +83,7 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
               key={c.id}
               onClick={() => onSelectComp(c.id)}
               className="fl-link fl-row-hover"
-              style={{ display: 'grid', gridTemplateColumns: '110px 1fr 90px 110px 110px 80px', alignItems: 'center', padding: '18px 16px', borderBottom: '1px solid var(--rule-soft)' }}
+              style={{ display: 'grid', gridTemplateColumns: gridCols, columnGap: 20, alignItems: 'center', padding: '18px 16px', borderBottom: '1px solid var(--rule-soft)' }}
             >
               <div className="fl-mono" style={{ fontSize: '0.78rem', color: 'var(--ink-soft)' }}>{fmtDate(c.date)}</div>
               <div>

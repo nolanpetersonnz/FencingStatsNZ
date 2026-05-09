@@ -4,7 +4,7 @@ import { fmtRD, fmtConservativeRating, conservativeRating } from '../utils/forma
 export default function Leaderboard({ fencers, bouts, weapon, gender, settings, onSelectFencer }) {
   const [minBouts, setMinBouts] = useState(1);
   const [club, setClub] = useState('all');
-  const [sort, setSort] = useState('pool');
+  const [sort, setSort] = useState('de');
   const k = settings?.displayK ?? 1;
 
   const ranked = useMemo(() => {

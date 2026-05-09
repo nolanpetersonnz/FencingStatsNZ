@@ -9,6 +9,47 @@ export const normWeapon = (w) => {
 };
 export const normBoutType = (t) => ((t || '').toLowerCase().trim().startsWith('d') ? 'de' : 'pool');
 
+// Detect whether dates in a dataset are day-first (D/M/Y, NZ) or month-first (M/D/Y, US).
+// Look for any unambiguous example (a part > 12). If both styles are present we default
+// to day-first, matching the Python ingest script.
+function detectDateFormat(dates) {
+  let hasMdy = false, hasDmy = false;
+  for (const d of dates) {
+    if (!d) continue;
+    if (/^\d{4}-\d{1,2}-\d{1,2}/.test(d)) continue;
+    const parts = d.split(/[\/.\-]/);
+    if (parts.length !== 3) continue;
+    const a = parseInt(parts[0], 10), b = parseInt(parts[1], 10);
+    if (Number.isFinite(a) && a > 12) hasDmy = true;
+    if (Number.isFinite(b) && b > 12) hasMdy = true;
+  }
+  if (hasMdy && !hasDmy) return 'mdy';
+  return 'dmy';
+}
+
+export function normDate(s, fmt = 'dmy') {
+  if (!s) return '';
+  const str = String(s).trim();
+  if (/^\d{4}-\d{1,2}-\d{1,2}/.test(str)) {
+    const [y, m, d] = str.slice(0, 10).split('-');
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+  const parts = str.split(/[\/.\-]/);
+  if (parts.length !== 3) return str;
+  let year, month, day;
+  if (parts[2].length === 4) {
+    year = parts[2];
+    if (fmt === 'mdy') { month = parts[0]; day = parts[1]; }
+    else { day = parts[0]; month = parts[1]; }
+  } else if (parts[0].length === 4) {
+    year = parts[0]; month = parts[1]; day = parts[2];
+  } else {
+    return str;
+  }
+  if (!/^\d+$/.test(month) || !/^\d+$/.test(day)) return str;
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
 export function parseCSVLine(line) {
   const out = [];
   let cur = '', q = false;
@@ -35,6 +76,9 @@ export function parseCSV(text) {
 }
 
 export function processBouts(rawBouts, settings) {
+  const dateFmt = detectDateFormat(rawBouts.map(b => b.date));
+  rawBouts = rawBouts.map(b => b.date ? { ...b, date: normDate(b.date, dateFmt) } : b);
+
   const fencers = {};
   const bouts = [];
   const compMap = {};
