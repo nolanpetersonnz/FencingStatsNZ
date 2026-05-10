@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceL
 import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 
-export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, weapon: globalWeapon, settings }) {
+export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings }) {
   const f = fencers[fencerKey];
   const [weapon, setWeapon] = useState(() => {
     if (f && f.byWeapon[globalWeapon]) return globalWeapon;
@@ -51,7 +51,11 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
       </div>
 
       <div style={{ marginBottom: 32 }}>
-        <div className="fl-smallcaps">{f.club || 'Unaffiliated'}</div>
+        <div className="fl-smallcaps">
+          {f.club ? (
+            <span className="fl-link" onClick={() => onSelectClub?.(f.club)}>{f.club}</span>
+          ) : 'Unaffiliated'}
+        </div>
         <h2 className="fl-display" style={{ fontSize: 'clamp(2.4rem, 5vw, 3.6rem)', fontWeight: 700, letterSpacing: '-0.025em', margin: '6px 0 0', lineHeight: 1 }}>
           {f.name}
         </h2>

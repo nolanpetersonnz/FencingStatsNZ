@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRD, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 
-export default function Leaderboard({ fencers, bouts, weapon, gender, settings, onSelectFencer }) {
+export default function Leaderboard({ fencers, bouts, weapon, gender, settings, onSelectFencer, onSelectClub }) {
   const [minBouts, setMinBouts] = useState(1);
   const [club, setClub] = useState('all');
   const [sort, setSort] = useState('de');
@@ -109,7 +109,16 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, settings, 
             <div>
               <div className="fl-display" style={{ fontSize: '1.15rem', fontWeight: 600 }}>{f.name}</div>
             </div>
-            <div className="fl-italic fl-hide-mobile" style={{ color: 'var(--ink-soft)', fontSize: '0.92rem' }}>{f.club}</div>
+            <div className="fl-italic fl-hide-mobile" style={{ color: 'var(--ink-soft)', fontSize: '0.92rem' }}>
+              {f.club ? (
+                <span
+                  className="fl-link"
+                  onClick={(e) => { e.stopPropagation(); onSelectClub?.(f.club); }}
+                >
+                  {f.club}
+                </span>
+              ) : ''}
+            </div>
             <div style={{ textAlign: 'right', opacity: pool.bouts > 0 ? 1 : 0.35 }}>
               <div className="fl-mono" style={{ fontSize: sort === 'pool' ? '1.2rem' : '1.05rem', fontWeight: sort === 'pool' ? 600 : 500 }}>
                 {pool.bouts > 0 ? fmtConservativeRating(pool.rating, pool.rd, k) : '—'}

@@ -67,6 +67,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
           <nav style={{ display: 'flex', alignItems: 'center' }} className="fl-smallcaps">
             <div className={`fl-tab ${view === 'leaderboard' ? 'active' : ''}`} onClick={() => setView('leaderboard')}>Ledger</div>
             <div className={`fl-tab ${view === 'competitions' ? 'active' : ''}`} onClick={() => setView('competitions')}>Competitions</div>
+            <div className={`fl-tab ${view === 'clubs' ? 'active' : ''}`} onClick={() => setView('clubs')}>Clubs</div>
             <div className={`fl-tab ${view === 'h2h' ? 'active' : ''}`} onClick={() => setView('h2h')}>Head-to-Head</div>
             <div className={`fl-tab ${view === 'import' ? 'active' : ''}`} onClick={() => setView('import')}>Import</div>
             <div className={`fl-tab ${view === 'settings' ? 'active' : ''}`} onClick={() => setView('settings')}><SettingsIcon size={13} style={{ display: 'inline', verticalAlign: '-2px' }} /></div>

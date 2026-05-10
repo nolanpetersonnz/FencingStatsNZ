@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtDelta, fmtDate } from '../utils/formatters.js';
 import { strengthTier } from '../data/pipeline.js';
 
-export default function CompetitionDetail({ compId, competitions, fencers, bouts, onBack, onSelectFencer }) {
+export default function CompetitionDetail({ compId, competitions, fencers, bouts, onBack, onSelectFencer, onSelectClub }) {
   const c = competitions.find(x => x.id === compId);
 
   const fencerStats = useMemo(() => {
@@ -82,7 +82,16 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
             <div className="fl-mono" style={{ color: 'var(--ink-faint)', fontSize: '0.95rem' }}>{(i + 1).toString().padStart(2, '0')}</div>
             <div>
               <div className="fl-display" style={{ fontWeight: 600, fontSize: '1.05rem' }}>{s.f?.name || s.key}</div>
-              <div className="fl-italic fl-hide-mobile" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)' }}>{s.f?.club || ''}</div>
+              <div className="fl-italic fl-hide-mobile" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)' }}>
+                {s.f?.club ? (
+                  <span
+                    className="fl-link"
+                    onClick={(e) => { e.stopPropagation(); onSelectClub?.(s.f.club); }}
+                  >
+                    {s.f.club}
+                  </span>
+                ) : ''}
+              </div>
             </div>
             <div className="fl-mono fl-hide-mobile" style={{ fontSize: '0.85rem', textAlign: 'center' }}>
               <span style={{ color: 'var(--green)' }}>{s.wins}</span>
