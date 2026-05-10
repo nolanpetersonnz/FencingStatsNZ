@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7] - 2026-05-10
+### Added
+- Canonical dataset published with the deployment — `frontend/scripts/copy-data.mjs` copies `ingest/*.csv` into `frontend/public/data/` (and writes a `manifest.json`) before every `npm run dev` / `npm run build`; on first load the app fetches the manifest and uses those CSVs as the dataset, so visitors always see the latest pushed data instead of an empty `localStorage`
+- `parseCSV` is now exported from `data/pipeline.js` so the load path can reuse it
+### Changed
+- When the canonical dataset is served, `rawBouts` is no longer persisted to `localStorage` (only `settings` is) — Import-tab additions become session-only on the deployed site, ensuring everyone sees the same canonical data
+- Adding new bouts now follows: run the ingest script → commit `ingest/*.csv` → push; Vercel rebuilds and the new dataset is live
+
 ## [0.1.6] - 2026-05-10
 ### Added
 - Clubs ledger (new top-level tab) — clubs ranked by DE median across all weapons with the active gender filter; sortable by Members or DE top; clubs with fewer than 5 fencers are demoted to the bottom of DE rankings and tagged "under 5 fencers"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import STYLE from './styles.js';
 import { DEFAULT_SETTINGS } from './constants.js';
-import { processBouts, makeDemoBouts } from './data/pipeline.js';
+import { processBouts, makeDemoBouts, parseCSV } from './data/pipeline.js';
 import { loadFromStorage, saveToStorage, clearStorage } from './data/storage.js';
 import Header from './components/Header.jsx';
 import EmptyState from './components/EmptyState.jsx';
@@ -23,16 +23,42 @@ export default function App() {
   const [selectedComp, setSelectedComp] = useState(null);
   const [selectedClub, setSelectedClub] = useState(null);
   const [history, setHistory] = useState([]);
+  const [serverSourced, setServerSourced] = useState(false);
   const [weapon, setWeapon] = useState('epee');
   const [gender, setGender] = useState('M');
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const data = await loadFromStorage();
-      if (data) {
-        if (data.rawBouts) setRawBouts(data.rawBouts);
-        if (data.settings) setSettings({ ...DEFAULT_SETTINGS, ...data.settings });
+      // Try the canonical server dataset first (public/data/manifest.json
+      // produced by scripts/copy-data.mjs). When present, it overrides any
+      // localStorage rawBouts so visitors always see the latest pushed data.
+      let serverBouts = null;
+      try {
+        const manifestRes = await fetch('/data/manifest.json', { cache: 'no-cache' });
+        if (manifestRes.ok) {
+          const paths = await manifestRes.json();
+          if (Array.isArray(paths) && paths.length > 0) {
+            const collected = [];
+            for (const p of paths) {
+              const res = await fetch('/' + p, { cache: 'no-cache' });
+              if (res.ok) collected.push(...parseCSV(await res.text()));
+            }
+            if (collected.length > 0) serverBouts = collected;
+          }
+        }
+      } catch {
+        // No manifest, offline, etc. — fall through to localStorage.
+      }
+
+      const stored = await loadFromStorage();
+      if (stored?.settings) setSettings({ ...DEFAULT_SETTINGS, ...stored.settings });
+
+      if (serverBouts) {
+        setRawBouts(serverBouts);
+        setServerSourced(true);
+      } else if (stored?.rawBouts) {
+        setRawBouts(stored.rawBouts);
       }
       setLoaded(true);
     })();
@@ -40,8 +66,12 @@ export default function App() {
 
   useEffect(() => {
     if (!loaded) return;
-    saveToStorage({ rawBouts, settings });
-  }, [rawBouts, settings, loaded]);
+    // When data came from the server, persist only settings — rawBouts is
+    // re-fetched on every load, so writing it to localStorage just wastes
+    // quota and risks pinning stale data.
+    if (serverSourced) saveToStorage({ settings });
+    else saveToStorage({ rawBouts, settings });
+  }, [rawBouts, settings, loaded, serverSourced]);
 
   const { fencers, bouts, competitions } = useMemo(
     () => processBouts(rawBouts, settings),
