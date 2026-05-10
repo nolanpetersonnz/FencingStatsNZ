@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.6] - 2026-05-10
+### Added
+- Clubs ledger (new top-level tab) — clubs ranked by DE median across all weapons with the active gender filter; sortable by Members or DE top; clubs with fewer than 5 fencers are demoted to the bottom of DE rankings and tagged "under 5 fencers"
+- Club detail page — member count, M/W split, by-weapon DE/pool breakdowns, by-gender × weapon breakdowns, and a member list sorted by best conservative DE rating
+- Club-name canonicalization in `data/pipeline.js` (`CLUB_ALIASES` map + `canonicalizeClub` helper) — merges ~25 spelling variants (e.g. "Auckland Swords" / "Auckland Swords Club", "Mt Albert Grammar School" / "Mount Albert Grammar School", "VUW" / "Victoria University of Wellington Swords Club") so each club appears once across the Clubs ledger, Leaderboard club filter, and FencerProfile
+- Click-through from club names — Leaderboard rows, FencerProfile header, and CompetitionDetail performance rows now navigate to the club detail page when a club name is clicked
+### Changed
+- Detail-page Back buttons restore the originating view via a navigation stack — clicking a club from the Leaderboard returns to the Leaderboard, clicking a fencer from a competition returns to that competition, etc.; top-tab clicks clear the stack so tabs remain fresh starts
+
 ## [0.1.5] - 2026-05-09
 ### Fixed
 - Competitions tab column headers (Date, Field size, Strength) are now part of an aligned column-header row instead of a floating widget — "Field size" no longer reads as the label for the tier letter column

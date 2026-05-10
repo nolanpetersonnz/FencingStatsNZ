@@ -1,6 +1,86 @@
 import { updateRating } from '../engine/glicko2.js';
 
 export const nameKey = (n) => (n || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+// Canonical club names. Keys are lowercased + whitespace-collapsed variants;
+// values are the display name we want everywhere.
+const CLUB_ALIASES = {
+  'auckland swords club': 'Auckland Swords',
+  'claymore swords club': 'Claymore Swords',
+  'jyd swords club': 'JYD Swords',
+  'piwakawaka fencing club': 'Piwakawaka Fencing',
+  'waikato swords club': 'Waikato Swords',
+  'hutt valley swords club': 'Hutt Valley Swords',
+  'hutt valley fencing club': 'Hutt Valley Swords',
+  'the sabre club': 'Sabre Club',
+  'mt albert grammar school': 'Mount Albert Grammar School',
+  'mount albert grammar school epee club': 'Mount Albert Grammar School',
+  'auckland grammar school fencing': 'Auckland Grammar School',
+  'agfc': 'Auckland Grammar School',
+  'ags': 'Auckland Grammar School',
+  'fahs sabres fencing club': 'FAHS Sabre Fencing Club',
+  'vuw swords club': 'Victoria University of Wellington Swords Club',
+  'epsom girls grammar school fencing': 'Epsom Girls Grammar',
+  'epsom girlsgrammar': 'Epsom Girls Grammar',
+  // Wellington Fencing Club
+  'wel fencing': 'Wellington Fencing Club',
+  'wel fencing club': 'Wellington Fencing Club',
+  'well fencing club': 'Wellington Fencing Club',
+  'wfc': 'Wellington Fencing Club',
+  // NZ Academy of Fencing
+  'nz academy of fencing': 'New Zealand Academy of Fencing',
+  // South Wellington Fencing Club
+  'wellington south': 'South Wellington Fencing Club',
+  'wellington south fencing club': 'South Wellington Fencing Club',
+  // JF Fencing School
+  'jf fencing': 'JF Fencing School',
+  'j f fencing school': 'JF Fencing School',
+  // Pulse Fencing
+  'pulse fencing club': 'Pulse Fencing',
+  // Typo / formatting normalisations
+  'hawkes bay blades': "Hawke's Bay Blades",
+  'fencing in nelson tasman': 'Fencing in Nelson-Tasman',
+  'invictus fencing club': 'Invictus Fencing',
+  'university of canterbury fencing club': 'University of Canterbury Fencing Club',
+  // University of Canterbury Fencing Club
+  'canterbury uni': 'University of Canterbury Fencing Club',
+  // Cashmere High School Fencing Club
+  'cashmere high': 'Cashmere High School Fencing Club',
+  // Macleans College
+  'macleans college fencing club': 'Macleans College',
+  // Rangitoto College
+  'rangitoto college fencing': 'Rangitoto College',
+  'rangitoto college fencing club': 'Rangitoto College',
+  // St Kentigern College
+  'skc': 'St Kentigern College',
+  'saint kentigern college fencing club': 'St Kentigern College',
+  // United
+  'united fencing club': 'United',
+  // Diocesan School
+  'diocesan fencing club': 'Diocesan School',
+  'diocesan school for girls': 'Diocesan School',
+  // Victoria University of Wellington Swords Club
+  'vuw': 'Victoria University of Wellington Swords Club',
+  'victoria university': 'Victoria University of Wellington Swords Club',
+  // Garbage / data-entry errors — strip to empty so they don't appear as clubs
+  'alexander lee': '',
+  'jacob takuira-mita': '',
+  'larry lin': '',
+  'peter kell': '',
+  'tim (mutian) wang': '',
+  'other': '',
+  '"': '',
+  'university': '',
+};
+
+export function canonicalizeClub(raw) {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return '';
+  const key = trimmed.toLowerCase().replace(/\s+/g, ' ');
+  // `in` check (not ||) so empty-string values map garbage entries to no-club.
+  return key in CLUB_ALIASES ? CLUB_ALIASES[key] : trimmed;
+}
+
 export const normWeapon = (w) => {
   const x = (w || '').toLowerCase().trim();
   if (x.startsWith('f')) return 'foil';
@@ -102,7 +182,8 @@ export function processBouts(rawBouts, settings) {
   const ensure = (name, club, weapon, gender, competition) => {
     const k = nameKey(name);
     if (!k) return null;
-    if (!fencers[k]) fencers[k] = { key: k, name: name.trim(), club: (club || '').trim(), byWeapon: {}, genders: new Set() };
+    const canonClub = canonicalizeClub(club);
+    if (!fencers[k]) fencers[k] = { key: k, name: name.trim(), club: canonClub, byWeapon: {}, genders: new Set() };
     if (!fencers[k].byWeapon[weapon]) {
       const fresh = () => ({
         rating: settings.initialRating, rd: settings.initialRD, volatility: settings.initialVolatility,
@@ -110,7 +191,7 @@ export function processBouts(rawBouts, settings) {
       });
       fencers[k].byWeapon[weapon] = { pool: fresh(), de: fresh() };
     }
-    if (club && !fencers[k].club) fencers[k].club = club.trim();
+    if (canonClub && !fencers[k].club) fencers[k].club = canonClub;
     // Only assign gender once — lock fencer to first gender found so a name
     // collision or data error can't place them in both categories.
     if (fencers[k].genders.size === 0) {

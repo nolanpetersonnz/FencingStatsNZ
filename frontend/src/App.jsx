@@ -9,6 +9,8 @@ import Leaderboard from './components/Leaderboard.jsx';
 import FencerProfile from './components/FencerProfile.jsx';
 import Competitions from './components/Competitions.jsx';
 import CompetitionDetail from './components/CompetitionDetail.jsx';
+import Clubs from './components/Clubs.jsx';
+import ClubDetail from './components/ClubDetail.jsx';
 import HeadToHead from './components/HeadToHead.jsx';
 import Import from './components/Import.jsx';
 import Settings from './components/Settings.jsx';
@@ -19,6 +21,8 @@ export default function App() {
   const [view, setView] = useState('leaderboard');
   const [selectedFencer, setSelectedFencer] = useState(null);
   const [selectedComp, setSelectedComp] = useState(null);
+  const [selectedClub, setSelectedClub] = useState(null);
+  const [history, setHistory] = useState([]);
   const [weapon, setWeapon] = useState('epee');
   const [gender, setGender] = useState('M');
   const [loaded, setLoaded] = useState(false);
@@ -45,8 +49,30 @@ export default function App() {
   );
   const hasData = rawBouts.length > 0;
 
-  const goFencer = (k) => { setSelectedFencer(k); setSelectedComp(null); setView('fencer'); };
-  const goComp = (id) => { setSelectedComp(id); setSelectedFencer(null); setView('comp'); };
+  const pushHistory = () => setHistory(h => [...h, { view, selectedFencer, selectedComp, selectedClub }]);
+  const goFencer = (k) => { pushHistory(); setSelectedFencer(k); setSelectedComp(null); setSelectedClub(null); setView('fencer'); };
+  const goComp = (id) => { pushHistory(); setSelectedComp(id); setSelectedFencer(null); setSelectedClub(null); setView('comp'); };
+  const goClub = (name) => { pushHistory(); setSelectedClub(name); setSelectedFencer(null); setSelectedComp(null); setView('club'); };
+  const goBack = () => {
+    if (history.length === 0) {
+      setSelectedFencer(null); setSelectedComp(null); setSelectedClub(null);
+      if (view === 'fencer') setView('leaderboard');
+      else if (view === 'comp') setView('competitions');
+      else if (view === 'club') setView('clubs');
+      return;
+    }
+    const prev = history[history.length - 1];
+    setView(prev.view);
+    setSelectedFencer(prev.selectedFencer);
+    setSelectedComp(prev.selectedComp);
+    setSelectedClub(prev.selectedClub);
+    setHistory(history.slice(0, -1));
+  };
+  const goTab = (v) => {
+    setView(v);
+    setSelectedFencer(null); setSelectedComp(null); setSelectedClub(null);
+    setHistory([]);
+  };
 
   const handleImport = (rows) => {
     setRawBouts(prev => [...prev, ...rows]);
@@ -72,7 +98,7 @@ export default function App() {
       <style>{STYLE}</style>
       <Header
         view={view}
-        setView={(v) => { setView(v); setSelectedFencer(null); setSelectedComp(null); }}
+        setView={goTab}
         weapon={weapon}
         setWeapon={setWeapon}
         gender={gender}
@@ -86,9 +112,11 @@ export default function App() {
         {!hasData && view !== 'import' && view !== 'settings' ? (
           <EmptyState onLoadDemo={handleLoadDemo} onGotoImport={() => setView('import')} />
         ) : view === 'leaderboard' ? (
-          <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
+          <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} onSelectClub={goClub} />
         ) : view === 'competitions' ? (
           <Competitions competitions={competitions} weapon={weapon} gender={gender} onSelectComp={goComp} />
+        ) : view === 'clubs' ? (
+          <Clubs fencers={fencers} gender={gender} onSelectClub={goClub} />
         ) : view === 'h2h' ? (
           <HeadToHead fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
         ) : view === 'import' ? (
@@ -103,9 +131,10 @@ export default function App() {
             competitions={competitions}
             weapon={weapon}
             settings={settings}
-            onBack={() => setView('leaderboard')}
+            onBack={goBack}
             onSelectFencer={goFencer}
             onSelectComp={goComp}
+            onSelectClub={goClub}
           />
         ) : view === 'comp' && selectedComp ? (
           <CompetitionDetail
@@ -113,7 +142,16 @@ export default function App() {
             competitions={competitions}
             fencers={fencers}
             bouts={bouts}
-            onBack={() => setView('competitions')}
+            onBack={goBack}
+            onSelectFencer={goFencer}
+            onSelectClub={goClub}
+          />
+        ) : view === 'club' && selectedClub ? (
+          <ClubDetail
+            clubName={selectedClub}
+            fencers={fencers}
+            settings={settings}
+            onBack={goBack}
             onSelectFencer={goFencer}
           />
         ) : null}
