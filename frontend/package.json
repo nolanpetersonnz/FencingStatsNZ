@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "copy:data": "node scripts/copy-data.mjs",
+    "dev": "npm run copy:data && vite",
+    "build": "npm run copy:data && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
