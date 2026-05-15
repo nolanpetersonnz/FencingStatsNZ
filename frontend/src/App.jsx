@@ -26,6 +26,7 @@ export default function App() {
   const [serverSourced, setServerSourced] = useState(false);
   const [weapon, setWeapon] = useState('epee');
   const [gender, setGender] = useState('M');
+  const [ageCategory, setAgeCategory] = useState('all');
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -133,6 +134,8 @@ export default function App() {
         setWeapon={setWeapon}
         gender={gender}
         setGender={setGender}
+        ageCategory={ageCategory}
+        setAgeCategory={setAgeCategory}
         fencers={fencers}
         onSelectFencer={goFencer}
         hasData={hasData}
@@ -142,7 +145,7 @@ export default function App() {
         {!hasData && view !== 'import' && view !== 'settings' ? (
           <EmptyState onLoadDemo={handleLoadDemo} onGotoImport={() => setView('import')} />
         ) : view === 'leaderboard' ? (
-          <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} onSelectClub={goClub} />
+          <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} ageCategory={ageCategory} settings={settings} onSelectFencer={goFencer} onSelectClub={goClub} />
         ) : view === 'competitions' ? (
           <Competitions competitions={competitions} weapon={weapon} gender={gender} onSelectComp={goComp} />
         ) : view === 'clubs' ? (
