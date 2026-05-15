@@ -794,13 +794,16 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-03-03,New Zealand U20 Championship 2024 - Mens,foil,de,Liam Blackford,Pulse Fencing Club,Bryan Hua,JF Fencing School,15,8,T32,Mens,12122,11903
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Joel Wilson,The Fencing Institute,Nolan Peterson,South Wellington Fencing Club,12,13,Final,Mens,11611,11288
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Joel Ball-La Hood,Wellington Swords Club,Joel Wilson,The Fencing Institute,12,13,SF,Mens,11713,11611
+2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Nolan Peterson,South Wellington Fencing Club,Ciaran Meredith,Tuatahi Fencing Club,13,13,SF,Mens,11288,11676
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Joel Ball-La Hood,Wellington Swords Club,Daniel Gourley,The Fencing Institute,15,10,QF,Mens,11713,11957
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Cooper Gouge,South Wellington Fencing Club,Joel Wilson,The Fencing Institute,8,9,QF,Mens,10889,11611
+2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Jack Hansen,Tuatahi Fencing Club,Sidney Tickle,Wellington Swords Club,15,14,QF,Mens,11962,11834
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Nolan Peterson,South Wellington Fencing Club,Ciaran Meredith,Tuatahi Fencing Club,15,15,QF,Mens,11288,11676
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Joel Ball-La Hood,Wellington Swords Club,Aphichat Khothisen,Tuatahi Fencing Club,15,6,T16,Mens,11713,12351
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Daniel Gourley,The Fencing Institute,Connor Llewellyn,Tuatahi Fencing Club,15,12,T16,Mens,11957,12092
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Cooper Gouge,South Wellington Fencing Club,James Price,Auckland Swords Club,15,4,T16,Mens,10889,11705
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Thibault Schneider,Havelock North High School,Joel Wilson,The Fencing Institute,8,15,T16,Mens,12344,11611
+2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Jack Hansen,Tuatahi Fencing Club,Elija Yarr,Mount Albert Grammar School,15,10,T16,Mens,11962,12089
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Sidney Tickle,Wellington Swords Club,Travis West-Hill,Tuatahi Fencing Club,15,10,T16,Mens,11834,11678
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Nolan Peterson,South Wellington Fencing Club,Elliot Hayes,University Of Canterbury Fencing Club,15,4,T16,Mens,11288,12381
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,James Macdonald,Tuatahi Fencing Club,Ciaran Meredith,Tuatahi Fencing Club,4,15,T16,Mens,12043,11676
@@ -811,6 +814,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,James Mccracken,Salle Jean Louis,James Price,Auckland Swords Club,6,15,T32,Mens,12206,11705
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Shuyang Cao,Auckland Swords Club,Thibault Schneider,Havelock North High School,14,15,T32,Mens,12376,12344
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Zhiyuan Aiden Qin,Auckland Swords Club,Joel Wilson,The Fencing Institute,5,15,T32,Mens,12375,11611
+2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Jack Hansen,Tuatahi Fencing Club,Siyang Li,Auckland Grammar School Fencing,15,5,T32,Mens,11962,12205
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Elija Yarr,Mount Albert Grammar School,Matthew Lee,JYD Swords Club,15,12,T32,Mens,12089,12080
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Sidney Tickle,Wellington Swords Club,George Symmans,South Wellington Fencing Club,15,7,T32,Mens,11834,12278
 2024-03-03,New Zealand U20 Championship 2024 - Mens,epee,de,Arthur Thompson,Tuatahi Fencing Club,Travis West-Hill,Tuatahi Fencing Club,8,15,T32,Mens,12198,11678
@@ -1567,7 +1571,9 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-03-24,Keith Mann Open 2024 - Mens,sabre,pool,Luke Boyd,United Fencing Club,Grace Roberts,,4,5,,Mens,12349,
 2024-03-24,Keith Mann Open 2024 - Mens,foil,de,Joel Wilson,The Fencing Institute,Tim (Mutian) Wang,The Fencing Institute,15,9,Final,Mens,11611,11610
 2024-03-24,Keith Mann Open 2024 - Mens,foil,de,Joel Wilson,The Fencing Institute,Yathi Kulathunga,The Fencing Institute,15,1,SF,Mens,11611,12150
+2024-03-24,Keith Mann Open 2024 - Mens,foil,de,Tim (Mutian) Wang,The Fencing Institute,Ruairi Boyd,The Fencing Institute,15,11,SF,Mens,11610,11863
 2024-03-24,Keith Mann Open 2024 - Mens,foil,de,Max Causer,Canterbury Uni,Yathi Kulathunga,The Fencing Institute,8,15,QF,Mens,11856,12150
+2024-03-24,Keith Mann Open 2024 - Mens,foil,de,Ruairi Boyd,The Fencing Institute,Mikah Machado,Claymore Swords,15,5,QF,Mens,11863,12301
 2024-03-24,Keith Mann Open 2024 - Mens,foil,de,Flynn Mcbride,Cashmere High,Tim (Mutian) Wang,The Fencing Institute,0,15,QF,Mens,12364,11610
 2024-03-24,Keith Mann Open 2024 - Mens,epee,de,Joel Wilson,The Fencing Institute,Cooper Gouge,South Wellington Fencing Club,10,15,Final,Mens,11611,10889
 2024-03-24,Keith Mann Open 2024 - Mens,epee,de,Joel Wilson,The Fencing Institute,William Mcneil,Piwakawaka Fencing Club,15,11,SF,Mens,11611,11888
@@ -2089,6 +2095,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-03-26,North Sec Schools #1 2024 - Mens,sabre,de,Huiqiao Jiang,New Zealand Academy of Fencing,Gisele Lau,Macleans College Fencing Club,15,4,QF,Mens,11786,11894
 2024-03-26,North Sec Schools #1 2024 - Mens,sabre,de,Allan Zhao,Macleans College Fencing Club,Max Zhang,Saint Kentigern College Fencing Club,15,11,QF,Mens,11893,12214
 2024-03-26,North Sec Schools #1 2024 - Mens,sabre,de,Youfu (Alex) Wu,New Zealand Academy of Fencing,Dean Yu,Saint Kentigern College Fencing Club,15,9,QF,Mens,11848,12048
+2024-03-26,North Sec Schools #1 2024 - Mens,sabre,de,Isaac Yim,Auckland Grammar School,Shiyu Chen,Pulse Fencing Club,11,15,QF,Mens,12185,12297
 2024-03-26,North Sec Schools #1 2024 - Mens,sabre,de,Tianzexi Liu,Macleans College,Gisele Lau,Macleans College Fencing Club,5,15,T16,Mens,12404,11894
 2024-03-26,North Sec Schools #1 2024 - Mens,sabre,de,Allan Zhao,Macleans College Fencing Club,Blake Holmes,Saint Kentigern College Fencing Club,15,5,T16,Mens,11893,12127
 2024-03-26,North Sec Schools #1 2024 - Mens,sabre,de,Mel Hou,Saint Kentigern College Fencing Club,Max Zhang,Saint Kentigern College Fencing Club,7,15,T16,Mens,12061,12214
@@ -2524,6 +2531,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-04-06,MidSouth U17 Championship 2024 - Mens,epee,de,William Mcneil,Piwakawaka Fencing Club,Elija Yarr,Mount Albert Grammar School,15,12,Final,Mens,11888,12089
 2024-04-06,MidSouth U17 Championship 2024 - Mens,epee,de,Elija Yarr,Mount Albert Grammar School,Tom Eyre-Walker,The Fencing Institute,15,9,SF,Mens,12089,12227
 2024-04-06,MidSouth U17 Championship 2024 - Mens,epee,de,William Mcneil,Piwakawaka Fencing Club,William Sherborne,Piwakawaka Fencing,15,11,QF,Mens,11888,12445
+2024-04-06,MidSouth U17 Championship 2024 - Mens,epee,de,Zeyad Elmallah,Piwakawaka Fencing Club,Daniel Gourley,The Fencing Institute,8,15,QF,Mens,12135,11957
 2024-04-06,MidSouth U17 Championship 2024 - Mens,epee,de,Elija Yarr,Mount Albert Grammar School,Hugh Thompson,The Fencing Institute,15,12,QF,Mens,12089,11498
 2024-04-06,MidSouth U17 Championship 2024 - Mens,epee,de,Tom Eyre-Walker,The Fencing Institute,Nico Meyer,Mount Albert Grammar School Epee Club,13,12,QF,Mens,12227,12091
 2024-04-06,MidSouth U17 Championship 2024 - Mens,epee,de,William Sherborne,Piwakawaka Fencing,Dante Stanger,The Fencing Institute,15,11,T16,Mens,12445,12149
@@ -3415,6 +3423,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Alexander Lee,Auckland Swords Club,Ethan Cui,WEL Fencing Club,15,9,QF,Mens,11819,11633
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Tim (Mutian) Wang,The Fencing Institute,Ryan Peng,Pulse Fencing,5,15,QF,Mens,11610,12372
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Leo Zhou,JF Fencing School,Eric Jiuzun Yan,Pulse Fencing,15,3,QF,Mens,11664,12640
+2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Ruairi Boyd,The Fencing Institute,Larry Lin,Pulse Fencing,9,15,QF,Mens,11863,11906
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Alexander Lee,Auckland Swords Club,Samuel Li,WEL Fencing Club,15,12,T16,Mens,11819,12307
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Ethan Cui,WEL Fencing Club,Bryan Hua,JF Fencing School,15,9,T16,Mens,11633,11903
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Tim (Mutian) Wang,The Fencing Institute,Zeyad Elmallah,Piwakawaka Fencing Club,15,6,T16,Mens,11610,12135
@@ -3422,6 +3431,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Leo Zhou,JF Fencing School,Jinghan Matt Wang,Macleans College,15,2,T16,Mens,11664,12373
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Ziqian (Lucas) Zhou,,Eric Jiuzun Yan,Pulse Fencing,6,15,T16,Mens,11902,12640
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Ruairi Boyd,The Fencing Institute,Blake Greenwood,The Fencing Institute,15,10,T16,Mens,11863,11764
+2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,Larry Lin,Pulse Fencing,11,15,T16,Mens,12069,11906
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Ethan Ho,WEL Fencing Club,Samuel Li,WEL Fencing Club,8,15,T32,Mens,12312,12307
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Shiqi Liu,Wellington Fencing Club,Jinghan Matt Wang,Macleans College,14,15,T32,Mens,12382,12373
 2024-04-27,NZ Junior Challenge 2024 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,William Cochrane,,0,0,T32,Mens,12069,12137
@@ -3437,6 +3447,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-04-27,NZ Junior Challenge 2024 - Mens,epee,de,Tom Eyre-Walker,The Fencing Institute,Ciaran Meredith,Tuatahi Fencing Club,9,10,T16,Mens,12227,11676
 2024-04-27,NZ Junior Challenge 2024 - Mens,epee,de,Jack Hansen,Tuatahi Fencing Club,William Cochrane,,15,7,T16,Mens,11962,12137
 2024-04-27,NZ Junior Challenge 2024 - Mens,epee,de,George Symmans,South Wellington Fencing Club,James Price,Auckland Swords Club,7,15,T16,Mens,12278,11705
+2024-04-27,NZ Junior Challenge 2024 - Mens,epee,de,Joel Wilson,The Fencing Institute,Travis West-Hill,Tuatahi Fencing Club,15,7,T16,Mens,11611,11678
 2024-04-27,NZ Junior Challenge 2024 - Mens,epee,de,Aphichat Khothisen,Tuatahi Fencing Club,Joel Ball-La Hood,Wellington Swords Club,12,15,T16,Mens,12351,11713
 2024-04-27,NZ Junior Challenge 2024 - Mens,epee,de,Nico Meyer,Mount Albert Grammar School Epee Club,Daniel Gourley,The Fencing Institute,13,15,T32,Mens,12091,11957
 2024-04-27,NZ Junior Challenge 2024 - Mens,epee,de,JieMing Jiang,JYD Swords Club,William Sherborne,Piwakawaka Fencing,15,9,T32,Mens,12550,12445
@@ -3642,11 +3653,13 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Ryan Peng,Pulse Fencing,Arion Wang,Hutt Valley Swords Club,15,9,Final,Mens,12372,12069
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,Jiuqing Michael Yan,Pulse Fencing,15,9,SF,Mens,12069,12593
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Ryan Peng,Pulse Fencing,David Jokuti,South Wellington Fencing Club,15,5,QF,Mens,12372,12241
+2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Hanson Fang,Pulse Fencing Club,Samuel Li,WEL Fencing Club,2,15,QF,Mens,12034,12307
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,Maxwell Xinqi Chen,Invictus Fencing,15,5,QF,Mens,12069,12642
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Jacob Yan Hao Zhu,JF Fencing School,Jiuqing Michael Yan,Pulse Fencing,11,15,QF,Mens,12203,12593
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Ryan Peng,Pulse Fencing,Sabre Evans,United Fencing Club,15,5,T16,Mens,12372,12368
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Mikah Machado,Claymore Swords,David Jokuti,South Wellington Fencing Club,3,15,T16,Mens,12301,12241
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Hanson Fang,Pulse Fencing Club,Affan Aadil Sharif,,15,4,T16,Mens,12034,12594
+2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Desmond Lin,WEL Fencing Club,Samuel Li,WEL Fencing Club,3,15,T16,Mens,12417,12307
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,Max Wu,The Fencing Institute,15,9,T16,Mens,12069,12369
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Maxwell Xinqi Chen,Invictus Fencing,Ethan Ho,WEL Fencing Club,15,14,T16,Mens,12642,12312
 2024-04-27,NZ U15 Championship 2024 - Mens,foil,de,Jacob Yan Hao Zhu,JF Fencing School,Finley Diorio,South Wellington Fencing Club,15,3,T16,Mens,12203,12243
@@ -4757,10 +4770,12 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Claire Cooper,Wellington Swords Club,Sophia Tweddle,Wellington Swords Club,15,8,SF,Womens,10222,2234
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Abigail Nutt,Australia,Elsie Lins,Tuatahi Fencing Club,15,9,SF,Womens,12463,11575
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Victoria Hide,Wellington Swords Club,Claire Cooper,Wellington Swords Club,6,15,QF,Womens,12377,10222
+2024-06-01,North Island Championship 2024 - Womens,epee,de,Sophia Tweddle,Wellington Swords Club,Izabella Solomon,Wellington Swords Club,15,8,QF,Womens,2234,12024
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Abigail Nutt,Australia,Zoe Congalton,Hawkes Bay Blades,15,7,QF,Womens,12463,10429
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Euvgenia Abramova,Auckland Swords Club,Elsie Lins,Tuatahi Fencing Club,6,15,QF,Womens,11889,11575
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Victoria Hide,Wellington Swords Club,Amie Callaghan,Piwakawaka Fencing Club,15,4,T16,Womens,12377,12143
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Claire Cooper,Wellington Swords Club,Kate Brill,The Fencing Institute,15,7,T16,Womens,10222,794
+2024-06-01,North Island Championship 2024 - Womens,epee,de,Sophia Tweddle,Wellington Swords Club,Emily Burt,Piwakawaka Fencing Club,15,9,T16,Womens,2234,12229
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Izabella Solomon,Wellington Swords Club,Jenna Baker,Hawkes Bay Blades,15,14,T16,Womens,12024,11809
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Abigail Nutt,Australia,Ophelia Stott,Canterbury Uni,15,8,T16,Womens,12463,11601
 2024-06-01,North Island Championship 2024 - Womens,epee,de,Jing Qian,Auckland Swords Club,Zoe Congalton,Hawkes Bay Blades,13,15,T16,Womens,12165,10429
@@ -5811,6 +5826,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-08-04,North Sec Schools #2 2024 - Mens,epee,de,Zhiyuan Aiden Qin,Auckland Swords Club,Nico Meyer,Mount Albert Grammar School Epee Club,11,15,T16,Mens,12375,12091
 2024-08-04,North Sec Schools #2 2024 - Mens,epee,de,Zhiyuan Aiden Qin,Auckland Swords Club,Mao Shan Li,Auckland Swords Club,15,9,T32,Mens,12375,12524
 2024-08-04,North Sec Schools #2 2024 - Mens,epee,de,Julian Van Ommen,Mount Albert Grammar School Epee Club,Braden Clemmett,Tuatahi Fencing Club,15,13,T32,Mens,12207,12209
+2024-08-04,North Sec Schools #2 2024 - Mens,epee,de,Aidan Derig,Tuatahi Fencing Club,James Macdonald,Tuatahi Fencing Club,9,15,T32,Mens,12199,12043
 2024-08-04,North Sec Schools #2 2024 - Mens,sabre,de,Harry Zhou,New Zealand Academy of Fencing,Oscar Hannaford,Auckland Grammar School Fencing,12,15,Final,Mens,12081,12120
 2024-08-04,North Sec Schools #2 2024 - Mens,sabre,de,Harry Zhou,New Zealand Academy of Fencing,Dean Yu,Saint Kentigern College Fencing Club,15,4,SF,Mens,12081,12048
 2024-08-04,North Sec Schools #2 2024 - Mens,sabre,de,Oscar Hannaford,Auckland Grammar School Fencing,Isaac Yim,Auckland Grammar School,15,10,SF,Mens,12120,12185
@@ -7614,13 +7630,16 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-10-12,Central Open Championship 2024 - Mens,foil,de,Murphy Wang,WEL Fencing Club,Thomas Cain,Havelock North High School,15,13,T16,Mens,12547,12133
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,William Bishop,Wellington Swords Club,Liam James,Wellington Swords Club,15,12,Final,Mens,862,10658
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Ciaran Meredith,Tuatahi Fencing Club,William Bishop,Wellington Swords Club,11,15,SF,Mens,11676,862
+2024-10-12,Central Open Championship 2024 - Mens,epee,de,Liam James,Wellington Swords Club,Andi Liu,Auckland University Fencing,15,12,SF,Mens,10658,10988
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Ciaran Meredith,Tuatahi Fencing Club,Aphichat Khothisen,Tuatahi Fencing Club,15,6,QF,Mens,11676,12351
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Avinash Vellala,Wellington Swords Club,William Bishop,Wellington Swords Club,7,15,QF,Mens,11835,862
+2024-10-12,Central Open Championship 2024 - Mens,epee,de,Andi Liu,Auckland University Fencing,Daniel Gourley,The Fencing Institute,15,13,QF,Mens,10988,11957
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Nathan Mcknight,Wellington Swords Club,Liam James,Wellington Swords Club,12,15,QF,Mens,11464,10658
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Ciaran Meredith,Tuatahi Fencing Club,Aidan Derig,Tuatahi Fencing Club,15,3,T16,Mens,11676,12199
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Aphichat Khothisen,Tuatahi Fencing Club,Oliver Cain,Hawkes Bay Blades,15,2,T16,Mens,12351,12066
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Avinash Vellala,Wellington Swords Club,Grant Tweddle,Wellington Swords Club,15,11,T16,Mens,11835,10335
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Oliver Styles,Hawkes Bay Blades,William Bishop,Wellington Swords Club,6,15,T16,Mens,11632,862
+2024-10-12,Central Open Championship 2024 - Mens,epee,de,Andi Liu,Auckland University Fencing,Jasper Smartt,FAHS Sabres Fencing Club,15,10,T16,Mens,10988,12360
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Russell Johnson,Hutt Valley Fencing Club,Daniel Gourley,The Fencing Institute,13,15,T16,Mens,10254,11957
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,Nathan Mcknight,Wellington Swords Club,Jules Congalton,Hawkes Bay Blades,15,6,T16,Mens,11464,343
 2024-10-12,Central Open Championship 2024 - Mens,epee,de,James Macdonald,Tuatahi Fencing Club,Liam James,Wellington Swords Club,10,15,T16,Mens,12043,10658
@@ -8272,6 +8291,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,Eric Jiuzun Yan,Pulse Fencing,5,15,QF,Mens,12069,12640
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Benjamin Peltola,Auckland Swords Club,Samuel Li,WEL Fencing Club,15,5,T16,Mens,11526,12307
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Ryan Peng,Pulse Fencing,Leon Cui,WEL Fencing Club,15,14,T16,Mens,12372,11545
+2024-10-26,NZ National Championship 2024 - Mens,foil,de,Joel Wilson,The Fencing Institute,Larry Lin,Pulse Fencing,15,9,T16,Mens,11611,11906
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Ziqian (Lucas) Zhou,,Tim (Mutian) Wang,The Fencing Institute,9,15,T16,Mens,11902,11610
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Stephen Peterson,Wellington Swords Club,Ethan Cui,WEL Fencing Club,11,15,T16,Mens,10765,11633
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Jacob Takuira-Mita,Oamaru Heritage Fencers,Peter Kell,Wellington Swords Club,13,14,T16,Mens,11237,1223
@@ -8280,6 +8300,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Boshu Zeng,Hutt Valley Swords Club,Samuel Li,WEL Fencing Club,8,15,T32,Mens,12309,12307
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Ryan Peng,Pulse Fencing,Alfa Wang,WEL Fencing Club,15,7,T32,Mens,12372,12454
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,David Jokuti,South Wellington Fencing Club,Leon Cui,WEL Fencing Club,7,15,T32,Mens,12241,11545
+2024-10-26,NZ National Championship 2024 - Mens,foil,de,Joel Wilson,The Fencing Institute,James Liang,Hutt Valley Fencing Club,15,7,T32,Mens,11611,11830
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Desmond Lin,WEL Fencing Club,Larry Lin,Pulse Fencing,5,15,T32,Mens,12417,11906
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,Ziqian (Lucas) Zhou,,Shiqi Liu,Wellington Fencing Club,15,11,T32,Mens,11902,12382
 2024-10-26,NZ National Championship 2024 - Mens,foil,de,"Khan,",,Tim (Mutian) Wang,The Fencing Institute,5,15,T32,Mens,12508,11610
@@ -8317,6 +8338,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-10-26,NZ National Championship 2024 - Mens,epee,de,Stephen Peterson,Wellington Swords Club,Joel Ball-La Hood,Wellington Swords Club,6,15,T32,Mens,10765,11713
 2024-10-26,NZ National Championship 2024 - Mens,epee,de,Matthew Baker,,Andi Liu,Auckland University Fencing,15,6,T32,Mens,11062,10988
 2024-10-26,NZ National Championship 2024 - Mens,epee,de,Nick Peters,Piwakawaka Fencing Club,Joel Wilson,The Fencing Institute,11,15,T32,Mens,11235,11611
+2024-10-26,NZ National Championship 2024 - Mens,epee,de,Sheldon Ogilvie,Piwakawaka Fencing Club,James Butler,Auckland Swords Club,15,12,T32,Mens,2089,11143
 2024-10-26,NZ National Championship 2024 - Mens,epee,de,Daniel Gourley,The Fencing Institute,George Dale,,10,15,T32,Mens,11957,12514
 2024-10-26,NZ National Championship 2024 - Mens,epee,de,Nathan Mcknight,Wellington Swords Club,Zhiyuan Aiden Qin,Auckland Swords Club,15,6,T64,Mens,11464,12375
 2024-10-26,NZ National Championship 2024 - Mens,epee,de,David Gouge,Wellington South,Jules Congalton,Hawkes Bay Blades,4,15,T64,Mens,12467,343
@@ -8485,6 +8507,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-10-26,NZ National Championship 2024 - Womens,epee,de,Ayaka Kato,Piwakawaka Fencing Club,Victoria Hide,Wellington Swords Club,4,15,T16,Womens,12238,12377
 2024-10-26,NZ National Championship 2024 - Womens,epee,de,Nikkie Wu,The Fencing Institute,Laika Stafford,Wellington Swords Club,14,9,T32,Womens,12152,12101
 2024-10-26,NZ National Championship 2024 - Womens,epee,de,Imogene Dalton,Wellington Swords Club,Grace Thomson,Claymore Swords Club,13,15,T32,Womens,12247,12250
+2024-10-26,NZ National Championship 2024 - Womens,epee,de,Anna Moss,Wellington Swords Club,Sophia Tweddle,Wellington Swords Club,8,15,T32,Womens,11833,2234
 2024-10-26,NZ National Championship 2024 - Womens,epee,de,Euvgenia Abramova,Auckland Swords Club,Cassandra Gibson,Hutt Valley Fencing Club,15,12,T32,Womens,11889,12378
 2024-10-26,NZ National Championship 2024 - Womens,epee,de,Emilia Mason,Mount Albert Grammar School Epee Club,Wynter Tickle,Wellington Swords Club,6,15,T32,Womens,12114,11964
 2024-10-26,NZ National Championship 2024 - Womens,epee,de,Jenna Baker,Hawkes Bay Blades,Amie Callaghan,Piwakawaka Fencing Club,15,6,T32,Womens,11809,12143
@@ -8532,6 +8555,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2024-10-26,NZ National Championship Vets 2024 - Mens,foil,de,Peter Kell,Wellington Swords Club,Jean Marc Cuneo,,8,10,Final,Mens,1223,
 2024-10-26,NZ National Championship Vets 2024 - Mens,foil,de,Jonathan Couper-Smartt,FAHS Sabre Fencing Club,Jean Marc Cuneo,,8,10,SF,Mens,12224,
 2024-10-26,NZ National Championship Vets 2024 - Mens,foil,de,Peter Kell,Wellington Swords Club,Geraldine Christmas,,10,0,QF,Mens,1223,
+2024-10-26,NZ National Championship Vets 2024 - Mens,foil,de,Grant Tweddle,Wellington Swords Club,Stephen Peterson,Wellington Swords Club,9,10,QF,Mens,10335,10765
 2024-10-26,NZ National Championship Vets 2024 - Mens,foil,de,Emmanuel Maillar,,Jonathan Couper-Smartt,FAHS Sabre Fencing Club,8,10,QF,Mens,,12224
 2024-10-26,NZ National Championship Vets 2024 - Mens,foil,de,Una Johnson,,Jean Marc Cuneo,,3,10,QF,Mens,,
 2024-10-26,NZ National Championship Vets 2024 - Mens,epee,de,Louis Mason,Auckland Swords Club,Zach Dodson,Wellington Swords Club,10,9,Final,Mens,12448,11560
@@ -8979,6 +9003,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-02-22,Trefoil 2025 - Womens,foil,de,Jenna Baker,Hawkes Bay Blades,Madeleine Trass,Wellington South Fencing Club,15,7,SF,Womens,11809,12431
 2025-02-22,Trefoil 2025 - Womens,foil,de,Amelia Ho,WEL Fencing Club,Kaya Mathey,Hutt Valley Fencing Club,7,15,SF,Womens,12558,12616
 2025-02-22,Trefoil 2025 - Womens,foil,de,Jenna Baker,Hawkes Bay Blades,Caitlin Liang,Hutt Valley Fencing Club,15,4,QF,Womens,11809,12617
+2025-02-22,Trefoil 2025 - Womens,foil,de,Madeleine Trass,Wellington South Fencing Club,Sarah Zhou,WEL Fencing Club,15,10,QF,Womens,12431,12559
 2025-02-22,Trefoil 2025 - Womens,foil,de,Cassandra Gibson,Hutt Valley Fencing Club,Amelia Ho,WEL Fencing Club,14,15,QF,Womens,12378,12558
 2025-02-22,Trefoil 2025 - Womens,foil,de,Anna Moss,Wellington Swords Club,Kaya Mathey,Hutt Valley Fencing Club,5,15,QF,Womens,11833,12616
 2025-02-22,Trefoil 2025 - Womens,foil,de,Una Johnson,Hutt Valley Fencing Club,Caitlin Liang,Hutt Valley Fencing Club,12,14,T16,Womens,12380,12617
@@ -9621,6 +9646,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-03-16,North U15 Championships 2025 - Mens,foil,de,Ariel Bing,Auckland High Performance Fencing,Matthew Purton,JF Fencing School,5,15,T16,Mens,11475,12201
 2025-03-16,North U15 Championships 2025 - Mens,foil,de,Affan Aadil Sharif,,Denys Lin,Auckland Grammar School,15,1,T16,Mens,12594,12518
 2025-03-16,North U15 Championships 2025 - Mens,foil,de,Mace Dzedins,NZ Academy of Fencing,Guanhan Zhao,J F Fencing School,2,15,T16,Mens,12412,12596
+2025-03-16,North U15 Championships 2025 - Mens,foil,de,Jacob Yan Hao Zhu,JF Fencing School,Eddie Chen,NZ Academy of Fencing,15,12,T16,Mens,12203,12123
 2025-03-16,North U15 Championships 2025 - Mens,epee,de,Corey Stephenson,Hawkes Bay Blades,Aaron Yangxu Shen,JYD Swords Club,14,15,Final,Mens,12561,12551
 2025-03-16,North U15 Championships 2025 - Mens,epee,de,Corey Stephenson,Hawkes Bay Blades,Ryan Bates,Hutt Valley Fencing Club,15,12,SF,Mens,12561,11879
 2025-03-16,North U15 Championships 2025 - Mens,epee,de,Aaron Yangxu Shen,JYD Swords Club,Jeremy Lin,Auckland Grammar School Fencing,15,11,SF,Mens,12551,12228
@@ -9753,6 +9779,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-03-22,MidSouth U15 Championship 2025 - Mens,foil,pool,Max Van Tongeren,The Fencing Institute,Lummi Lu,The Fencing Institute,4,5,,Mens,12621,12622
 2025-03-22,MidSouth U15 Championship 2025 - Mens,foil,de,Fraser Bryant,Fencing in Nelson Tasman,Stepan Sharpan,The Fencing Institute,14,9,Final,Mens,12619,12265
 2025-03-22,MidSouth U15 Championship 2025 - Mens,foil,de,Fraser Bryant,Fencing in Nelson Tasman,Max Van Tongeren,The Fencing Institute,15,11,SF,Mens,12619,12621
+2025-03-22,MidSouth U15 Championship 2025 - Mens,foil,de,Stepan Sharpan,The Fencing Institute,Harry Knight,Fencing in Nelson Tasman,15,12,SF,Mens,12265,12620
 2025-03-22,MidSouth U15 Championship 2025 - Mens,foil,de,Lummi Lu,The Fencing Institute,Max Van Tongeren,The Fencing Institute,14,15,QF,Mens,12622,12621
 2025-03-22,MidSouth U15 Championship 2025 - Mens,epee,de,Fraser Bryant,Fencing in Nelson Tasman,Stepan Sharpan,The Fencing Institute,15,7,Final,Mens,12619,12265
 2025-03-22,MidSouth U15 Championship 2025 - Womens,epee,pool,Qijia Guo,The Fencing Institute,Amy Lindsay,Piwakawaka Fencing Club,2,5,,Womens,12427,12230
@@ -10862,6 +10889,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-04-20,National U15 Championships 2025 - Womens,foil,de,Isabel Wong,Invictus Fencing Club,Isabella Zheng,Invictus Fencing Club,15,10,SF,Womens,12188,12113
 2025-04-20,National U15 Championships 2025 - Womens,foil,de,Miya Yan Xin Zhu,Kristin School,Sarah Zhou,WEL Fencing Club,15,9,SF,Womens,12396,12559
 2025-04-20,National U15 Championships 2025 - Womens,foil,de,Isabel Wong,Invictus Fencing Club,XinRui Yuan,WEL Fencing,15,5,QF,Womens,12188,12629
+2025-04-20,National U15 Championships 2025 - Womens,foil,de,Isabella Zheng,Invictus Fencing Club,Emily Shiyi Luo,Pulse Fencing,15,10,QF,Womens,12113,12374
 2025-04-20,National U15 Championships 2025 - Womens,foil,de,Miya Yan Xin Zhu,Kristin School,Emily Zhao,JF Fencing School,15,9,QF,Womens,12396,12394
 2025-04-20,National U15 Championships 2025 - Womens,foil,de,Sarah Zhou,WEL Fencing Club,Hayley Wong,Invictus Fencing,15,5,QF,Womens,12559,12407
 2025-04-20,National U15 Championships 2025 - Womens,foil,de,Amelia Ho,WEL Fencing Club,XinRui Yuan,WEL Fencing,5,15,T16,Womens,12558,12629
@@ -11239,10 +11267,13 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-05-31,North Island Championship 2025 - Mens,sabre,pool,Alex Chen,Hutt Valley Fencing Club,Benedict Simpson,Hutt Valley Fencing Club,5,0,,Mens,12423,10559
 2025-05-31,North Island Championship 2025 - Mens,sabre,pool,Alex Chen,Hutt Valley Fencing Club,Liam Burgers,FAHS Sabres Fencing Club,5,4,,Mens,12423,12560
 2025-05-31,North Island Championship 2025 - Mens,sabre,pool,Liam Burgers,FAHS Sabres Fencing Club,Benedict Simpson,Hutt Valley Fencing Club,2,5,,Mens,12560,10559
+2025-05-31,North Island Championship 2025 - Mens,foil,de,Leonardo Triolo,Wellington Swords Club,Mutian Wang,The Fencing Institute,15,15,Final,Mens,12614,12456
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Mutian Wang,The Fencing Institute,Leon Cui,WEL Fencing Club,15,9,SF,Mens,12456,11545
+2025-05-31,North Island Championship 2025 - Mens,foil,de,Ryan Peng,Pulse Fencing,Leonardo Triolo,Wellington Swords Club,9,15,SF,Mens,12372,12614
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Mutian Wang,The Fencing Institute,Boshu Zeng,Hutt Valley Swords Club,15,6,QF,Mens,12456,12309
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Peter Kell,Wellington Swords Club,Leon Cui,WEL Fencing Club,8,15,QF,Mens,1223,11545
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Ryan Peng,Pulse Fencing,Jinghan Matt Wang,Macleans College,15,9,QF,Mens,12372,12373
+2025-05-31,North Island Championship 2025 - Mens,foil,de,Shiqi Liu,Wellington Fencing Club,Leonardo Triolo,Wellington Swords Club,0,15,QF,Mens,12382,12614
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Mutian Wang,The Fencing Institute,Russell Johnson,Hutt Valley Fencing Club,15,5,T16,Mens,12456,10254
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,Boshu Zeng,Hutt Valley Swords Club,9,15,T16,Mens,12069,12309
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Peter Kell,Wellington Swords Club,Ziqian (Lucas) Zhou,,15,6,T16,Mens,1223,11902
@@ -11250,6 +11281,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Ryan Peng,Pulse Fencing,Murphy Wang,WEL Fencing Club,15,9,T16,Mens,12372,12547
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Jinghan Matt Wang,Macleans College,David Jokuti,South Wellington Fencing Club,15,11,T16,Mens,12373,12241
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Lucas Cai,WEL Fencing Club,Shiqi Liu,Wellington Fencing Club,10,15,T16,Mens,12306,12382
+2025-05-31,North Island Championship 2025 - Mens,foil,de,Ethan Ho,WEL Fencing Club,Leonardo Triolo,Wellington Swords Club,7,15,T16,Mens,12312,12614
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Russell Johnson,Hutt Valley Fencing Club,Finley Diorio,South Wellington Fencing Club,15,5,T32,Mens,10254,12243
 2025-05-31,North Island Championship 2025 - Mens,foil,de,Arion Wang,Hutt Valley Swords Club,Desmond Lin,WEL Fencing Club,15,14,T32,Mens,12069,12417
 2025-05-31,North Island Championship 2025 - Mens,foil,de,James Liang,Hutt Valley Fencing Club,Boshu Zeng,Hutt Valley Swords Club,5,15,T32,Mens,11830,12309
@@ -11633,6 +11665,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-06-21,South Island Championship 2025 - Mens,epee,de,Elliot Hayes,University Of Canterbury Fencing Club,Jack Hansen,Tuatahi Fencing Club,15,10,QF,Mens,12381,11962
 2025-06-21,South Island Championship 2025 - Mens,epee,de,Joel Wilson,The Fencing Institute,James Price,Auckland Swords Club,15,7,T16,Mens,11611,11705
 2025-06-21,South Island Championship 2025 - Mens,epee,de,Andi Liu,Auckland University Fencing,Nathan Mcknight,Wellington Swords Club,10,15,T16,Mens,10988,11464
+2025-06-21,South Island Championship 2025 - Mens,epee,de,Alessandro Maula,Auckland Swords,Tom Eyre-Walker,The Fencing Institute,15,10,T16,Mens,12468,12227
 2025-06-21,South Island Championship 2025 - Mens,epee,de,Ciaran Meredith,Tuatahi Fencing Club,James Butler,Auckland Swords Club,10,12,T16,Mens,11676,11143
 2025-06-21,South Island Championship 2025 - Mens,epee,de,Liam James,Wellington Swords Club,Alex Holton,Piwakawaka Fencing Club,15,12,T16,Mens,10658,11462
 2025-06-21,South Island Championship 2025 - Mens,epee,de,Josh Carson,Piwakawaka Fencing,Sam Mcarthur,The Fencing Institute,14,15,T16,Mens,12322,11854
@@ -12853,7 +12886,9 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-09-21,South Open Championship 2025 - Mens,foil,de,Grace Thomson,,Donovan Fought,Claymore Swords Club,15,1,T16,Mens,,12649
 2025-09-21,South Open Championship 2025 - Mens,foil,de,Anderson Fought,,Jacob Takuira-Mita,Oamaru Heritage Fencers,3,15,T16,Mens,12647,11237
 2025-09-21,South Open Championship 2025 - Mens,foil,de,Renee Phillips,,Mikah Machado,Claymore Swords,15,11,T16,Mens,,12301
+2025-09-21,South Open Championship 2025 - Mens,epee,de,Jacob Takuira-Mita,Oamaru Heritage Fencers,Brendan Lindsay,,15,15,Final,Mens,11237,88
 2025-09-21,South Open Championship 2025 - Mens,epee,de,Jacob Takuira-Mita,Oamaru Heritage Fencers,Sam Parish,Claymore Swords Club,15,9,SF,Mens,11237,1836
+2025-09-21,South Open Championship 2025 - Mens,epee,de,Colin Mccaughan,Claymore Swords Club,Brendan Lindsay,,13,15,SF,Mens,151,88
 2025-09-21,South Open Championship 2025 - Mens,epee,de,Jacob Takuira-Mita,Oamaru Heritage Fencers,Renee Phillips,,15,9,QF,Mens,11237,
 2025-09-21,South Open Championship 2025 - Mens,epee,de,Ophelia Stott,,Sam Parish,Claymore Swords Club,13,15,QF,Mens,,1836
 2025-09-21,South Open Championship 2025 - Mens,epee,de,Colin Mccaughan,Claymore Swords Club,Alex Dong,Claymore Swords Club,15,8,QF,Mens,151,11861
@@ -13722,12 +13757,14 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Cooper Gouge,South Wellington Fencing Club,John Downes,Australia,10,15,SF,Mens,10889,11451
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Shiyuan Yu,,Kjell Schick,Cashmere High School Fencing Club,14,15,QF,Mens,12700,12685
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Cooper Gouge,South Wellington Fencing Club,Tom Eyre-Walker,The Fencing Institute,14,10,QF,Mens,10889,12227
+2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Alessandro Maula,Auckland Swords,Thomas Wells,Auckland University Fencing,11,15,QF,Mens,12468,12513
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Jack Hansen,Tuatahi Fencing Club,John Downes,Australia,14,15,QF,Mens,11962,11451
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Charlie Bioletti,Auckland Swords Club,Shiyuan Yu,,13,15,T16,Mens,11356,12700
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Daniel Gourley,The Fencing Institute,Kjell Schick,Cashmere High School Fencing Club,11,15,T16,Mens,11957,12685
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Cooper Gouge,South Wellington Fencing Club,Thomas Wells,Auckland University Fencing,15,15,T16,Mens,10889,12513
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Tom Eyre-Walker,The Fencing Institute,Paul Kurtyka,,15,13,T16,Mens,12227,11318
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Alessandro Maula,Auckland Swords,Naresh Sakhrani,,15,5,T16,Mens,12468,12690
+2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,James Price,Auckland Swords Club,Joel Wilson,The Fencing Institute,12,15,T16,Mens,11705,11611
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Matthew Baker,,Jack Hansen,Tuatahi Fencing Club,9,15,T16,Mens,11062,11962
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Martino Caccialupi,Auckland Swords Club,John Downes,Australia,7,15,T16,Mens,12671,11451
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Charlie Bioletti,Auckland Swords Club,Hengrui Liu,,15,14,T32,Mens,11356,12701
@@ -13741,6 +13778,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Alessandro Maula,Auckland Swords,Joff Falconer,Piwakawaka Fencing Club,15,6,T32,Mens,12468,12262
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Ethan Fan,Auckland University Fencing,Naresh Sakhrani,,14,15,T32,Mens,12672,12690
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,James Price,Auckland Swords Club,Nick Peters,Piwakawaka Fencing Club,15,8,T32,Mens,11705,11235
+2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Nico Meyer,Mount Albert Grammar School Epee Club,Joel Wilson,The Fencing Institute,6,15,T32,Mens,12091,11611
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Matthew Baker,,Ciaran Meredith,Tuatahi Fencing Club,15,8,T32,Mens,11062,11676
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Stephen Peterson,Wellington Swords Club,Jack Hansen,Tuatahi Fencing Club,6,15,T32,Mens,10765,11962
 2025-10-26,Oceania and NZ National Open 2025 - Mens,epee,de,Elija Yarr,Mount Albert Grammar School,Martino Caccialupi,Auckland Swords Club,8,15,T32,Mens,12089,12671
@@ -14374,8 +14412,10 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2025-11-30,Presidents Cup 2025 - Mens,epee,pool,Colin Mccaughan,Claymore Swords Club,Louis Mason,Auckland Swords Club,1,5,,Mens,151,12448
 2025-11-30,Presidents Cup 2025 - Mens,epee,pool,James Butler,Auckland Swords Club,Louis Mason,Auckland Swords Club,5,1,,Mens,11143,12448
 2025-11-30,Presidents Cup 2025 - Mens,foil,de,Jacob Takuira-Mita,Oamaru Heritage Fencers,Samuel Li,WEL Fencing Club,11,15,Final,Mens,11237,12307
+2025-11-30,Presidents Cup 2025 - Mens,foil,de,Mutian Wang,The Fencing Institute,Jacob Takuira-Mita,Oamaru Heritage Fencers,8,15,SF,Mens,12456,11237
 2025-11-30,Presidents Cup 2025 - Mens,foil,de,Pierre Béchet,Auckland Swords Club,Samuel Li,WEL Fencing Club,7,15,SF,Mens,11876,12307
 2025-11-30,Presidents Cup 2025 - Mens,foil,de,Mutian Wang,The Fencing Institute,Mikah Machado,Claymore Swords,15,9,QF,Mens,12456,12301
+2025-11-30,Presidents Cup 2025 - Mens,foil,de,Dylan Thomson,The Fencing Institute,Jacob Takuira-Mita,Oamaru Heritage Fencers,11,15,QF,Mens,11236,11237
 2025-11-30,Presidents Cup 2025 - Mens,foil,de,Jared Howlett,Claymore Swords Club,Pierre Béchet,Auckland Swords Club,9,15,QF,Mens,1256,11876
 2025-11-30,Presidents Cup 2025 - Mens,foil,de,Colin Mccaughan,Claymore Swords Club,Samuel Li,WEL Fencing Club,3,15,QF,Mens,151,12307
 2025-11-30,Presidents Cup 2025 - Mens,foil,de,Mikah Machado,Claymore Swords,Paul Admiraal,Claymore Swords Club,15,13,T16,Mens,12301,11862
@@ -16090,6 +16130,7 @@ date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_
 2026-04-12,North Island Championship 2026 - Mens,sabre,de,Harry Zhou,New Zealand Academy of Fencing,Youfu (Alex) Wu,New Zealand Academy of Fencing,12,15,QF,Mens,12081,11848
 2026-04-12,North Island Championship 2026 - Mens,sabre,de,Stuart Campbell,New Zealand Academy of Fencing,Emmanuel Zhang,Epsom Girls Grammar School Fencing,15,12,QF,Mens,11686,12053
 2026-04-12,North Island Championship 2026 - Mens,sabre,de,Oliver Styles,Hawkes Bay Blades,Detroit Evans,New Zealand Academy of Fencing,7,15,QF,Mens,11632,11250
+2026-04-12,North Island Championship 2026 - Mens,sabre,de,Sam Tait,New Zealand Academy of Fencing,Alex Chen,Hutt Valley Fencing Club,15,9,T16,Mens,10040,12423
 2026-04-12,North Island Championship 2026 - Mens,sabre,de,Harry Zhou,New Zealand Academy of Fencing,Avin Chen,Hutt Valley Fencing Club,15,6,T16,Mens,12081,11874
 2026-04-12,North Island Championship 2026 - Mens,sabre,de,Jules Congalton,Hawkes Bay Blades,Youfu (Alex) Wu,New Zealand Academy of Fencing,7,15,T16,Mens,343,11848
 2026-04-12,North Island Championship 2026 - Mens,sabre,de,Stuart Campbell,New Zealand Academy of Fencing,Joshua Oh,Macleans College,15,7,T16,Mens,11686,12743

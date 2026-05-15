@@ -91,7 +91,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
                 {w === 'epee' ? 'Épée' : w}
               </button>
             ))}
-            {setAgeCategory && (
+            {setAgeCategory && view === 'leaderboard' && (
               <>
                 <span style={{ width: 1, height: 18, background: 'var(--rule)', margin: '0 4px' }} />
                 <select
