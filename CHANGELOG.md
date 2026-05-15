@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.8] - 2026-05-15
+### Fixed
+- Mixed events no longer double-count Elo — when the scraper ingested the same physical event twice (once as "X - Mens" and once as "X - Womens", e.g. Russell Towns Open 2024, mid-year regionals), every bout was being processed twice and gains/losses were doubled; `processBouts` now detects these via `detectMixedEvents` (shared bout hashes between the two variants), rewrites both copies to a single canonical name, and drops duplicate rows by `boutHash` before any rating math runs (44 mixed events detected in the current dataset, ~1300 duplicate rows removed)
+- Women appearing in the men's leaderboard (e.g. Mei Admiraal, Madelaine Barbarics) — gender was previously locked to the first row seen, and the "- Mens" duplicate of a mixed event sorted before "- Womens" so women got stuck on M; replaced with a majority-vote tally across single-gender event rows only (mixed-event rows have their gender label cleared so they don't contribute noise), finalized after all bouts are processed
+- Mixed-event competitions are now reconstructed under both Mens and Womens filters on the Competitions page (post-dedupe their row-level gender labels were blank; the pipeline now repopulates `comp.genders` from participants' finalized genders)
+### Added
+- Per-age-category rating streams under `fencer.byWeapon[w].byAge.{cadet,junior,senior,veteran}` — Cadet/U13–U17/Junior/U20/Veteran are parsed from competition names via `parseAgeCategory` (with an `AGE_OVERRIDES` map for manual corrections); the top-level `pool`/`de` rating still reflects every bout
+- Downward-inclusive Elo flow — a bout in category X feeds the streams for X and every younger category in the Cadet→Junior→Senior chain (Senior feeds Senior+Junior+Cadet, Junior feeds Junior+Cadet, Cadet feeds itself); Veteran is isolated so vet bouts don't contaminate the open chain and vice versa
+- Age-category dropdown in the header next to weapon/gender pills, switching the Leaderboard rating column and bout counts to the selected category's stream; the leaderboard heading reflects the active category
+- Leaderboard membership for an age category requires **native** participation — you only appear in the Junior leaderboard if you've fenced a Junior-tagged event, not just because Senior bouts fed your Junior rating via downward inclusion (tracked in `fencer.nativeCategories[weapon]`); cadets are also juniors by age, so cadet-event participation also qualifies a fencer for the Junior leaderboard (rating math is unaffected — cadet bouts still don't feed the Junior stream)
+- Recency filter for age leaderboards — to appear under Cadet/Junior/Veteran you must have a native bout in that category in the dataset's most recent year (auto-computed from the latest bout date, currently 2026), keeping aged-out fencers out of the Junior rankings
+- `ageCategory` field on each bout record and competition for downstream filtering and display
+- `FEEDBACK.md` — running log of user-reported feedback with status (open/addressed/deferred), source, quote, root cause, and resolution; seeded with the post-launch feedback that drove this release
+### Removed
+- "Senior" option from the age-category dropdown — "All ages" already serves as the open/senior view, and the senior-only stream produced confusing numbers (different from "All ages" because opponent ratings diverge across streams); the underlying `byAge.senior` stream is retained because it still feeds Junior and Cadet via downward inclusion
+
 ## [0.1.7] - 2026-05-10
 ### Added
 - Canonical dataset published with the deployment — `frontend/scripts/copy-data.mjs` copies `ingest/*.csv` into `frontend/public/data/` (and writes a `manifest.json`) before every `npm run dev` / `npm run build`; on first load the app fetches the manifest and uses those CSVs as the dataset, so visitors always see the latest pushed data instead of an empty `localStorage`

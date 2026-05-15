@@ -89,6 +89,82 @@ export const normWeapon = (w) => {
 };
 export const normBoutType = (t) => ((t || '').toLowerCase().trim().startsWith('d') ? 'de' : 'pool');
 
+// Age categories for rating streams. Open/Senior is the default bucket.
+export const AGE_CATEGORIES = ['cadet', 'junior', 'senior', 'veteran'];
+
+// "Downward-inclusive" stream rule: a bout in category X contributes to its own
+// stream and to all younger-category streams within the cadet→senior chain.
+// Veteran is isolated (vet bouts only feed the vet stream).
+export const STREAMS_FOR_CATEGORY = {
+  cadet:    ['cadet'],
+  junior:   ['junior', 'cadet'],
+  senior:   ['senior', 'junior', 'cadet'],
+  veteran:  ['veteran'],
+};
+
+// Manual category overrides for competitions the regex mis-classifies.
+// Keys are lowercased competition names (post mixed-event rewrite).
+export const AGE_OVERRIDES = {
+  // 'some weird comp 2024': 'junior',
+};
+
+export function parseAgeCategory(comp) {
+  const x = (comp || '').toLowerCase().trim();
+  if (AGE_OVERRIDES[x]) return AGE_OVERRIDES[x];
+  if (/\bvet\w*\b|\bmasters?\b/.test(x)) return 'veteran';
+  if (/\bu20\b|\bunder ?20\b|\bjunior\b/.test(x)) return 'junior';
+  if (/\bu1[3-7]\b|\bunder ?1[3-7]\b|\bcadet\b|\byouth\b/.test(x)) return 'cadet';
+  return 'senior';
+}
+
+// Split "Foo - Mens" / "Foo - Womens" into { base: 'Foo', variant }.
+export function parseCompVariant(name) {
+  if (!name) return { base: '', variant: null };
+  const m = /^(.*?)\s*[-–—]\s*(men'?s?|women'?s?|ladies|male|female)\s*$/i.exec(name);
+  if (!m) return { base: name.trim(), variant: null };
+  const v = m[2].toLowerCase();
+  const variant = (v.startsWith('w') || v === 'ladies' || v === 'female') ? 'womens' : 'mens';
+  return { base: m[1].trim(), variant };
+}
+
+// Order-independent canonical hash of a physical bout. Used to detect rows that
+// represent the same match (e.g. a mixed event ingested once as "- Mens" and
+// once as "- Womens").
+export function boutHash(b, weaponNorm) {
+  const a = nameKey(b.fencer_a);
+  const c = nameKey(b.fencer_b);
+  const sA = (b.score_a ?? '').toString().trim();
+  const sB = (b.score_b ?? '').toString().trim();
+  const typ = normBoutType(b.bout_type);
+  const round = (b.de_round || '').trim().toLowerCase();
+  if (a <= c) return `${weaponNorm}|${a}|${c}|${sA}|${sB}|${typ}|${round}`;
+  return `${weaponNorm}|${c}|${a}|${sB}|${sA}|${typ}|${round}`;
+}
+
+// Identify (date, weapon, baseComp) tuples where both "- Mens" and "- Womens"
+// variants exist AND share at least one identical bout — i.e. the scraper
+// ingested the same physical event twice.
+export function detectMixedEvents(rawBouts) {
+  const variants = {};
+  for (const b of rawBouts) {
+    const weapon = normWeapon(b.weapon);
+    const { base, variant } = parseCompVariant(b.competition);
+    if (!variant) continue;
+    const key = `${b.date}|${weapon}|${base.toLowerCase()}`;
+    if (!variants[key]) variants[key] = { mens: new Set(), womens: new Set() };
+    variants[key][variant].add(boutHash(b, weapon));
+  }
+  const mixed = new Set();
+  for (const k in variants) {
+    const { mens, womens } = variants[k];
+    if (mens.size === 0 || womens.size === 0) continue;
+    for (const h of mens) {
+      if (womens.has(h)) { mixed.add(k); break; }
+    }
+  }
+  return mixed;
+}
+
 // Detect whether dates in a dataset are day-first (D/M/Y, NZ) or month-first (M/D/Y, US).
 // Look for any unambiguous example (a part > 12). If both styles are present we default
 // to day-first, matching the Python ingest script.
@@ -159,6 +235,30 @@ export function processBouts(rawBouts, settings) {
   const dateFmt = detectDateFormat(rawBouts.map(b => b.date));
   rawBouts = rawBouts.map(b => b.date ? { ...b, date: normDate(b.date, dateFmt) } : b);
 
+  // Dedupe mixed events. When the same physical event was ingested once as
+  // "X - Mens" and once as "X - Womens" with identical bout rows, every match
+  // would otherwise be processed twice and Elo gains/losses would double.
+  // Strategy: detect such (date, weapon, base) tuples, rewrite both variants
+  // to a single canonical name (the base, with no gender suffix), clear the
+  // per-row gender label (it's noise from the scraper, not the fencer's actual
+  // gender), then drop duplicate rows by canonical bout hash.
+  const mixedKeys = detectMixedEvents(rawBouts);
+  const seen = new Set();
+  const prepped = [];
+  for (const b of rawBouts) {
+    const weapon = normWeapon(b.weapon);
+    const { base, variant } = parseCompVariant(b.competition);
+    const mixKey = `${b.date}|${weapon}|${base.toLowerCase()}`;
+    const isMixed = variant && mixedKeys.has(mixKey);
+    const competition = isMixed ? base : (b.competition || '').trim();
+    const gender = isMixed ? '' : (b.gender || '');
+    const dedupKey = `${b.date}|${weapon}|${competition.toLowerCase()}|${boutHash(b, weapon)}`;
+    if (seen.has(dedupKey)) continue;
+    seen.add(dedupKey);
+    prepped.push({ ...b, competition, gender });
+  }
+  rawBouts = prepped;
+
   const fencers = {};
   const bouts = [];
   const compMap = {};
@@ -170,8 +270,8 @@ export function processBouts(rawBouts, settings) {
     return '';
   };
 
-  // Scan anywhere in a string for gender keywords (mirrors Python extract_gender).
-  // "women" is checked before "men" because "women" contains "men" as a substring.
+  // Scan anywhere in a string for gender keywords. "women" is checked before
+  // "men" because "women" contains "men" as a substring.
   const genderFromText = (text) => {
     const x = (text || '').toLowerCase();
     if (x.includes('women') || x.includes('ladies') || x.includes('female')) return 'W';
@@ -179,25 +279,41 @@ export function processBouts(rawBouts, settings) {
     return '';
   };
 
-  const ensure = (name, club, weapon, gender, competition) => {
+  const freshStream = () => ({
+    rating: settings.initialRating, rd: settings.initialRD, volatility: settings.initialVolatility,
+    peak: settings.initialRating, history: [], bouts: 0, wins: 0, losses: 0, ties: 0,
+  });
+
+  const ensure = (name, club, weapon) => {
     const k = nameKey(name);
     if (!k) return null;
     const canonClub = canonicalizeClub(club);
-    if (!fencers[k]) fencers[k] = { key: k, name: name.trim(), club: canonClub, byWeapon: {}, genders: new Set() };
+    if (!fencers[k]) {
+      fencers[k] = {
+        key: k, name: name.trim(), club: canonClub,
+        byWeapon: {}, genders: new Set(),
+        // Categories the fencer has ACTUALLY competed in (by event tag), per
+        // weapon. Used for leaderboard membership: e.g. you only appear in the
+        // Junior leaderboard if you've fenced a Junior-tagged event. This is
+        // distinct from which streams receive Elo updates — Senior bouts feed
+        // the Junior rating stream via downward inclusion, but a fencer with
+        // only Senior bouts is not a Junior and shouldn't show up there.
+        nativeCategories: {},
+        // Latest year the fencer competed in each (weapon, category), used to
+        // filter out fencers who have aged out — e.g. someone who fenced
+        // Junior in 2022 but no Junior bouts since then.
+        // Shape: nativeLatestYear[weapon][category] = number (e.g. 2026).
+        nativeLatestYear: {},
+        // Per-category vote tally — finalized after all bouts processed.
+        _genderVotes: { M: 0, W: 0 },
+      };
+    }
     if (!fencers[k].byWeapon[weapon]) {
-      const fresh = () => ({
-        rating: settings.initialRating, rd: settings.initialRD, volatility: settings.initialVolatility,
-        peak: settings.initialRating, history: [], bouts: 0, wins: 0, losses: 0, ties: 0,
-      });
-      fencers[k].byWeapon[weapon] = { pool: fresh(), de: fresh() };
+      const slot = { pool: freshStream(), de: freshStream(), byAge: {} };
+      for (const cat of AGE_CATEGORIES) slot.byAge[cat] = { pool: freshStream(), de: freshStream() };
+      fencers[k].byWeapon[weapon] = slot;
     }
     if (canonClub && !fencers[k].club) fencers[k].club = canonClub;
-    // Only assign gender once — lock fencer to first gender found so a name
-    // collision or data error can't place them in both categories.
-    if (fencers[k].genders.size === 0) {
-      const g = normGender(gender) || genderFromText(competition);
-      if (g) fencers[k].genders.add(g);
-    }
     return fencers[k];
   };
 
@@ -215,76 +331,134 @@ export function processBouts(rawBouts, settings) {
     periods[key].push({ ...b, _weapon: w, _type: normBoutType(b.bout_type) });
   }
 
+  // Pluck the right rating-state object for a given (fencer, weapon, stream)
+  // where stream is 'top' (the all-events rating) or one of AGE_CATEGORIES.
+  const getStream = (fencer, weapon, ageStream, boutType) => {
+    const w = fencer.byWeapon[weapon];
+    if (ageStream === 'top') return w[boutType];
+    return w.byAge[ageStream][boutType];
+  };
+
   for (const pkey of Object.keys(periods).sort()) {
     const periodBouts = periods[pkey];
-    const [date, , weapon] = pkey.split('␟');
+    const [date, comp, weapon] = pkey.split('␟');
+    const periodCategory = parseAgeCategory(comp);
+    const ageStreamsForPeriod = STREAMS_FOR_CATEGORY[periodCategory] || [];
 
-    const snapPool = {};
-    const snapDe = {};
-
+    // Ensure all participants exist for this weapon.
     for (const b of periodBouts) {
-      const fA = ensure(b.fencer_a, b.club_a, weapon, b.gender, b.competition);
-      const fB = ensure(b.fencer_b, b.club_b, weapon, b.gender, b.competition);
-      if (!fA || !fB) continue;
-      const wA = fA.byWeapon[weapon], wB = fB.byWeapon[weapon];
-      if (!snapPool[fA.key]) snapPool[fA.key] = { rating: wA.pool.rating, rd: wA.pool.rd, volatility: wA.pool.volatility };
-      if (!snapPool[fB.key]) snapPool[fB.key] = { rating: wB.pool.rating, rd: wB.pool.rd, volatility: wB.pool.volatility };
-      if (!snapDe[fA.key])   snapDe[fA.key]   = { rating: wA.de.rating,   rd: wA.de.rd,   volatility: wA.de.volatility };
-      if (!snapDe[fB.key])   snapDe[fB.key]   = { rating: wB.de.rating,   rd: wB.de.rd,   volatility: wB.de.volatility };
+      ensure(b.fencer_a, b.club_a, weapon);
+      ensure(b.fencer_b, b.club_b, weapon);
     }
 
-    const perFencerPool = {};
-    const perFencerDe = {};
-    for (const b of periodBouts) {
-      const kA = nameKey(b.fencer_a), kB = nameKey(b.fencer_b);
-      if (!kA || !kB || kA === kB) continue;
-      const sA = parseInt(b.score_a, 10), sB = parseInt(b.score_b, 10);
-      if (isNaN(sA) || isNaN(sB)) continue;
-      const scoreA = sA > sB ? 1 : sB > sA ? 0 : 0.5;
-      const scoreB = 1 - scoreA;
-      const isDe = b._type === 'de';
-      const snap = isDe ? snapDe : snapPool;
-      const per = isDe ? perFencerDe : perFencerPool;
-      if (!snap[kA] || !snap[kB]) continue;
-      (per[kA] ||= []).push({ opponentRating: snap[kB].rating, opponentRD: snap[kB].rd, score: scoreA, weight: 1 });
-      (per[kB] ||= []).push({ opponentRating: snap[kA].rating, opponentRD: snap[kA].rd, score: scoreB, weight: 1 });
-    }
+    // Run a snapshot+aggregate+apply pass for the top-level stream first
+    // (always updated) and for each age-stream this period feeds into.
+    const allStreamsToUpdate = ['top', ...ageStreamsForPeriod];
+    // Stash top-level snapshots so we can attach pre/post ratings to the
+    // public `bouts` records — those reflect the top stream, as before.
+    let topSnapPool = null, topSnapDe = null;
 
-    const applyStream = (perFencer, snap, streamKey) => {
-      for (const k in perFencer) {
-        const before = snap[k];
-        const after = updateRating({ rating: before.rating, rd: before.rd, volatility: before.volatility }, perFencer[k], settings);
-        const wep = fencers[k].byWeapon[weapon][streamKey];
-        wep.rating = after.rating;
-        wep.rd = after.rd;
-        wep.volatility = after.volatility;
-        wep.peak = Math.max(wep.peak, after.rating);
-        for (const ob of perFencer[k]) {
-          wep.bouts += 1;
-          if (ob.score === 1) wep.wins += 1;
-          else if (ob.score === 0) wep.losses += 1;
-          else wep.ties += 1;
-        }
-        wep.history.push({ date, rating: Math.round(after.rating), rd: Math.round(after.rd) });
+    for (const ageStream of allStreamsToUpdate) {
+      const snapPool = {};
+      const snapDe = {};
+
+      for (const b of periodBouts) {
+        const kA = nameKey(b.fencer_a), kB = nameKey(b.fencer_b);
+        if (!kA || !kB) continue;
+        const fA = fencers[kA], fB = fencers[kB];
+        if (!fA || !fB) continue;
+        const sAPool = getStream(fA, weapon, ageStream, 'pool');
+        const sBPool = getStream(fB, weapon, ageStream, 'pool');
+        const sADe = getStream(fA, weapon, ageStream, 'de');
+        const sBDe = getStream(fB, weapon, ageStream, 'de');
+        if (!snapPool[kA]) snapPool[kA] = { rating: sAPool.rating, rd: sAPool.rd, volatility: sAPool.volatility };
+        if (!snapPool[kB]) snapPool[kB] = { rating: sBPool.rating, rd: sBPool.rd, volatility: sBPool.volatility };
+        if (!snapDe[kA])   snapDe[kA]   = { rating: sADe.rating,   rd: sADe.rd,   volatility: sADe.volatility };
+        if (!snapDe[kB])   snapDe[kB]   = { rating: sBDe.rating,   rd: sBDe.rd,   volatility: sBDe.volatility };
       }
-    };
-    applyStream(perFencerPool, snapPool, 'pool');
-    applyStream(perFencerDe, snapDe, 'de');
 
+      const perFencerPool = {};
+      const perFencerDe = {};
+      for (const b of periodBouts) {
+        const kA = nameKey(b.fencer_a), kB = nameKey(b.fencer_b);
+        if (!kA || !kB || kA === kB) continue;
+        const sA = parseInt(b.score_a, 10), sB = parseInt(b.score_b, 10);
+        if (isNaN(sA) || isNaN(sB)) continue;
+        const scoreA = sA > sB ? 1 : sB > sA ? 0 : 0.5;
+        const scoreB = 1 - scoreA;
+        const isDe = b._type === 'de';
+        const snap = isDe ? snapDe : snapPool;
+        const per = isDe ? perFencerDe : perFencerPool;
+        if (!snap[kA] || !snap[kB]) continue;
+        (per[kA] ||= []).push({ opponentRating: snap[kB].rating, opponentRD: snap[kB].rd, score: scoreA, weight: 1 });
+        (per[kB] ||= []).push({ opponentRating: snap[kA].rating, opponentRD: snap[kA].rd, score: scoreB, weight: 1 });
+      }
+
+      const isTop = ageStream === 'top';
+      const applyStream = (perFencer, snap, boutType) => {
+        for (const k in perFencer) {
+          const before = snap[k];
+          const after = updateRating({ rating: before.rating, rd: before.rd, volatility: before.volatility }, perFencer[k], settings);
+          const wep = getStream(fencers[k], weapon, ageStream, boutType);
+          wep.rating = after.rating;
+          wep.rd = after.rd;
+          wep.volatility = after.volatility;
+          wep.peak = Math.max(wep.peak, after.rating);
+          for (const ob of perFencer[k]) {
+            wep.bouts += 1;
+            if (ob.score === 1) wep.wins += 1;
+            else if (ob.score === 0) wep.losses += 1;
+            else wep.ties += 1;
+          }
+          // Only the top-level stream tracks rating-over-time history (used by
+          // the fencer profile chart). Per-category streams skip it to keep
+          // localStorage payloads small.
+          if (isTop) wep.history.push({ date, rating: Math.round(after.rating), rd: Math.round(after.rd) });
+        }
+      };
+      applyStream(perFencerPool, snapPool, 'pool');
+      applyStream(perFencerDe, snapDe, 'de');
+
+      if (isTop) { topSnapPool = snapPool; topSnapDe = snapDe; }
+    }
+
+    // Build public bout records + competition aggregates using top-level snapshots.
     for (const b of periodBouts) {
       const kA = nameKey(b.fencer_a), kB = nameKey(b.fencer_b);
       if (!kA || !kB || kA === kB) continue;
       const sA = parseInt(b.score_a, 10), sB = parseInt(b.score_b, 10);
       if (isNaN(sA) || isNaN(sB)) continue;
       const isDe = b._type === 'de';
-      const snap = isDe ? snapDe : snapPool;
-      if (!snap[kA] || !snap[kB]) continue;
+      const snap = isDe ? topSnapDe : topSnapPool;
+      if (!snap || !snap[kA] || !snap[kB]) continue;
       const wepA = fencers[kA].byWeapon[weapon][isDe ? 'de' : 'pool'];
       const wepB = fencers[kB].byWeapon[weapon][isDe ? 'de' : 'pool'];
+
+      // Gender votes: only single-gender event rows contribute. Mixed-event
+      // rows had their gender field cleared in the prepass.
+      const bg = normGender(b.gender) || genderFromText(b.competition);
+      if (bg) {
+        fencers[kA]._genderVotes[bg] = (fencers[kA]._genderVotes[bg] || 0) + 1;
+        fencers[kB]._genderVotes[bg] = (fencers[kB]._genderVotes[bg] || 0) + 1;
+      }
+
+      // Record that these two fencers natively competed in this category for
+      // this weapon, regardless of which streams the bout fed via inclusion.
+      (fencers[kA].nativeCategories[weapon] ||= new Set()).add(periodCategory);
+      (fencers[kB].nativeCategories[weapon] ||= new Set()).add(periodCategory);
+      const year = parseInt((date || '').slice(0, 4), 10);
+      if (Number.isFinite(year)) {
+        const aY = (fencers[kA].nativeLatestYear[weapon] ||= {});
+        const bY = (fencers[kB].nativeLatestYear[weapon] ||= {});
+        if (!aY[periodCategory] || year > aY[periodCategory]) aY[periodCategory] = year;
+        if (!bY[periodCategory] || year > bY[periodCategory]) bY[periodCategory] = year;
+      }
+
       bouts.push({
         id: bouts.length,
         date, weapon, type: b._type, deRound: (b.de_round || '').trim(),
         competition: (b.competition || '').trim(),
+        ageCategory: periodCategory,
         keyA: kA, keyB: kB, scoreA: sA, scoreB: sB,
         ratingABefore: snap[kA].rating, ratingBBefore: snap[kB].rating,
         ratingAAfter: wepA.rating, ratingBAfter: wepB.rating,
@@ -295,17 +469,41 @@ export function processBouts(rawBouts, settings) {
       const compId = `${b.competition || 'Unnamed'}|${weapon}|${date}`;
       if (!compMap[compId]) compMap[compId] = {
         id: compId, name: b.competition || 'Unnamed', date, weapon,
+        ageCategory: periodCategory,
         fencerKeys: new Set(), bouts: [], preRatingsPool: {}, preRatingsDe: {}, genders: new Set(),
       };
       compMap[compId].fencerKeys.add(kA);
       compMap[compId].fencerKeys.add(kB);
-      compMap[compId].preRatingsPool[kA] = snapPool[kA].rating;
-      compMap[compId].preRatingsPool[kB] = snapPool[kB].rating;
-      compMap[compId].preRatingsDe[kA] = snapDe[kA].rating;
-      compMap[compId].preRatingsDe[kB] = snapDe[kB].rating;
+      compMap[compId].preRatingsPool[kA] = topSnapPool[kA].rating;
+      compMap[compId].preRatingsPool[kB] = topSnapPool[kB].rating;
+      compMap[compId].preRatingsDe[kA] = topSnapDe[kA].rating;
+      compMap[compId].preRatingsDe[kB] = topSnapDe[kB].rating;
       compMap[compId].bouts.push(bouts[bouts.length - 1]);
-      const bg = normGender(b.gender);
       if (bg) compMap[compId].genders.add(bg);
+    }
+  }
+
+  // Finalize fencer.genders by majority vote across all single-gender bouts.
+  // Tie or no votes → leave gender unset.
+  for (const k in fencers) {
+    const v = fencers[k]._genderVotes || { M: 0, W: 0 };
+    let g = null;
+    if (v.M > v.W) g = 'M';
+    else if (v.W > v.M) g = 'W';
+    fencers[k].genders = new Set(g ? [g] : []);
+    delete fencers[k]._genderVotes;
+  }
+
+  // Mixed-event competitions had their row-level gender labels blanked during
+  // dedupe, so compMap[c].genders is empty. Reconstruct it from participants'
+  // finalized genders so the Competitions page still surfaces mixed events
+  // under both Mens and Womens filters.
+  for (const id in compMap) {
+    const c = compMap[id];
+    if (c.genders.size > 0) continue;
+    for (const fk of c.fencerKeys) {
+      const fg = fencers[fk]?.genders;
+      if (fg) for (const g of fg) c.genders.add(g);
     }
   }
 

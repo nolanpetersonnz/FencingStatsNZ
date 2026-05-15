@@ -1,23 +1,57 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRD, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 
-export default function Leaderboard({ fencers, bouts, weapon, gender, settings, onSelectFencer, onSelectClub }) {
+export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategory, settings, onSelectFencer, onSelectClub }) {
   const [minBouts, setMinBouts] = useState(1);
   const [club, setClub] = useState('all');
   const [sort, setSort] = useState('de');
   const k = settings?.displayK ?? 1;
+  const age = ageCategory || 'all';
+
+  // For age-category leaderboards, require the fencer to have competed in
+  // that category in the dataset's most recent year — keeps aged-out fencers
+  // out of the Junior/Cadet rankings.
+  const currentYear = useMemo(() => {
+    let max = 0;
+    for (const b of bouts) {
+      const y = parseInt((b.date || '').slice(0, 4), 10);
+      if (Number.isFinite(y) && y > max) max = y;
+    }
+    return max || new Date().getFullYear();
+  }, [bouts]);
 
   const ranked = useMemo(() => {
     const list = Object.values(fencers)
       .map(f => {
         const w = f.byWeapon[weapon];
         if (!w) return null;
-        const totalBouts = w.pool.bouts + w.de.bouts;
-        const totalWins = w.pool.wins + w.de.wins;
-        const totalLosses = w.pool.losses + w.de.losses;
-        const poolDisplay = conservativeRating(w.pool.rating, w.pool.rd, k);
-        const deDisplay = conservativeRating(w.de.rating, w.de.rd, k);
-        return { f, pool: w.pool, de: w.de, poolDisplay, deDisplay, totalBouts, totalWins, totalLosses };
+        // Pick which rating stream to display: 'all' = the canonical
+        // everything-counts rating; otherwise the downward-inclusive
+        // per-age-category stream populated in processBouts.
+        const streams = age === 'all' ? { pool: w.pool, de: w.de } : w.byAge?.[age];
+        if (!streams) return null;
+        // Leaderboard membership: when a specific category is selected, only
+        // include fencers who have natively competed in that category (an
+        // event actually tagged Junior/Cadet/etc.). Without this, every adult
+        // who fenced a senior event would slip into the Junior leaderboard via
+        // downward inclusion of senior bouts into the junior stream.
+        if (age !== 'all') {
+          // Cadets are also juniors by age — a fencer entering cadet events
+          // qualifies for the Junior leaderboard too, even without a junior
+          // entry of their own. The Junior rating math is unaffected: cadet
+          // bouts still don't feed `byAge.junior` (no-upward-contamination).
+          const eligibleNative = age === 'junior' ? ['junior', 'cadet'] : [age];
+          const native = f.nativeCategories?.[weapon];
+          const years = f.nativeLatestYear?.[weapon] || {};
+          if (!native || !eligibleNative.some(c => native.has(c))) return null;
+          if (!eligibleNative.some(c => years[c] === currentYear)) return null;
+        }
+        const totalBouts = streams.pool.bouts + streams.de.bouts;
+        const totalWins = streams.pool.wins + streams.de.wins;
+        const totalLosses = streams.pool.losses + streams.de.losses;
+        const poolDisplay = conservativeRating(streams.pool.rating, streams.pool.rd, k);
+        const deDisplay = conservativeRating(streams.de.rating, streams.de.rd, k);
+        return { f, pool: streams.pool, de: streams.de, poolDisplay, deDisplay, totalBouts, totalWins, totalLosses };
       })
       .filter(x => x && (x.totalBouts >= minBouts))
       .filter(x => club === 'all' || x.f.club === club)
@@ -35,7 +69,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, settings, 
       return 0;
     });
     return list;
-  }, [fencers, weapon, gender, minBouts, club, sort, k]);
+  }, [fencers, weapon, gender, age, minBouts, club, sort, k, currentYear]);
 
   const clubs = useMemo(() => {
     const s = new Set();
@@ -45,11 +79,12 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, settings, 
 
   const genderLabel = gender === 'W' ? 'Womens' : 'Mens';
   const weaponLabel = weapon === 'epee' ? 'Épée' : weapon.charAt(0).toUpperCase() + weapon.slice(1);
+  const ageLabel = age === 'all' ? '' : age.charAt(0).toUpperCase() + age.slice(1);
 
   if (ranked.length === 0) {
     return (
       <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--ink-soft)' }} className="fl-italic">
-        No fencers found in {genderLabel} {weaponLabel} matching these filters.
+        No fencers found in {ageLabel ? `${ageLabel} ` : ''}{genderLabel} {weaponLabel} matching these filters.
       </div>
     );
   }
@@ -60,7 +95,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, settings, 
     <div className="fl-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20, flexWrap: 'wrap', gap: 18 }}>
         <div>
-          <div className="fl-smallcaps">Standings · {genderLabel} {weaponLabel}</div>
+          <div className="fl-smallcaps">Standings · {ageLabel ? `${ageLabel} ` : ''}{genderLabel} {weaponLabel}</div>
           <h2 className="fl-display" style={{ fontSize: '2rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
             The {ranked.length} ranked
           </h2>

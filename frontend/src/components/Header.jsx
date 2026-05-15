@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, Settings as SettingsIcon } from 'lucide-react';
 
-export default function Header({ view, setView, weapon, setWeapon, gender, setGender, fencers, onSelectFencer, hasData }) {
+const AGE_OPTIONS = [
+  ['all', 'All ages'],
+  ['cadet', 'Cadet'],
+  ['junior', 'Junior'],
+  ['veteran', 'Veteran'],
+];
+
+export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -84,6 +91,20 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
                 {w === 'epee' ? 'Épée' : w}
               </button>
             ))}
+            {setAgeCategory && (
+              <>
+                <span style={{ width: 1, height: 18, background: 'var(--rule)', margin: '0 4px' }} />
+                <select
+                  value={ageCategory || 'all'}
+                  onChange={e => setAgeCategory(e.target.value)}
+                  className="fl-pill"
+                  style={{ fontFamily: 'inherit', cursor: 'pointer' }}
+                  title="Age category — Junior counts senior+junior bouts, Cadet counts cadet+junior+senior, Veteran is isolated"
+                >
+                  {AGE_OPTIONS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
+                </select>
+              </>
+            )}
           </div>
         </div>
       </div>
