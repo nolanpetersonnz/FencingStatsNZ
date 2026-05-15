@@ -388,16 +388,105 @@ def ingest_competition(payload: dict, canon, verbose: bool = False) -> list[Bout
             sized_tabs.append((size, tab))
         sized_tabs.sort(key=lambda x: x[0])
 
+        # Blank-name recovery: FeNZ tableau rows often have one slot's name
+        # missing even though the bout was fenced — typically when the OTHER
+        # fencer is a top seed who skipped earlier rounds. The named side
+        # ends up with a sub-cap score (because they lost) and the blank side
+        # has no score because the data lost their identity.
+        #
+        # We only recover bouts where the named side did NOT advance to the
+        # next round. If the named side advanced (or won by reaching the
+        # round cap), a fully-blank opponent slot is more likely a walkover
+        # (DNS) than missing data, and recovering would invent a bout that
+        # never happened.
+        tourn_results = ev.get("drawTournResults") or []
+        # Precompute the set of named fencers per round size, so we can ask
+        # "did the named fencer in this round appear in the next round?"
+        named_by_size: dict[int, set[str]] = {}
+        for sz, t in sized_tabs:
+            d = (t or {}).get("tableau_data") or []
+            named_by_size[sz] = {
+                (x.get("name") or "").strip()
+                for x in d if (x.get("name") or "").strip()
+            }
+
+        def recovery_for_round(size: int, tab: dict):
+            data = (tab or {}).get("tableau_data") or []
+            named = named_by_size.get(size, set())
+            blank_with_score = 0
+            for j in range(0, len(data) - 1, 2):
+                aa, bb = data[j], data[j + 1]
+                aan = (aa.get("name") or "").strip()
+                bbn = (bb.get("name") or "").strip()
+                aap, bbp = aa.get("points_for"), bb.get("points_for")
+                if ((aan and not bbn) or (bbn and not aan)) and (
+                    aap is not None or bbp is not None
+                ):
+                    blank_with_score += 1
+            candidates = []
+            for tr in tourn_results[:size]:
+                nm = (tr.get("name") or "").strip()
+                if nm and nm not in named:
+                    candidates.append(nm)
+            if blank_with_score == 1 and len(candidates) == 1:
+                return candidates[0]
+            return None
+
+        def named_advanced(name: str, size: int) -> bool:
+            """True if the named fencer appears in the next (smaller) round.
+            Used to filter out walkovers — if the named side advanced, the
+            blank opponent likely DNS'd rather than fencing an unrecorded
+            bout."""
+            smaller = size // 2
+            return smaller >= 2 and name in named_by_size.get(smaller, set())
+
         for size, tab in sized_tabs:
             round_label = DE_ROUND_LABELS.get(size, f"T{size}")
             data = (tab or {}).get("tableau_data") or []
+            recovered_name = recovery_for_round(size, tab)
+            # Cap for this round, inferred from the highest winning score in
+            # named bouts (15 for senior DE, 10 for many cadet/youth events).
+            round_cap = 0
+            for j in range(0, len(data) - 1, 2):
+                aa, bb = data[j], data[j + 1]
+                aan = (aa.get("name") or "").strip()
+                bbn = (bb.get("name") or "").strip()
+                aap, bbp = aa.get("points_for"), bb.get("points_for")
+                if aan and bbn and aap is not None and bbp is not None:
+                    sa = parse_score(aap)
+                    sb = parse_score(bbp)
+                    if sa is not None and sb is not None:
+                        w = max(sa, sb)
+                        if w > round_cap:
+                            round_cap = w
+            if round_cap <= 0:
+                round_cap = 15
             for i in range(0, len(data) - 1, 2):
                 a_raw, b_raw = data[i], data[i + 1]
                 a_name_raw = (a_raw.get("name") or "").strip()
                 b_name_raw = (b_raw.get("name") or "").strip()
-                if not a_name_raw or not b_name_raw:
-                    continue  # bye slot
                 a_pf, b_pf = a_raw.get("points_for"), b_raw.get("points_for")
+
+                if not a_name_raw and not b_name_raw:
+                    continue  # bye slot (both blank)
+
+                # Single-blank recovery: inject the missing finisher's name,
+                # but only when the named side LOST (didn't advance), so we
+                # know the blank fencer actually fenced and won.
+                if (not a_name_raw or not b_name_raw) and recovered_name:
+                    named_name = b_name_raw if not a_name_raw else a_name_raw
+                    if not named_advanced(named_name, size):
+                        if not a_name_raw:
+                            a_name_raw = recovered_name
+                            if a_pf is None and b_pf is not None:
+                                a_pf = round_cap
+                        else:
+                            b_name_raw = recovered_name
+                            if b_pf is None and a_pf is not None:
+                                b_pf = round_cap
+
+                if not a_name_raw or not b_name_raw:
+                    continue  # bye slot or unrecoverable
                 if a_pf is None or b_pf is None:
                     continue  # not yet fenced or higher seed bye
                 s_a = parse_score(a_pf)

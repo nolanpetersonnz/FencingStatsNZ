@@ -59,7 +59,7 @@ To load real results, go to the Import tab and upload a CSV, or use the ingest s
 ```bash
 cd ingest
 pip install requests rapidfuzz
-python fenz_ingest.py --since 2025-01-01 --cache ./cache --out bouts.csv
+python fenz_ingest.py --since 2024-01-01 --cache ./cache --out bouts.csv
 # Then import bouts.csv through the Import tab
 ```
 
