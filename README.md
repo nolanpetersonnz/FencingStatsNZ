@@ -21,7 +21,9 @@ FencingStatsNZ is an attempt at something better: a system that weights wins by 
 - **Fencer profiles with rating history** — track how your ratings move across competitions and spot trends in your pool vs DE split.
 - **Head-to-head comparison** — look up any two fencers' shared bout history and see a predicted win probability per stream based on current ratings.
 - **Competition browser** — browse events ranked by field strength (S–D tiers based on median pool rating).
-- **CSV import** — paste or upload a CSV of bout results; see the Import tab for the schema.
+- **Clubs ledger** — clubs ranked by aggregate member ratings, with per-club detail pages.
+- **Age-category rankings** — the Ledger can be filtered to Cadet, Junior, U23, or Senior to see how fencers stack up within their selection pool.
+- **Canonical dataset out of the box** — every visitor loads the same up-to-date dataset on first open (served from `public/data`), with CSV import still available for personal experiments.
 
 ---
 
@@ -41,6 +43,8 @@ Glicko-2 is not necessarily the *right* algorithm for fencing. It was chosen as 
 ## A note on the data
 
 FencingTimeLive recently blocked CSV exports from their results pages. To work around this, the ingest script (`ingest/fenz_ingest.py`) pulls directly from the FeNZ public API — the same data FeNZ uses to publish results on their own site. A side effect is that this gives FeNZ an incentive to keep their results up to date, since the data is only as good as what they enter.
+
+The shipped dataset currently spans 2018–2026 and contains ~56k bouts. DE brackets in the FeNZ cache occasionally place fencer rows at the wrong slot, which would produce phantom bouts and drop real ones; the ingest now verifies adjacent pairs by score consistency, falls back to score-matching across the round, and reconstructs blank-name slots from final standings. If you spot a bout that looks wrong, open an issue with the competition and round.
 
 ---
 
