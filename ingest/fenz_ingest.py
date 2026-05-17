@@ -388,20 +388,21 @@ def ingest_competition(payload: dict, canon, verbose: bool = False) -> list[Bout
             sized_tabs.append((size, tab))
         sized_tabs.sort(key=lambda x: x[0])
 
-        # Blank-name recovery: FeNZ tableau rows often have one slot's name
-        # missing even though the bout was fenced — typically when the OTHER
-        # fencer is a top seed who skipped earlier rounds. The named side
-        # ends up with a sub-cap score (because they lost) and the blank side
-        # has no score because the data lost their identity.
-        #
-        # We only recover bouts where the named side did NOT advance to the
-        # next round. If the named side advanced (or won by reaching the
-        # round cap), a fully-blank opponent slot is more likely a walkover
-        # (DNS) than missing data, and recovering would invent a bout that
-        # never happened.
+        # DE pairing reconstruction. FeNZ's tableau_data lays fencers out so
+        # adjacent rows should be a fenced pair, but the cache often misplaces
+        # names — two fencers in adjacent slots may show inconsistent scores
+        # (e.g. both winning 15-12, or HANSEN 15/12 next to WILSON 14/15)
+        # because the data was shuffled at display time. To reconstruct real
+        # bouts we:
+        #   1. Take adjacent pairs whose scores match (winner.pf == loser.pa).
+        #   2. For unmatched fencers, search the whole round for a score-match
+        #      opponent. The cache mis-displays the slot but each fencer's own
+        #      pf/pa pair is correct, so score matching finds the true partner.
+        #   3. Any still-unmatched named fencer with a real opponent score
+        #      (pa > 0) likely fenced someone whose row is fully blank. If
+        #      exactly one fencer from the top-N final standings is missing
+        #      from this round's named set, fill in the blank with that name.
         tourn_results = ev.get("drawTournResults") or []
-        # Precompute the set of named fencers per round size, so we can ask
-        # "did the named fencer in this round appear in the next round?"
         named_by_size: dict[int, set[str]] = {}
         for sz, t in sized_tabs:
             d = (t or {}).get("tableau_data") or []
@@ -410,85 +411,114 @@ def ingest_competition(payload: dict, canon, verbose: bool = False) -> list[Bout
                 for x in d if (x.get("name") or "").strip()
             }
 
-        def recovery_for_round(size: int, tab: dict):
-            data = (tab or {}).get("tableau_data") or []
-            named = named_by_size.get(size, set())
-            blank_with_score = 0
-            for j in range(0, len(data) - 1, 2):
-                aa, bb = data[j], data[j + 1]
-                aan = (aa.get("name") or "").strip()
-                bbn = (bb.get("name") or "").strip()
-                aap, bbp = aa.get("points_for"), bb.get("points_for")
-                if ((aan and not bbn) or (bbn and not aan)) and (
-                    aap is not None or bbp is not None
-                ):
-                    blank_with_score += 1
-            candidates = []
-            for tr in tourn_results[:size]:
-                nm = (tr.get("name") or "").strip()
-                if nm and nm not in named:
-                    candidates.append(nm)
-            if blank_with_score == 1 and len(candidates) == 1:
-                return candidates[0]
-            return None
-
-        def named_advanced(name: str, size: int) -> bool:
-            """True if the named fencer appears in the next (smaller) round.
-            Used to filter out walkovers — if the named side advanced, the
-            blank opponent likely DNS'd rather than fencing an unrecorded
-            bout."""
-            smaller = size // 2
-            return smaller >= 2 and name in named_by_size.get(smaller, set())
-
         for size, tab in sized_tabs:
             round_label = DE_ROUND_LABELS.get(size, f"T{size}")
             data = (tab or {}).get("tableau_data") or []
-            recovered_name = recovery_for_round(size, tab)
-            # Cap for this round, inferred from the highest winning score in
-            # named bouts (15 for senior DE, 10 for many cadet/youth events).
-            round_cap = 0
-            for j in range(0, len(data) - 1, 2):
-                aa, bb = data[j], data[j + 1]
-                aan = (aa.get("name") or "").strip()
-                bbn = (bb.get("name") or "").strip()
-                aap, bbp = aa.get("points_for"), bb.get("points_for")
-                if aan and bbn and aap is not None and bbp is not None:
-                    sa = parse_score(aap)
-                    sb = parse_score(bbp)
-                    if sa is not None and sb is not None:
-                        w = max(sa, sb)
-                        if w > round_cap:
-                            round_cap = w
-            if round_cap <= 0:
-                round_cap = 15
-            for i in range(0, len(data) - 1, 2):
-                a_raw, b_raw = data[i], data[i + 1]
+            n = len(data)
+
+            entries: list[tuple[int, str, int, int]] = []
+            for idx, item in enumerate(data):
+                nm = (item.get("name") or "").strip()
+                pf = parse_score(item.get("points_for"))
+                pa = parse_score(item.get("points_against"))
+                if nm and pf is not None and pa is not None:
+                    entries.append((idx, nm, pf, pa))
+
+            matched: dict[int, int] = {}
+
+            # Step 1: adjacent pairs whose scores match are a real bout
+            for i in range(0, n - 1, 2):
+                a, b = data[i], data[i + 1]
+                an = (a.get("name") or "").strip()
+                bn = (b.get("name") or "").strip()
+                if not an or not bn:
+                    continue
+                apf = parse_score(a.get("points_for"))
+                apa = parse_score(a.get("points_against"))
+                bpf = parse_score(b.get("points_for"))
+                bpa = parse_score(b.get("points_against"))
+                if apf is None or apa is None or bpf is None or bpa is None:
+                    continue
+                if apf == bpa and apa == bpf:
+                    matched[i] = i + 1
+                    matched[i + 1] = i
+
+            # Step 2: for unmatched named entries, find their score-match
+            # elsewhere in the round (handles misplaced rows)
+            for idx, _, pf, pa in entries:
+                if idx in matched:
+                    continue
+                candidates = [
+                    j for j, _, pf2, pa2 in entries
+                    if j != idx and j not in matched
+                    and pf2 == pa and pa2 == pf
+                ]
+                if not candidates:
+                    continue
+                chosen = candidates[0] if len(candidates) == 1 else min(
+                    candidates, key=lambda c: abs(c - idx)
+                )
+                matched[idx] = chosen
+                matched[chosen] = idx
+
+            # Step 3: recover one missing fencer from final standings if
+            # exactly one named entry is unmatched and one fencer from the
+            # top-N is absent from this round
+            named_set = {nm for (_, nm, _, _) in entries}
+            recovery_candidates = [
+                (tr.get("name") or "").strip()
+                for tr in tourn_results[:size]
+                if (tr.get("name") or "").strip()
+                and (tr.get("name") or "").strip() not in named_set
+            ]
+            unmatched_named = [
+                (i, nm, pf, pa) for i, nm, pf, pa in entries if i not in matched
+            ]
+            unmatched_blanks = [
+                i for i in range(n)
+                if i not in matched and not (data[i].get("name") or "").strip()
+            ]
+            recovered_pairs: dict[int, str] = {}
+            if (len(unmatched_named) == 1 and len(unmatched_blanks) >= 1
+                    and len(recovery_candidates) == 1):
+                idx_n, _, _, pa = unmatched_named[0]
+                # Walkover guard: if the named side had no opponent score
+                # (pa is 0 or None), the empty slot is a DNS, not a real bout.
+                if pa is not None and pa > 0:
+                    blank_idx = min(unmatched_blanks, key=lambda b: abs(b - idx_n))
+                    matched[idx_n] = blank_idx
+                    matched[blank_idx] = idx_n
+                    recovered_pairs[blank_idx] = recovery_candidates[0]
+
+            # Step 4: emit bouts
+            emitted: set[int] = set()
+            for i in range(n):
+                if i not in matched or i in emitted:
+                    continue
+                j = matched[i]
+                emitted.add(i)
+                emitted.add(j)
+                a_idx, b_idx = (i, j) if i < j else (j, i)
+                a_raw = data[a_idx]
+                b_raw = data[b_idx]
                 a_name_raw = (a_raw.get("name") or "").strip()
                 b_name_raw = (b_raw.get("name") or "").strip()
-                a_pf, b_pf = a_raw.get("points_for"), b_raw.get("points_for")
+                a_pf = a_raw.get("points_for")
+                a_pa = a_raw.get("points_against")
+                b_pf = b_raw.get("points_for")
+                b_pa = b_raw.get("points_against")
 
-                if not a_name_raw and not b_name_raw:
-                    continue  # bye slot (both blank)
-
-                # Single-blank recovery: inject the missing finisher's name,
-                # but only when the named side LOST (didn't advance), so we
-                # know the blank fencer actually fenced and won.
-                if (not a_name_raw or not b_name_raw) and recovered_name:
-                    named_name = b_name_raw if not a_name_raw else a_name_raw
-                    if not named_advanced(named_name, size):
-                        if not a_name_raw:
-                            a_name_raw = recovered_name
-                            if a_pf is None and b_pf is not None:
-                                a_pf = round_cap
-                        else:
-                            b_name_raw = recovered_name
-                            if b_pf is None and a_pf is not None:
-                                b_pf = round_cap
+                if not a_name_raw and a_idx in recovered_pairs:
+                    a_name_raw = recovered_pairs[a_idx]
+                    if a_pf is None and b_pa is not None:
+                        a_pf = b_pa
+                if not b_name_raw and b_idx in recovered_pairs:
+                    b_name_raw = recovered_pairs[b_idx]
+                    if b_pf is None and a_pa is not None:
+                        b_pf = a_pa
 
                 if not a_name_raw or not b_name_raw:
-                    continue  # bye slot or unrecoverable
-                if a_pf is None or b_pf is None:
-                    continue  # not yet fenced or higher seed bye
+                    continue
                 s_a = parse_score(a_pf)
                 s_b = parse_score(b_pf)
                 if s_a is None or s_b is None:
