@@ -3,6 +3,7 @@
 ## [0.1.11] - 2026-05-19
 ### Changed
 - Competition Detail "Performance" table now orders fencers by total Elo change at that event (pool delta + DE delta), highest first, with an italic caption stating the ordering. Previously sorted by post-event rating, which mixed pool-only and DE-after values on different scales and could rank a high-rated early-exit above the gold medallist. Final placement isn't in the dataset, so Elo movement is the most informative proxy currently available
+- Import (data ingest) and Tuning (rating parameters) moved off the public nav and into the Admin panel at `/#admin` as new section pills next to Edits and Clubs. Same token gate as the rest of admin. Public visitors now see only Ledger / Competitions / Clubs / Head-to-Head. `EmptyState`'s "Import Results" button redirects to `/#admin`
 ### Fixed
 - `EditPanel` text inputs (display name, current club, merge target) no longer lose focus after each keystroke. The inner `Row` helper was defined inside the parent's render body, giving it a fresh component identity per render; React saw a new component type each time and remounted the `<input>`, dropping focus and the IME selection. Hoisted `Row` to module scope with `openId` / `setOpen` props so the input now has a stable parent and keeps focus while typing
 
