@@ -44,19 +44,53 @@ export function rateLimiter() {
   return _rl;
 }
 
-// Read the same fencers.json the public site fetches. vercel.json's
-// includeFiles config bundles public/data/fencers.json into the
-// function image so this path resolves at runtime.
+// Read the same fencers.json the public site fetches. Tries the
+// filesystem first (vercel.json's includeFiles should bundle it under
+// public/data/) and falls back to an HTTP fetch from the same origin
+// if that fails — covers both cold-start paths and any includeFiles
+// quirk where the file ends up at an unexpected location.
 let _fencers = null;
-export async function fencerInfo() {
+export async function fencerInfo(req) {
   if (_fencers) return _fencers;
-  const fp = path.join(process.cwd(), 'public', 'data', 'fencers.json');
-  try {
-    const txt = await readFile(fp, 'utf-8');
-    _fencers = JSON.parse(txt);
-  } catch {
-    _fencers = [];
+
+  const candidates = [
+    path.join(process.cwd(), 'public', 'data', 'fencers.json'),
+    path.join(process.cwd(), 'frontend', 'public', 'data', 'fencers.json'),
+    '/var/task/public/data/fencers.json',
+    '/var/task/frontend/public/data/fencers.json',
+  ];
+  for (const fp of candidates) {
+    try {
+      const txt = await readFile(fp, 'utf-8');
+      _fencers = JSON.parse(txt);
+      console.log('fencerInfo loaded', _fencers.length, 'from', fp);
+      return _fencers;
+    } catch {
+      /* try next candidate */
+    }
   }
+
+  // Fall back to HTTP. Vercel always serves /data/fencers.json from
+  // the static build, so we can self-fetch via the host header.
+  try {
+    const host = req?.headers?.host;
+    const proto = req?.headers?.['x-forwarded-proto'] || 'https';
+    if (host) {
+      const url = `${proto}://${host}/data/fencers.json`;
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (res.ok) {
+        _fencers = await res.json();
+        console.log('fencerInfo loaded', _fencers.length, 'via HTTP', url);
+        return _fencers;
+      }
+      console.warn('fencerInfo HTTP fetch failed', url, res.status);
+    }
+  } catch (e) {
+    console.warn('fencerInfo HTTP fallback errored', e?.message || e);
+  }
+
+  console.warn('fencerInfo: all sources failed; returning empty');
+  _fencers = [];
   return _fencers;
 }
 
@@ -65,10 +99,11 @@ export function nameKey(s) {
 }
 
 // Find the fencer enrichment record by licence hash. Returns null when
-// the hash doesn't belong to any known fencer.
-export async function fencerForHash(hash) {
+// the hash doesn't belong to any known fencer. Pass `req` so the
+// loader can self-fetch via HTTP if the bundled file isn't present.
+export async function fencerForHash(hash, req) {
   if (!hash || typeof hash !== 'string' || hash.length !== 64) return null;
-  const list = await fencerInfo();
+  const list = await fencerInfo(req);
   for (const f of list) {
     if (f.licence_hashes?.includes(hash)) return f;
   }

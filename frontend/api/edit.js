@@ -66,7 +66,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const fencer = await fencerForHash(licence_hash);
+  const fencer = await fencerForHash(licence_hash, req);
   if (!fencer) {
     res.status(401).json({ error: 'unknown licence' });
     return;
