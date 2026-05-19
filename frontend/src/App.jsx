@@ -3,6 +3,8 @@ import STYLE from './styles.js';
 import { DEFAULT_SETTINGS } from './constants.js';
 import { processBouts, makeDemoBouts, parseCSV } from './data/pipeline.js';
 import { loadFromStorage, saveToStorage, clearStorage } from './data/storage.js';
+import { loadFencerInfo, buildEnrichmentIndex, findFencerByLicenceHash, fencerKeyForInfo } from './data/fencerInfo.js';
+import { loadOverrides } from './data/edits.js';
 import Header from './components/Header.jsx';
 import EmptyState from './components/EmptyState.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
@@ -14,9 +16,13 @@ import ClubDetail from './components/ClubDetail.jsx';
 import HeadToHead from './components/HeadToHead.jsx';
 import Import from './components/Import.jsx';
 import Settings from './components/Settings.jsx';
+import Admin from './components/Admin.jsx';
 
 export default function App() {
   const [rawBouts, setRawBouts] = useState([]);
+  const [fencerInfo, setFencerInfo] = useState([]);
+  const [session, setSession] = useState(null); // { licenceHash, info } when signed in
+  const [overrides, setOverrides] = useState({ name_overrides: {}, club_overrides: {}, flagged_bouts: [] });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [view, setView] = useState('leaderboard');
   const [selectedFencer, setSelectedFencer] = useState(null);
@@ -61,6 +67,33 @@ export default function App() {
       } else if (stored?.rawBouts) {
         setRawBouts(stored.rawBouts);
       }
+
+      const info = await loadFencerInfo();
+      setFencerInfo(info);
+
+      // Pull live overrides (applied name/club edits + flagged bouts).
+      // Failure here is non-fatal — the function gracefully returns an
+      // empty doc on Upstash outage.
+      const ov = await loadOverrides();
+      if (ov) setOverrides({
+        name_overrides: ov.name_overrides || {},
+        club_overrides: ov.club_overrides || {},
+        flagged_bouts: ov.flagged_bouts || [],
+      });
+
+      // Restore login session if a hash is in localStorage and still
+      // resolves to a known fencer.
+      try {
+        const savedHash = localStorage.getItem('fl_session_licence_hash');
+        if (savedHash) {
+          const match = findFencerByLicenceHash(info, savedHash);
+          if (match) setSession({ licenceHash: savedHash, info: match });
+          else localStorage.removeItem('fl_session_licence_hash');
+        }
+      } catch {
+        // Private-mode browsers may throw on localStorage access — ignore.
+      }
+
       setLoaded(true);
     })();
   }, []);
@@ -74,11 +107,57 @@ export default function App() {
     else saveToStorage({ rawBouts, settings });
   }, [rawBouts, settings, loaded, serverSourced]);
 
-  const { fencers, bouts, competitions } = useMemo(
+  const { fencers: rawFencers, bouts, competitions } = useMemo(
     () => processBouts(rawBouts, settings),
     [rawBouts, settings]
   );
+
+  // Apply live name/club overrides over the bout-derived fencers map.
+  // Overrides win over what processBouts inferred from the latest bout.
+  // We clone shallow so the original object stays stable for rating
+  // memoisation in other components.
+  const fencers = useMemo(() => {
+    const { name_overrides, club_overrides } = overrides;
+    if (!Object.keys(name_overrides).length && !Object.keys(club_overrides).length) return rawFencers;
+    const out = {};
+    for (const k in rawFencers) {
+      const f = rawFencers[k];
+      const newName = name_overrides[k]?.value;
+      const newClub = club_overrides[k]?.value;
+      if (newName || newClub) {
+        out[k] = { ...f, name: newName || f.name, club: newClub != null ? newClub : f.club };
+      } else {
+        out[k] = f;
+      }
+    }
+    return out;
+  }, [rawFencers, overrides]);
+
+  const flaggedBouts = useMemo(() => new Set(overrides.flagged_bouts || []), [overrides]);
+
+  // name_key → enrichment record, derived from the shipped fencers.json.
+  // Components read enrichment lazily via this map rather than mutating
+  // the bout-derived fencers (which are recomputed on every settings
+  // change).
+  const enrichment = useMemo(() => buildEnrichmentIndex(fencerInfo), [fencerInfo]);
+
+  // The session fencer's key in the current `fencers` map — null when
+  // signed out, or when the signed-in person has no bouts in the dataset.
+  const sessionFencerKey = useMemo(
+    () => (session ? fencerKeyForInfo(session.info, fencers) : null),
+    [session, fencers]
+  );
+
   const hasData = rawBouts.length > 0;
+
+  const handleLogin = (licenceHash, info) => {
+    try { localStorage.setItem('fl_session_licence_hash', licenceHash); } catch {}
+    setSession({ licenceHash, info });
+  };
+  const handleLogout = () => {
+    try { localStorage.removeItem('fl_session_licence_hash'); } catch {}
+    setSession(null);
+  };
 
   const pushHistory = () => setHistory(h => [...h, { view, selectedFencer, selectedComp, selectedClub }]);
   const goFencer = (k) => { pushHistory(); setSelectedFencer(k); setSelectedComp(null); setSelectedClub(null); setView('fencer'); };
@@ -124,6 +203,18 @@ export default function App() {
     }
   }, [hasData, fencers, weapon]);
 
+  // Hash-route the admin page so it stays off the visible nav. Visit
+  // /#admin to access it. Leaving the page returns you to the Ledger.
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#admin' && view !== 'admin') setView('admin');
+      else if (window.location.hash !== '#admin' && view === 'admin') setView('leaderboard');
+    };
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [view]);
+
   return (
     <div className="fl-root">
       <style>{STYLE}</style>
@@ -139,10 +230,17 @@ export default function App() {
         fencers={fencers}
         onSelectFencer={goFencer}
         hasData={hasData}
+        fencerInfo={fencerInfo}
+        session={session}
+        sessionFencerKey={sessionFencerKey}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
       />
 
       <main style={{ maxWidth: 1240, margin: '0 auto', padding: '36px 32px 80px' }}>
-        {!hasData && view !== 'import' && view !== 'settings' ? (
+        {view === 'admin' ? (
+          <Admin onLeave={() => { window.location.hash = ''; }} />
+        ) : !hasData && view !== 'import' && view !== 'settings' ? (
           <EmptyState onLoadDemo={handleLoadDemo} onGotoImport={() => setView('import')} />
         ) : view === 'leaderboard' ? (
           <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} ageCategory={ageCategory} settings={settings} onSelectFencer={goFencer} onSelectClub={goClub} />
@@ -164,6 +262,10 @@ export default function App() {
             competitions={competitions}
             weapon={weapon}
             settings={settings}
+            enrichment={enrichment}
+            isOwnProfile={sessionFencerKey && sessionFencerKey === selectedFencer}
+            session={session}
+            flaggedBouts={flaggedBouts}
             onBack={goBack}
             onSelectFencer={goFencer}
             onSelectComp={goComp}
@@ -191,7 +293,7 @@ export default function App() {
 
         <footer style={{ marginTop: 80, paddingTop: 24, borderTop: '1px solid var(--rule)' }}>
           <div className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.85rem', textAlign: 'center' }}>
-            <span className="fl-ornament">❦</span>  A prototype  ·  Rating algorithm under development  ·  Data persists locally
+            A prototype  ·  Rating algorithm under development  ·  Data persists locally
           </div>
         </footer>
       </main>

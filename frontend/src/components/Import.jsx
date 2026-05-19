@@ -88,7 +88,7 @@ export default function Import({ onImport, onLoadDemo, hasData, onClear, rawBout
       )}
       {success && (
         <div style={{ marginTop: 24, padding: 14, background: 'rgba(26,107,181,0.06)', border: '1px solid var(--ox)', color: 'var(--ox-deep)' }}>
-          ✓ {success}
+          {success}
         </div>
       )}
 
