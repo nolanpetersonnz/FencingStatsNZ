@@ -5,6 +5,34 @@ Status: **open** (not yet addressed), **addressed** (shipped, link to version), 
 
 ---
 
+## Round 2 — broader review
+
+### Club strength tier formula favours tiny clubs — **open**
+- Source: reviewer, 2026-05
+- "The club section strength doesn't work quite perhaps the way it should, with the very small clubs being able to get the A and Australia coming out as B, and most of the substantive clubs as C."
+- Root cause (hypothesised): aggregate club rating is computed in a way that small clubs with one or two high-rated members rank above larger clubs whose distribution naturally regresses toward the mean. Australian clubs are pulled in because of trans-Tasman events but their member count is small in our dataset.
+- Direction: needs a strength metric that rewards depth, not just peaks. Candidate: weighted blend of median + top-N average, with a minimum-member threshold to qualify.
+- Status: open — needs design decision before implementation.
+
+### Club section should answer "where should I fence?" — **open**
+- Source: reviewer, 2026-05
+- "It would also be useful to think about the club section from the perspective of: if I'm a fencer and looking to go fence somewhere, where should I go? That might mean having information about locations and also doing some filtering in terms of which clubs are actually affiliated versus non-affiliated."
+- Direction: the current club page is built around "how strong is this club?" The reviewer is pointing out a different question entirely — "should I train here?" — which calls for location, affiliation status, weapons offered, training times, contact info. None of this is in the FeNZ API.
+- Status: open — requires data we don't currently have. Probably a manual / community-maintained `clubs.json` overlay.
+
+### Affiliated vs non-affiliated club filtering — **open**
+- Source: reviewer, 2026-05
+- Related to above. Some clubs in the dataset aren't formally FeNZ-affiliated, which matters for fencers choosing where to compete.
+- Status: open — needs an affiliation list from FeNZ.
+
+### "What does it show you're capable of?" — **noted, not actionable**
+- Source: reviewer, 2026-05
+- "If I'm looking at this from the perspective of what it shows you're capable of, the kind of questions that I would get to would be: Is it deployed and used by people?"
+- Not a bug or feature request — strategic feedback about how the project will be evaluated by external audiences (e.g. admissions readers, federations, recruiters). The two questions implied: (1) is it live at a URL, (2) does it have real users?
+- Status of (1): deployed at [Vercel URL]. Status of (2): in active beta with NZ fencing community.
+
+---
+
 ## Post-launch feedback (after first release)
 
 ### Mixed events double-count Elo — **addressed in [0.1.8]**
