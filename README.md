@@ -71,21 +71,45 @@ See `python fenz_ingest.py --help` for the full list of options, including `--sc
 
 ---
 
-## Deploying to Vercel
-
-Import the repo, set the root directory to `frontend`, and Vercel will pick up `npm run build` automatically. No environment variables needed — the app is entirely client-side.
-
----
-
 ## Screenshot
 
-*Coming soon.*
-
+![FencingStatsNZ — fencer profile view](docs/ProfileView.png)
 ---
 
 ## A note on my own rankings
 
 I'm ranked #1 in NZ Juniors and #8 in Seniors — previously #1. My own rating in this system is lower than my official ranking. The system isn't built to flatter me. Its harder on fencers who've padded their points at smaller competitions.
+
+---
+
+FAQ
+
+**Why is my rating different from my official FeNZ ranking?**
+FeNZ's current ranking sums your top five competition placings — it weighs different events, regardless of how strong each field was. This system instead asks "who did you actually beat?" Beating top fencers raises your rating more than beating less established ones, and 'easier' competitions give you less elo than strong ones. The two systems will  disagree, especially for fencers who've competed often in smaller regional events. That's by design.
+
+**Why are there two ratings — Pool and DE?**
+Because pool fencing and direct elimination are different skills. Pool bouts are five-touch, with low stakes individually. DE bouts are fifteen-touches, with high-pressure. A fencer can be strong at one and average at the other. Treating them as one number hides where your strengths actually live. 
+
+**Why are some fencers missing from the data?**
+The dataset covers competitions registered with FeNZ from 2018 onward. If a fencer only ever competed at unregistered events, in non-FeNZ tournaments, or before 2018, they won't appear. If they've competed in registered events but are still missing, open an issue with the competition name and I'll fix it.
+
+**Is this an official FeNZ tool?**
+Not at this time. The project is developed independently and uses FeNZ's public results data. I'm in active discussion with Fencing NZ about possible collaboration.
+
+**Why am I ranked lower than I expected?**
+A few possibilities. You might have high RD (limited recent activity), in which case the system is being conservative about your rating. You might have been losing to lower-rated opponents recently, which hits ratings harder than equivalent wins help. You might be strong in DE but not pools (or vice versa). Check both ratings on your profile. Or the system might genuinely have it wrong, in which case I'd love to know. Open an issue with specifics.
+
+**How do I report a bug or weird-looking rating?**
+Open an issue on the GitHub repo. Include: who, what tournament, what looked wrong, what you'd expect instead. Most bugs surface this way — your "this looks wrong" report is more useful than you think.
+
+**Can I contribute?**
+Yes! Open an issue on Github if you'd like to help and I'll figure out where you can fit in. Pull requests are welcome, particularly for bug fixes, data quality issues, UI improvements, and design feedback.
+
+**Why Glicko-2?**
+See DESIGN.md for the detailed reasoning. In short: Glicko-2 handles infrequent competition schedules better than Elo, and is simpler than TrueSkill while doing most of what's important for fencing. It's a starting point, not a final answer. The algorithm is replaceable and I'm open to other ideas.
+
+**What about my privacy?**
+The system displays the same information that's already publicly available on results.fencing.org.nz — fencer names, club affiliations, competition results. I don't display contact info, or anything private. If you appear in the dataset and would like to be removed, contact me and we'll work it out, though note that "remove from a public rating system" is difficult because your bouts affect other fencers' ratings — I'd anonymise rather than delete.
 
 ---
 
