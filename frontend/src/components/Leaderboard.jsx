@@ -45,13 +45,17 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
           const dob = enrichment?.[f.key]?.dob_year;
           const native = f.nativeCategories?.[weapon];
           const years = f.nativeLatestYear?.[weapon] || {};
-          const fencedThisYear = native && Object.values(years).some((y) => y === currentYear);
 
           if (age === 'junior' || age === 'cadet') {
             const cutoff = age === 'junior' ? currentYear - 20 : currentYear - 17;
             if (dob != null) {
+              // DOB-based filter alone — being age-eligible is enough.
+              // No "fenced this year" gate, since juniors who haven't
+              // competed in the current year (Joel Ball-La Hood, Nolan
+              // Peterson) are still current juniors by age and deserve
+              // a place on the list. The minBouts slider handles the
+              // very-stale case.
               if (dob < cutoff) return null;
-              if (!fencedThisYear) return null;
             } else {
               // Fallback: rely on event tagging for fencers without DOB.
               // Junior view also includes cadet entrants (cadet => junior).
