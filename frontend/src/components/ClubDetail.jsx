@@ -16,7 +16,7 @@ const WEAPONS = [
   { key: 'sabre', label: 'Sabre' },
 ];
 
-export default function ClubDetail({ clubName, fencers, settings, onBack, onSelectFencer }) {
+export default function ClubDetail({ clubName, fencers, settings, clubMeta, onBack, onSelectFencer }) {
   const k = settings?.displayK ?? 1;
 
   const members = useMemo(() => {
@@ -119,6 +119,28 @@ export default function ClubDetail({ clubName, fencers, settings, onBack, onSele
           <h2 className="fl-display" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 700, margin: '6px 0 0', letterSpacing: '-0.02em', lineHeight: 1 }}>
             {clubName}
           </h2>
+          {clubMeta && (clubMeta.location || clubMeta.website || clubMeta.affiliated != null) && (
+            <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginTop: 12, fontSize: '0.95rem', display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
+              {clubMeta.location && <span>{clubMeta.location}</span>}
+              {clubMeta.website && (
+                <a
+                  href={clubMeta.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="fl-link"
+                  style={{ color: 'var(--ox)' }}
+                >
+                  {clubMeta.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                </a>
+              )}
+              {clubMeta.affiliated === true && (
+                <span className="fl-smallcaps" style={{ fontSize: '0.7rem', padding: '2px 7px', border: '1px solid var(--ox)', color: 'var(--ox)' }}>FNZ affiliated</span>
+              )}
+              {clubMeta.affiliated === false && (
+                <span className="fl-smallcaps" style={{ fontSize: '0.7rem', padding: '2px 7px', border: '1px solid var(--ink-faint)', color: 'var(--ink-faint)' }}>not affiliated</span>
+              )}
+            </div>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
           <div style={{ textAlign: 'right' }}>

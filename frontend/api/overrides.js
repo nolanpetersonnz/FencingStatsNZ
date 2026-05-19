@@ -17,22 +17,25 @@ export default async function handler(req, res) {
 
   try {
     const db = redis();
-    const [overridesRaw, flagged] = await Promise.all([
+    const [overridesRaw, flagged, clubMetaRaw] = await Promise.all([
       db.get('overrides'),
       db.smembers('flagged_bouts'),
+      db.get('club_meta'),
     ]);
     const overrides = overridesRaw
       ? (typeof overridesRaw === 'string' ? JSON.parse(overridesRaw) : overridesRaw)
       : { name_overrides: {}, club_overrides: {} };
+    const clubMeta = clubMetaRaw
+      ? (typeof clubMetaRaw === 'string' ? JSON.parse(clubMetaRaw) : clubMetaRaw)
+      : {};
     res.status(200).json({
       name_overrides: overrides.name_overrides || {},
       club_overrides: overrides.club_overrides || {},
       flagged_bouts: Array.isArray(flagged) ? flagged : [],
+      club_meta: clubMeta,
     });
   } catch (e) {
-    // If Upstash is unreachable we degrade to empty overrides rather
-    // than erroring out — the site stays usable, just without edits.
     console.warn('overrides-fetch-failed', e);
-    res.status(200).json({ name_overrides: {}, club_overrides: {}, flagged_bouts: [] });
+    res.status(200).json({ name_overrides: {}, club_overrides: {}, flagged_bouts: [], club_meta: {} });
   }
 }

@@ -62,7 +62,54 @@ export default async function handler(req, res) {
   }
 
   const body = await readJsonBody(req);
-  const { id, action, admin_note } = body || {};
+  const { id, action, admin_note, payload } = body || {};
+
+  // Club-meta actions don't operate on a single edit record — they
+  // mutate the club_meta_overrides doc directly. Dispatched here so
+  // /api/admin stays one endpoint.
+  if (action === 'set_club_meta' || action === 'clear_club_meta') {
+    const club = String(payload?.club_name || '').trim();
+    if (!club) {
+      res.status(400).json({ error: 'club_name required' });
+      return;
+    }
+    const cur = (await db.get('club_meta')) || {};
+    const parsed = typeof cur === 'string' ? JSON.parse(cur) : cur;
+    if (action === 'set_club_meta') {
+      parsed[club] = {
+        website: String(payload?.website || '').trim() || null,
+        location: String(payload?.location || '').trim() || null,
+        affiliated: payload?.affiliated === true ? true : payload?.affiliated === false ? false : null,
+        updated_at: new Date().toISOString(),
+      };
+    } else {
+      delete parsed[club];
+    }
+    await db.set('club_meta', JSON.stringify(parsed));
+    res.status(200).json({ ok: true, club_meta: parsed[club] || null });
+    return;
+  }
+
+  if (action === 'assign_fencer') {
+    const fkey = String(payload?.fencer_key || '').trim().toLowerCase();
+    const club = String(payload?.club_name ?? '').trim();
+    if (!fkey) {
+      res.status(400).json({ error: 'fencer_key required' });
+      return;
+    }
+    const cur = (await db.get('overrides')) || {};
+    const parsed = typeof cur === 'string' ? JSON.parse(cur) : cur;
+    const next = { name_overrides: {}, club_overrides: {}, ...parsed };
+    if (club === '') {
+      delete next.club_overrides[fkey];
+    } else {
+      next.club_overrides[fkey] = { value: club, edit_id: `admin-${Date.now()}` };
+    }
+    await db.set('overrides', JSON.stringify(next));
+    res.status(200).json({ ok: true });
+    return;
+  }
+
   if (!id || !['approve', 'reject', 'revert'].includes(action)) {
     res.status(400).json({ error: 'id and action required' });
     return;
