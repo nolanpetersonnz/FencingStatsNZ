@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRD, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 
-export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategory, settings, onSelectFencer, onSelectClub }) {
+export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategory, settings, enrichment, onSelectFencer, onSelectClub }) {
   const [minBouts, setMinBouts] = useState(1);
   const [club, setClub] = useState('all');
   const [sort, setSort] = useState('de');
@@ -36,15 +36,34 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
         // who fenced a senior event would slip into the Junior leaderboard via
         // downward inclusion of senior bouts into the junior stream.
         if (age !== 'all') {
-          // Cadets are also juniors by age — a fencer entering cadet events
-          // qualifies for the Junior leaderboard too, even without a junior
-          // entry of their own. The Junior rating math is unaffected: cadet
-          // bouts still don't feed `byAge.junior` (no-upward-contamination).
-          const eligibleNative = age === 'junior' ? ['junior', 'cadet'] : [age];
+          // DOB-based eligibility takes priority when we know the fencer's
+          // birth year (from the Fencing Time XML registry). Junior is
+          // U20 — born `currentYear - 20` or later (so 2006+ in the 2026
+          // season). Cadet is U17 — born `currentYear - 17` or later
+          // (2009+ in 2026). Veteran has no DOB cutoff defined in NZ; fall
+          // back to event-tag inference for it.
+          const dob = enrichment?.[f.key]?.dob_year;
           const native = f.nativeCategories?.[weapon];
           const years = f.nativeLatestYear?.[weapon] || {};
-          if (!native || !eligibleNative.some(c => native.has(c))) return null;
-          if (!eligibleNative.some(c => years[c] === currentYear)) return null;
+          const fencedThisYear = native && Object.values(years).some((y) => y === currentYear);
+
+          if (age === 'junior' || age === 'cadet') {
+            const cutoff = age === 'junior' ? currentYear - 20 : currentYear - 17;
+            if (dob != null) {
+              if (dob < cutoff) return null;
+              if (!fencedThisYear) return null;
+            } else {
+              // Fallback: rely on event tagging for fencers without DOB.
+              // Junior view also includes cadet entrants (cadet => junior).
+              const eligibleNative = age === 'junior' ? ['junior', 'cadet'] : ['cadet'];
+              if (!native || !eligibleNative.some((c) => native.has(c))) return null;
+              if (!eligibleNative.some((c) => years[c] === currentYear)) return null;
+            }
+          } else {
+            // Veteran (and any future categories).
+            if (!native || !native.has(age)) return null;
+            if (years[age] !== currentYear) return null;
+          }
         }
         const totalBouts = streams.pool.bouts + streams.de.bouts;
         const totalWins = streams.pool.wins + streams.de.wins;
@@ -69,7 +88,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
       return 0;
     });
     return list;
-  }, [fencers, weapon, gender, age, minBouts, club, sort, k, currentYear]);
+  }, [fencers, weapon, gender, age, minBouts, club, sort, k, currentYear, enrichment]);
 
   const clubs = useMemo(() => {
     const s = new Set();
