@@ -24,15 +24,20 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
       };
       const pool = streamRange(poolBouts);
       const de = streamRange(deBouts);
+      const poolDelta = pool.before !== null ? pool.after - pool.before : null;
+      const deDelta = de.before !== null ? de.after - de.before : null;
+      const totalDelta = (poolDelta ?? 0) + (deDelta ?? 0);
       return {
         f, key: k, wins, losses, bouts: myBouts.length,
-        poolBefore: pool.before, poolAfter: pool.after,
-        poolDelta: pool.before !== null ? pool.after - pool.before : null,
-        deBefore: de.before, deAfter: de.after,
-        deDelta: de.before !== null ? de.after - de.before : null,
-        sortKey: de.after !== null ? de.after : (pool.after !== null ? pool.after : 0),
+        poolBefore: pool.before, poolAfter: pool.after, poolDelta,
+        deBefore: de.before, deAfter: de.after, deDelta,
+        totalDelta,
+        hasAnyDelta: poolDelta !== null || deDelta !== null,
       };
-    }).sort((a, b) => b.sortKey - a.sortKey);
+    }).sort((a, b) => {
+      if (a.hasAnyDelta !== b.hasAnyDelta) return a.hasAnyDelta ? -1 : 1;
+      return b.totalDelta - a.totalDelta;
+    });
   }, [c, fencers]);
 
   if (!c) return <div style={{ padding: 60, textAlign: 'center' }} className="fl-italic">Competition not found.</div>;
@@ -74,7 +79,10 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         ))}
       </div>
 
-      <div className="fl-smallcaps" style={{ marginBottom: 12 }}>Performance</div>
+      <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Performance</div>
+      <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
+        Ordered by total Elo change at this competition (pool + DE), highest first.
+      </div>
       <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
         {fencerStats.map((s, i) => (
           <div key={s.key} className="fl-link fl-row-hover" onClick={() => onSelectFencer(s.key)}

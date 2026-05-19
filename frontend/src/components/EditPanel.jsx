@@ -6,6 +6,31 @@ import { submitEdit } from '../data/edits.js';
 // (live, applies immediately) and request to merge a duplicate profile
 // (queued for admin review).
 
+// Hoisted out of EditPanel so its identity is stable across renders —
+// otherwise React treats it as a new component type on every keystroke
+// and remounts the <input>, dropping focus and selection.
+function Row({ id, label, hint, openId, setOpen, children }) {
+  const isOpen = openId === id;
+  return (
+    <div style={{ borderTop: '1px solid var(--rule-soft)', padding: '14px 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <div>
+          <div className="fl-smallcaps" style={{ fontSize: '0.72rem' }}>{label}</div>
+          {hint && <div className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.85rem', marginTop: 2 }}>{hint}</div>}
+        </div>
+        <button
+          onClick={() => setOpen(isOpen ? null : id)}
+          className="fl-smallcaps"
+          style={{ background: 'none', border: '1px solid var(--rule)', padding: '4px 12px', cursor: 'pointer', color: 'var(--ink-soft)', fontSize: '0.7rem' }}
+        >
+          {isOpen ? 'Cancel' : 'Edit'}
+        </button>
+      </div>
+      {isOpen && <div style={{ marginTop: 12 }}>{children}</div>}
+    </div>
+  );
+}
+
 export default function EditPanel({ fencer, info, session, onEditApplied }) {
   const [open, setOpen] = useState(null); // 'name' | 'club' | 'merge' | null
   const [name, setName] = useState(fencer?.name || '');
@@ -39,25 +64,6 @@ export default function EditPanel({ fencer, info, session, onEditApplied }) {
     }
   };
 
-  const Row = ({ id, label, hint, children }) => (
-    <div style={{ borderTop: '1px solid var(--rule-soft)', padding: '14px 0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <div>
-          <div className="fl-smallcaps" style={{ fontSize: '0.72rem' }}>{label}</div>
-          {hint && <div className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.85rem', marginTop: 2 }}>{hint}</div>}
-        </div>
-        <button
-          onClick={() => setOpen(open === id ? null : id)}
-          className="fl-smallcaps"
-          style={{ background: 'none', border: '1px solid var(--rule)', padding: '4px 12px', cursor: 'pointer', color: 'var(--ink-soft)', fontSize: '0.7rem' }}
-        >
-          {open === id ? 'Cancel' : 'Edit'}
-        </button>
-      </div>
-      {open === id && <div style={{ marginTop: 12 }}>{children}</div>}
-    </div>
-  );
-
   const inputStyle = {
     width: '100%', padding: '8px 10px', fontSize: '0.95rem',
     fontFamily: 'Newsreader, serif',
@@ -83,21 +89,21 @@ export default function EditPanel({ fencer, info, session, onEditApplied }) {
         Name and club updates apply immediately and are logged. Merge and dispute requests wait for admin review.
       </div>
 
-      <Row id="name" label="Display name" hint="The name shown across the site for you.">
+      <Row id="name" label="Display name" hint="The name shown across the site for you." openId={open} setOpen={setOpen}>
         <input style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
         <div style={{ marginTop: 10 }}>
           {submitBtn('Save name', () => send('display_name', { display_name: name }, 'Display name updated.'))}
         </div>
       </Row>
 
-      <Row id="club" label="Current club" hint="Overrides the club inferred from your most recent bout.">
+      <Row id="club" label="Current club" hint="Overrides the club inferred from your most recent bout." openId={open} setOpen={setOpen}>
         <input style={inputStyle} value={club} onChange={(e) => setClub(e.target.value)} maxLength={120} placeholder="e.g. South Wellington Fencing Club" />
         <div style={{ marginTop: 10 }}>
           {submitBtn('Save club', () => send('current_club', { current_club: club }, 'Club updated.'))}
         </div>
       </Row>
 
-      <Row id="merge" label="Merge a duplicate profile" hint="If another profile on the site is also you, enter its display name. Admin will review and merge.">
+      <Row id="merge" label="Merge a duplicate profile" hint="If another profile on the site is also you, enter its display name. Admin will review and merge." openId={open} setOpen={setOpen}>
         <input style={inputStyle} value={mergeInto} onChange={(e) => setMergeInto(e.target.value)} maxLength={200} placeholder="e.g. Joel Ball-La-Hood (other spelling)" />
         <div style={{ marginTop: 10 }}>
           {submitBtn('Request merge', () => send('merge', { merge_into: mergeInto }, 'Merge request submitted for review.'))}

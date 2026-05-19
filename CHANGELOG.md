@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.11] - 2026-05-19
+### Changed
+- Competition Detail "Performance" table now orders fencers by total Elo change at that event (pool delta + DE delta), highest first, with an italic caption stating the ordering. Previously sorted by post-event rating, which mixed pool-only and DE-after values on different scales and could rank a high-rated early-exit above the gold medallist. Final placement isn't in the dataset, so Elo movement is the most informative proxy currently available
+### Fixed
+- `EditPanel` text inputs (display name, current club, merge target) no longer lose focus after each keystroke. The inner `Row` helper was defined inside the parent's render body, giving it a fresh component identity per render; React saw a new component type each time and remounted the `<input>`, dropping focus and the IME selection. Hoisted `Row` to module scope with `openId` / `setOpen` props so the input now has a stable parent and keeps focus while typing
+
 ## [0.1.10] - 2026-05-19
 ### Added
 - DOB-based eligibility for the Cadet and Junior leaderboards — when the fencer is in the XML registry, age category derives from `dob_year` directly. Junior cutoff is `currentYear - 20` (born 2006+ in the 2026 season), Cadet is `currentYear - 17` (born 2009+). Auto-rolls each year as `currentYear` shifts. Fencers without a DOB still pass through the old event-tag inference. Net effect on Mens Épée Junior: list grows 55 → 68; Daniel Gourley (2005) correctly drops out, Joel Ball-La Hood, Nolan Peterson, Jack Hansen, Elliot Hayes, Josh Carson and ~10 others correctly appear despite skipping the 2026 junior-tagged events
