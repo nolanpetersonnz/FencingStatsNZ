@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.1.10] - 2026-05-19
+### Added
+- DOB-based eligibility for the Cadet and Junior leaderboards — when the fencer is in the XML registry, age category derives from `dob_year` directly. Junior cutoff is `currentYear - 20` (born 2006+ in the 2026 season), Cadet is `currentYear - 17` (born 2009+). Auto-rolls each year as `currentYear` shifts. Fencers without a DOB still pass through the old event-tag inference. Net effect on Mens Épée Junior: list grows 55 → 68; Daniel Gourley (2005) correctly drops out, Joel Ball-La Hood, Nolan Peterson, Jack Hansen, Elliot Hayes, Josh Carson and ~10 others correctly appear despite skipping the 2026 junior-tagged events
+- Weapon-aware Clubs page — respects the global weapon pill. The Mens Épée view now ranks clubs by their Mens Épée DE median; clubs whose entire roster is in other weapons (NZ Academy of Fencing — 29 members, all foil/sabre) no longer top the list with 0 épéeists
+- Admin club editor at `/#admin` → Clubs section — set per-club website, location, and FNZ-affiliation status (yes/no/unknown). Rendered under the club heading on `ClubDetail`. Lays the groundwork for the "where should I fence?" reframe in FEEDBACK Round 2
+- Admin fencer-to-club reassignment in the same panel — pick any fencer from a dropdown, type the destination club, Apply. Writes to the existing `club_overrides` doc so public reads share one code path with fencer-driven self-edits
+- New `/api/admin` actions: `set_club_meta`, `clear_club_meta`, `assign_fencer`. `/api/overrides` now returns a `club_meta` map alongside the existing name/club/flagged docs
+- Plausibility filter in `fencerinfo_ingest.py` rejects DOBs that would make a fencer younger than 7 in the current year — caught 14 XML data-entry errors (Brendan Lindsay as "born 2026", Thibault Schneider, etc.) that would otherwise false-positive into Cadet
+- Visual sort indicators (`↓` arrow + active-row bolding) on the Bouts and W·L Leaderboard headers — the sort math always worked but the active-state cue was missing
+### Changed
+- Strength-tier letter on the Clubs page now requires at least 3 members active in the selected weapon. Under-threshold clubs show an em-dash instead of A/B/C, so a 1-fencer outpost with a single star can't outrank a deep club via median games. Partially addresses FEEDBACK Round 2 item #1 (club strength tier favoured tiny clubs)
+- Activity gate on DOB-based junior/cadet filtering was dropped: being age-eligible is enough. Previously a junior who hadn't entered the 2026 season was excluded; now Joel Ball-La Hood (last épée 2024) and Nolan Peterson (last épée 2025) correctly appear in the 2026 junior leaderboard. The no-DOB fallback path still enforces recent activity as a sanity gate
+- `bouts.csv` extended through Ongley Memorial Tournament 2026 (May 10) and Mark Rance Memorial 2026 (May 9). Dataset grows 16,509 → 17,061 bouts; range now 2024-02-17 → 2026-05-10
+- Override-doc edit key now matches the bout-derived fencer key — client sends its own `fencer_key` with edits and the server verifies it's an alias of the licenced fencer before honouring. Fixes a bug where overrides for Joel Ball-La Hood wrote under the alphabetically-first alias and were silently never read on the public site
+- `/api/overrides` accepts a `?t=` cache-bust query param via `loadOverrides({ fresh: true })`; `EditPanel` and the dispute button now trigger a refresh after submit so the change is visible without a hard reload
+- Redis env-var detection in `api/_lib.js` accepts both Vercel marketplace defaults (`KV_REST_API_URL` / `KV_REST_API_TOKEN`) and direct Upstash installs (`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`); `fencerInfo()` falls back to an HTTP self-fetch when the bundled file can't be read from disk (covers `includeFiles` path quirks)
+- Default git author on commits to this repo is now "Nolan Peterson" rather than "Nolan"
+### Removed
+- Decorative dingbats — fleuron (`❦`) in the App footer and Header tagline, and the `✓` checkmark on the Import success banner. Functional arrows (sort `↓`, score-flow `→`) kept
+
 ## [0.1.9] - 2026-05-19
 ### Added
 - Fencer licence registry (`ingest/fencerinfo_ingest.py`) — walks `Fencerinfo/uploads/*.xml` (Fencing Time exports), aggregates per fencer (most-recent display name, DOB year, all clubs seen, current club, handedness, nation, latest FNZ ranking per weapon, all licence numbers) and emits `ingest/fencers.json` with SHA-256-peppered `licence_hashes` in place of raw licences; 1,355 unique fencers from 803 XML files, 940 with at least one licence hash (1,334 hashes total once year-on-year FNZ renewals and FIE numbers collapse into single records via `(loose-name, dob-year)` merging); SP-prefixed licences (the new FNZ format) and 4 data-entry oddballs (`FNZ #20499`, `20377'`) round-trip via shared `normalise_licence()` in both ingest and frontend
