@@ -35,7 +35,7 @@ Status: **open** (not yet addressed), **addressed** (shipped, link to version), 
 - Source: reviewer, 2026-05
 - "If I'm looking at this from the perspective of what it shows you're capable of, the kind of questions that I would get to would be: Is it deployed and used by people?"
 - Not a bug or feature request — strategic feedback about how the project will be evaluated by external audiences (e.g. admissions readers, federations, recruiters). The two questions implied: (1) is it live at a URL, (2) does it have real users?
-- Status of (1): deployed at [Vercel URL]. Status of (2): in active beta with NZ fencing community.
+- Status of (1): deployed at https://fencing-stats-nz.vercel.app/. Status of (2): in active beta with NZ fencing community.
 
 ---
 

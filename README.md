@@ -22,7 +22,7 @@ FencingStatsNZ is an attempt at something better: a system that weights wins by 
 - **Head-to-head comparison** — look up any two fencers' shared bout history and see a predicted win probability per stream based on current ratings.
 - **Competition browser** — browse events ranked by field strength (S–D tiers based on median pool rating).
 - **Clubs ledger** — clubs ranked by aggregate member ratings, with per-club detail pages.
-- **Age-category rankings** — the Ledger can be filtered to Cadet, Junior, U23, or Senior to see how fencers stack up within their selection pool.
+- **Age-category rankings** — the Ledger can be filtered to Cadet, Junior, Veteran, or All to see how fencers stack up within their selection pool. Cadet/Junior eligibility uses DOB year when known and falls back to event-tag inference otherwise.
 - **Canonical dataset out of the box** — every visitor loads the same up-to-date dataset on first open (served from `public/data`), with CSV import still available for personal experiments.
 
 ---
@@ -36,7 +36,7 @@ Two additions sit on top of the base algorithm:
 - **Upset multiplier** — when the lower-rated fencer wins, the rating swing is amplified slightly (configurable, default 1.25×). This rewards genuine upsets more than the standard formula would.
 - **Chronological rating periods** — all bouts from the same competition are processed together as one rating period before any ratings update, so earlier bouts in the day don't influence how later bouts are scored.
 
-Glicko-2 is not necessarily the *right* algorithm for fencing. It was chosen as a reasonable placeholder, not a final decision. The plan is to experiment, gather feedback from fencers, and iterate. The algorithm is configurable from the Settings tab. If you have opinions, open an issue.
+Glicko-2 is not necessarily the *right* algorithm for fencing. It was chosen as a reasonable placeholder, not a final decision. The plan is to experiment, gather feedback from fencers, and iterate. The algorithm's parameters are tunable from the admin panel (`/#admin`, token-gated). If you have opinions, email me or open an issue.
 
 ---
 
@@ -56,18 +56,17 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`. Data is persisted in your browser's local storage.
+Open `http://localhost:5173`. The dev server reads the shipped dataset from `public/data`; on a fresh checkout with no dataset, an admin can paste a CSV via `/#admin` → Import.
 
-To load real results, go to the Import tab and upload a CSV, or use the ingest script:
+To regenerate the dataset from the FeNZ API:
 
 ```bash
 cd ingest
 pip install requests rapidfuzz
 python fenz_ingest.py --since 2024-01-01 --cache ./cache --out bouts.csv
-# Then import bouts.csv through the Import tab
 ```
 
-See `python fenz_ingest.py --help` for the full list of options, including `--scan` (to reach further back than the 10-competition `/latest` cap) and `--categories` (to filter by age group).
+`bouts.csv` is what the frontend ships with — committing the regenerated file is the canonical update path. See `python fenz_ingest.py --help` for the full list of options, including `--scan` (to reach further back than the 10-competition `/latest` cap) and `--categories` (to filter by age group).
 
 ---
 
@@ -100,7 +99,7 @@ Not at this time. The project is developed independently and uses FeNZ's public 
 A few possibilities. You might have high RD (limited recent activity), in which case the system is being conservative about your rating. You might have been losing to lower-rated opponents recently, which hits ratings harder than equivalent wins help. You might be strong in DE but not pools (or vice versa). Check both ratings on your profile. Or the system might genuinely have it wrong, in which case I'd love to know. Open an issue with specifics.
 
 **How do I report a bug or weird-looking rating?**
-Open an issue on the GitHub repo. Include: who, what tournament, what looked wrong, what you'd expect instead. Most bugs surface this way — your "this looks wrong" report is more useful than you think.
+Email [nolanpeterson.nz@gmail.com](mailto:nolanpeterson.nz@gmail.com) or open an issue on the GitHub repo. Include: who, what tournament, what looked wrong, what you'd expect instead. Most bugs surface this way — your "this looks wrong" report is more useful than you think. Signed-in fencers can also click "Dispute" on any of their own bouts directly from their profile.
 
 **Can I contribute?**
 Yes! Open an issue on Github if you'd like to help and I'll figure out where you can fit in. Pull requests are welcome, particularly for bug fixes, data quality issues, UI improvements, and design feedback.
