@@ -17,9 +17,13 @@ export function boutFingerprint(b) {
   return `${date}|${w}|${comp}|${n1}|${n2}|${s1}|${s2}`;
 }
 
-export async function loadOverrides() {
+// `fresh=true` adds a unique query param so Vercel's edge cache and
+// the browser cache both miss — used right after an edit submit so the
+// author sees their change immediately.
+export async function loadOverrides({ fresh = false } = {}) {
   try {
-    const res = await fetch('/api/overrides', { cache: 'no-cache' });
+    const url = fresh ? `/api/overrides?t=${Date.now()}` : '/api/overrides';
+    const res = await fetch(url, { cache: 'no-cache' });
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -27,11 +31,11 @@ export async function loadOverrides() {
   }
 }
 
-export async function submitEdit({ licenceHash, kind, payload }) {
+export async function submitEdit({ licenceHash, fencerKey, kind, payload }) {
   const res = await fetch('/api/edit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ licence_hash: licenceHash, kind, payload }),
+    body: JSON.stringify({ licence_hash: licenceHash, fencer_key: fencerKey, kind, payload }),
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {

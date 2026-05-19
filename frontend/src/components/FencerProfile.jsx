@@ -5,7 +5,7 @@ import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRatin
 import { boutFingerprint, submitEdit } from '../data/edits.js';
 import EditPanel from './EditPanel.jsx';
 
-export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings, enrichment, isOwnProfile, session, flaggedBouts }) {
+export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings, enrichment, isOwnProfile, session, flaggedBouts, onEditApplied }) {
   const f = fencers[fencerKey];
   const info = enrichment?.[fencerKey] || null;
   const [disputeStatus, setDisputeStatus] = useState({}); // boutId -> 'sending'|'sent'|'error:msg'
@@ -77,7 +77,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
         )}
       </div>
 
-      {isOwnProfile && <EditPanel fencer={f} info={info} session={session} />}
+      {isOwnProfile && <EditPanel fencer={f} info={info} session={session} onEditApplied={onEditApplied} />}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
         {['foil', 'epee', 'sabre'].map(wp => {
@@ -256,6 +256,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                         try {
                           await submitEdit({
                             licenceHash: session.licenceHash,
+                            fencerKey: f.key,
                             kind: 'dispute',
                             payload: {
                               bout: {
@@ -268,6 +269,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                             },
                           });
                           setDisputeStatus(s => ({ ...s, [b.id]: 'sent' }));
+                          if (onEditApplied) setTimeout(onEditApplied, 1200);
                         } catch (e) {
                           setDisputeStatus(s => ({ ...s, [b.id]: `error: ${e.message}` }));
                         }
