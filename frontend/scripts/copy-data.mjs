@@ -19,7 +19,17 @@ for (const f of csvs) {
   fs.copyFileSync(path.join(ingestDir, f), path.join(outDir, f));
 }
 
+// fencers.json is the privacy-scrubbed registry from the Fencing Time
+// XML ingest (handedness, DOB year, official FNZ ranking, hashed licence
+// numbers for client-side login). Copied if present; site falls back to
+// bout-derived fencers when missing.
+const fencerJson = path.join(ingestDir, 'fencers.json');
+const hasFencerJson = fs.existsSync(fencerJson);
+if (hasFencerJson) {
+  fs.copyFileSync(fencerJson, path.join(outDir, 'fencers.json'));
+}
+
 const manifest = csvs.map(f => `data/${f}`);
 fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 
-console.log(`copy-data: ${csvs.length} CSV(s) copied → public/data/`);
+console.log(`copy-data: ${csvs.length} CSV(s)${hasFencerJson ? ' + fencers.json' : ''} copied → public/data/`);

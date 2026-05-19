@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, Settings as SettingsIcon } from 'lucide-react';
+import { Search, Settings as SettingsIcon, User } from 'lucide-react';
+import LoginModal from './LoginModal.jsx';
 
 const AGE_OPTIONS = [
   ['all', 'All ages'],
@@ -8,9 +9,10 @@ const AGE_OPTIONS = [
   ['veteran', 'Veteran'],
 ];
 
-export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData }) {
+export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData, fencerInfo, session, sessionFencerKey, onLogin, onLogout }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const ref = useRef(null);
 
   const results = useMemo(() => {
@@ -37,10 +39,45 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
               Fencing Stats<br/><span style={{ fontStyle: 'italic', fontWeight: 500, color: 'var(--ox)' }}>NZ</span>
             </h1>
             <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginTop: 10, fontSize: '1.05rem' }}>
-              <span className="fl-ornament">❦</span> Glicko-style ratings drawn from the bouts of New Zealand
+              Glicko-style ratings drawn from the bouts of New Zealand
             </div>
           </div>
           <div ref={ref} style={{ position: 'relative', minWidth: 280, flexShrink: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10, minHeight: 22 }}>
+              {session ? (
+                <div className="fl-smallcaps" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.72rem', color: 'var(--ink-soft)' }}>
+                  <User size={12} />
+                  {sessionFencerKey ? (
+                    <span
+                      className="fl-link"
+                      onClick={() => onSelectFencer?.(sessionFencerKey)}
+                      style={{ textTransform: 'none', letterSpacing: 'normal', fontFamily: 'Newsreader, serif', fontSize: '0.92rem', color: 'var(--ink)' }}
+                    >
+                      {session.info.display_name}
+                    </span>
+                  ) : (
+                    <span style={{ textTransform: 'none', letterSpacing: 'normal', fontFamily: 'Newsreader, serif', fontSize: '0.92rem' }}>
+                      {session.info.display_name}
+                    </span>
+                  )}
+                  <span className="fl-link" onClick={onLogout}>Sign out</span>
+                </div>
+              ) : (
+                <button
+                  className="fl-smallcaps"
+                  onClick={() => setLoginOpen(true)}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    background: 'none', border: '1px solid var(--rule)', padding: '5px 12px',
+                    cursor: 'pointer', color: 'var(--ink-soft)', fontSize: '0.7rem',
+                  }}
+                  title="Sign in with your FNZ licence number"
+                >
+                  <User size={12} />
+                  Sign in
+                </button>
+              )}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Search size={16} color="var(--ink-soft)" />
               <input
@@ -108,6 +145,13 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
           </div>
         </div>
       </div>
+      {loginOpen && (
+        <LoginModal
+          onClose={() => setLoginOpen(false)}
+          onLogin={onLogin}
+          fencerInfo={fencerInfo || []}
+        />
+      )}
     </div>
   );
 }

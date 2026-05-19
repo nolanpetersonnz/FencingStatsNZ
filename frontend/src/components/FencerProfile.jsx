@@ -1,10 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Flag } from 'lucide-react';
 import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
+import { boutFingerprint, submitEdit } from '../data/edits.js';
+import EditPanel from './EditPanel.jsx';
 
-export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings }) {
+export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings, enrichment, isOwnProfile, session, flaggedBouts }) {
   const f = fencers[fencerKey];
+  const info = enrichment?.[fencerKey] || null;
+  const [disputeStatus, setDisputeStatus] = useState({}); // boutId -> 'sending'|'sent'|'error:msg'
   const [weapon, setWeapon] = useState(() => {
     if (f && f.byWeapon[globalWeapon]) return globalWeapon;
     return f ? Object.keys(f.byWeapon)[0] : globalWeapon;
@@ -58,8 +62,22 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
         </div>
         <h2 className="fl-display" style={{ fontSize: 'clamp(2.4rem, 5vw, 3.6rem)', fontWeight: 700, letterSpacing: '-0.025em', margin: '6px 0 0', lineHeight: 1 }}>
           {f.name}
+          {isOwnProfile && (
+            <span className="fl-smallcaps" style={{ fontSize: '0.7rem', marginLeft: 14, padding: '4px 8px', border: '1px solid var(--ox)', color: 'var(--ox)', verticalAlign: 'middle' }}>
+              You
+            </span>
+          )}
         </h2>
+        {info && (info.dob_year || info.handedness || (info.nation && info.nation !== 'NZL')) && (
+          <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginTop: 12, fontSize: '0.95rem', display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
+            {info.dob_year && <span>Born {info.dob_year}</span>}
+            {info.handedness && <span>· {info.handedness}-handed</span>}
+            {info.nation && info.nation !== 'NZL' && <span>· {info.nation}</span>}
+          </div>
+        )}
       </div>
+
+      {isOwnProfile && <EditPanel fencer={f} info={info} session={session} />}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
         {['foil', 'epee', 'sabre'].map(wp => {
@@ -223,6 +241,37 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                       const opp = fencers[oppKey];
                       const won = b.winnerKey === fencerKey;
                       const oppBefore = isA ? b.ratingBBefore : b.ratingABefore;
+                      const fingerprint = boutFingerprint({
+                        fencer_a: f.name, fencer_b: opp ? opp.name : oppKey,
+                        score_a: isA ? myScore : oppScore, score_b: isA ? oppScore : myScore,
+                        date: b.date, competition: b.competition, weapon: b.weapon,
+                      });
+                      const flagged = flaggedBouts?.has(fingerprint);
+                      const ds = disputeStatus[b.id];
+                      const canDispute = isOwnProfile && session?.licenceHash && !flagged && ds !== 'sent';
+                      const onDispute = async () => {
+                        const reason = prompt('Briefly describe what is wrong with this bout (max 500 chars).');
+                        if (!reason || !reason.trim()) return;
+                        setDisputeStatus(s => ({ ...s, [b.id]: 'sending' }));
+                        try {
+                          await submitEdit({
+                            licenceHash: session.licenceHash,
+                            kind: 'dispute',
+                            payload: {
+                              bout: {
+                                fencer_a: f.name, fencer_b: opp ? opp.name : oppKey,
+                                score_a: isA ? myScore : oppScore, score_b: isA ? oppScore : myScore,
+                                date: b.date, competition: b.competition, weapon: b.weapon,
+                                de_round: b.deRound || '',
+                              },
+                              reason: reason.trim(),
+                            },
+                          });
+                          setDisputeStatus(s => ({ ...s, [b.id]: 'sent' }));
+                        } catch (e) {
+                          setDisputeStatus(s => ({ ...s, [b.id]: `error: ${e.message}` }));
+                        }
+                      };
                       return (
                         <div key={b.id} style={{ display: 'grid', gridTemplateColumns: '90px 1fr 100px 200px', alignItems: 'center', padding: '10px 14px 10px 28px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-row-hover">
                           <div className="fl-smallcaps" style={{ fontSize: '0.62rem', color: b.type === 'de' ? 'var(--ox)' : 'var(--ink-faint)' }}>
@@ -235,13 +284,34 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                               {opp ? opp.name : oppKey}
                             </span>
                             <span className="fl-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)' }}>({fmtRating(oppBefore)})</span>
+                            {flagged && (
+                              <span className="fl-smallcaps" title="Flagged for review" style={{ fontSize: '0.62rem', padding: '2px 6px', border: '1px solid var(--red-light)', color: 'var(--red-light)' }}>
+                                flagged
+                              </span>
+                            )}
                           </div>
                           <div className="fl-mono" style={{ textAlign: 'center', fontSize: '1rem' }}>
                             <span style={{ fontWeight: 600 }}>{myScore}</span>
                             <span style={{ color: 'var(--ink-faint)' }}> – </span>
                             <span>{oppScore}</span>
                           </div>
-                          <div></div>
+                          <div style={{ textAlign: 'right' }}>
+                            {canDispute && (
+                              <button
+                                onClick={onDispute}
+                                title="Flag this bout for admin review"
+                                className="fl-smallcaps"
+                                style={{ background: 'none', border: '1px solid var(--rule)', padding: '3px 9px', cursor: 'pointer', color: 'var(--ink-soft)', fontSize: '0.62rem', display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                              >
+                                <Flag size={10} /> Dispute
+                              </button>
+                            )}
+                            {ds === 'sending' && <span className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-soft)' }}>Sending...</span>}
+                            {ds === 'sent' && <span className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ox)' }}>Submitted</span>}
+                            {typeof ds === 'string' && ds.startsWith('error') && (
+                              <span className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--red-light)' }}>{ds}</span>
+                            )}
+                          </div>
                         </div>
                       );
                     })}

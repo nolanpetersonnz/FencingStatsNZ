@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.9] - 2026-05-19
+### Added
+- Fencer licence registry (`ingest/fencerinfo_ingest.py`) — walks `Fencerinfo/uploads/*.xml` (Fencing Time exports), aggregates per fencer (most-recent display name, DOB year, all clubs seen, current club, handedness, nation, latest FNZ ranking per weapon, all licence numbers) and emits `ingest/fencers.json` with SHA-256-peppered `licence_hashes` in place of raw licences; 1,355 unique fencers from 803 XML files, 940 with at least one licence hash (1,334 hashes total once year-on-year FNZ renewals and FIE numbers collapse into single records via `(loose-name, dob-year)` merging); SP-prefixed licences (the new FNZ format) and 4 data-entry oddballs (`FNZ #20499`, `20377'`) round-trip via shared `normalise_licence()` in both ingest and frontend
+- DOB year / handedness / nation surfaced on `FencerProfile` (under the name heading) when the fencer is in the XML registry
+- Licence-based sign-in — Header "Sign in" button opens `LoginModal`, hashes the entered licence client-side via `crypto.subtle` with `VITE_LICENCE_PEPPER`, looks up the matching fencer in the shipped `fencers.json`, persists the hash in `localStorage` for session restore; signed-in state shows the fencer's display name + Sign out, clicking the name jumps to their profile; "You" badge on own profile
+- Live profile edits for signed-in fencers (`EditPanel`) — display name and current club apply immediately to the public site via `POST /api/edit` → Upstash override doc; merge-duplicate requests are queued for admin review
+- Dispute bout flow — "Dispute" button per bout row on your own profile (signed-in only) opens a reason prompt, submits a dispute that immediately flags the bout fingerprint publicly (small `flagged` badge on the row) and enqueues an admin review item
+- Admin queue at `/#admin` (hash-routed, off the visible nav) — paste the `ADMIN_TOKEN` once, see all submissions filterable by `pending` / `applied` / `all`, approve / reject pending items, revert applied items (clears the override and the bout-derived value reappears)
+- Vercel Functions backing the edit flow (`frontend/api/`) — `POST /api/edit` (verifies licence hash against bundled `fencers.json`, rate-limits 20/h per hash via `@upstash/ratelimit`, writes to Upstash), `GET /api/overrides` (public, edge-cached 30 s, returns applied name/club overrides + flagged-bout set), `GET/POST /api/admin` (bearer-token gated)
+- `frontend/vercel.json` bundles `public/data/fencers.json` into the function image so licence verification works at runtime without an extra HTTP hop
+- Visual sort indicators (`↓` arrow + cell bolding) on the Bouts and W·L Leaderboard columns, matching the existing Pool and DE feedback — the underlying sort math already worked but had no clear active-state cue
+- `SETUP.md` — Upstash provisioning steps, env var details, edit-kind matrix
+### Changed
+- `frontend/scripts/copy-data.mjs` now also copies `ingest/fencers.json` into `public/data/` at build time, so the licence registry ships with every Vercel deploy
+- `App.jsx` layers Upstash overrides over the bout-derived `fencers` map after `processBouts` runs (name + club overrides) and threads a `flagged_bouts` Set into `FencerProfile` — rating math is unaffected by edits in this release
+- Redis env-var detection in `api/_lib.js` accepts both Vercel marketplace defaults (`KV_REST_API_URL` / `KV_REST_API_TOKEN`) and direct Upstash installs (`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`), so no renaming is needed after the marketplace integration
+### Removed
+- Fleuron ornament (`❦`) from the App footer and Header tagline, and the `✓` check from the Import success message — purely decorative dingbats that didn't earn their pixels
+### Security / privacy
+- `Fencerinfo/` (raw XML with full DOBs and licence numbers) added to `.gitignore` — only the derived `fencers.json` (DOB year only, hashed licences) ships to GitHub or Vercel
+- `VITE_LICENCE_PEPPER` lives in `.env` / `frontend/.env` (both gitignored); Vite bundles it into the client at build time so login can hash a user-entered licence with the same salt the ingest used. Treat the pepper as obfuscation rather than secrecy — it raises the bar from "trivially rainbow-tabled" to "requires inspecting the JS bundle", which is the right tradeoff for a public site without a backend
+
 ## [0.1.8] - 2026-05-15
 ### Fixed
 - Mixed events no longer double-count Elo — when the scraper ingested the same physical event twice (once as "X - Mens" and once as "X - Womens", e.g. Russell Towns Open 2024, mid-year regionals), every bout was being processed twice and gains/losses were doubled; `processBouts` now detects these via `detectMixedEvents` (shared bout hashes between the two variants), rewrites both copies to a single canonical name, and drops duplicate rows by `boutHash` before any rating math runs (44 mixed events detected in the current dataset, ~1300 duplicate rows removed)

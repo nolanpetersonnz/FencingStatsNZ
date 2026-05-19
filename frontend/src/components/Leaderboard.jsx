@@ -127,8 +127,12 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
           <div className="fl-link" onClick={() => setSort('de')} style={{ textAlign: 'right', color: sort === 'de' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             DE {sort === 'de' && <span style={{ color: 'var(--ox)' }}>↓</span>}
           </div>
-          <div className="fl-link fl-hide-mobile" onClick={() => setSort('bouts')} style={{ textAlign: 'right', color: sort === 'bouts' ? 'var(--ink)' : 'var(--ink-soft)' }}>Bouts</div>
-          <div className="fl-link fl-hide-mobile" onClick={() => setSort('winrate')} style={{ textAlign: 'right', color: sort === 'winrate' ? 'var(--ink)' : 'var(--ink-soft)' }}>W·L</div>
+          <div className="fl-link fl-hide-mobile" onClick={() => setSort('bouts')} style={{ textAlign: 'right', color: sort === 'bouts' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+            Bouts {sort === 'bouts' && <span style={{ color: 'var(--ox)' }}>↓</span>}
+          </div>
+          <div className="fl-link fl-hide-mobile" onClick={() => setSort('winrate')} style={{ textAlign: 'right', color: sort === 'winrate' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+            W·L {sort === 'winrate' && <span style={{ color: 'var(--ox)' }}>↓</span>}
+          </div>
         </div>
 
         {ranked.map(({ f, pool, de, totalBouts, totalWins, totalLosses }, i) => (
@@ -170,8 +174,10 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
                 {de.bouts > 0 ? `${fmtRD(de.rd)} · ${de.bouts}b` : ''}
               </div>
             </div>
-            <div className="fl-mono fl-hide-mobile" style={{ textAlign: 'right', color: 'var(--ink-soft)' }}>{totalBouts}</div>
-            <div className="fl-mono fl-hide-mobile" style={{ textAlign: 'right', fontSize: '0.92rem' }}>
+            <div className="fl-mono fl-hide-mobile" style={{ textAlign: 'right', color: sort === 'bouts' ? 'var(--ink)' : 'var(--ink-soft)', fontSize: sort === 'bouts' ? '1.05rem' : '1rem', fontWeight: sort === 'bouts' ? 600 : 400 }}>
+              {totalBouts}
+            </div>
+            <div className="fl-mono fl-hide-mobile" style={{ textAlign: 'right', fontSize: sort === 'winrate' ? '1rem' : '0.92rem', fontWeight: sort === 'winrate' ? 600 : 400 }}>
               <span style={{ color: 'var(--green)' }}>{totalWins}</span>
               <span style={{ color: 'var(--ink-faint)' }}>·</span>
               <span style={{ color: 'var(--red-light)' }}>{totalLosses}</span>
