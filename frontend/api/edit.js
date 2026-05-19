@@ -7,7 +7,7 @@
 // document; merge and dispute edits stay in a `pending` queue for the
 // admin to review.
 
-import { redis, rateLimiter, fencerForHash, fencerKeyOf, readJsonBody, boutFingerprint } from './_lib.js';
+import { redis, rateLimiter, fencerForHash, fencerKeyOf, nameKey, readJsonBody, boutFingerprint } from './_lib.js';
 
 const LIVE_KINDS = new Set(['display_name', 'current_club']);
 const QUEUED_KINDS = new Set(['merge', 'dispute']);
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { licence_hash, kind, payload } = body || {};
+  const { licence_hash, fencer_key, kind, payload } = body || {};
   if (!licence_hash || typeof licence_hash !== 'string') {
     res.status(400).json({ error: 'licence_hash required' });
     return;
@@ -71,7 +71,17 @@ export default async function handler(req, res) {
     res.status(401).json({ error: 'unknown licence' });
     return;
   }
-  const fkey = fencerKeyOf(fencer);
+  // Prefer the client-supplied fencer_key (it's the one that actually
+  // matches the bout-derived fencers map), but verify it lines up with
+  // one of this fencer's known aliases — otherwise we'd let a signed-in
+  // person submit edits under someone else's identity.
+  const aliases = new Set((fencer.name_keys || []).map((k) => nameKey(k)));
+  let fkey = null;
+  if (fencer_key && typeof fencer_key === 'string') {
+    const candidate = nameKey(fencer_key);
+    if (aliases.has(candidate)) fkey = candidate;
+  }
+  if (!fkey) fkey = fencerKeyOf(fencer);
   if (!fkey) {
     res.status(500).json({ error: 'fencer has no canonical key' });
     return;

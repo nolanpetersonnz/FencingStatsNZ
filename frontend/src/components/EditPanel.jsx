@@ -6,7 +6,7 @@ import { submitEdit } from '../data/edits.js';
 // (live, applies immediately) and request to merge a duplicate profile
 // (queued for admin review).
 
-export default function EditPanel({ fencer, info, session }) {
+export default function EditPanel({ fencer, info, session, onEditApplied }) {
   const [open, setOpen] = useState(null); // 'name' | 'club' | 'merge' | null
   const [name, setName] = useState(fencer?.name || '');
   const [club, setClub] = useState(fencer?.club || '');
@@ -20,9 +20,18 @@ export default function EditPanel({ fencer, info, session }) {
     setBusy(true);
     setStatus(null);
     try {
-      await submitEdit({ licenceHash: session.licenceHash, kind, payload });
+      await submitEdit({
+        licenceHash: session.licenceHash,
+        fencerKey: fencer?.key,
+        kind,
+        payload,
+      });
       setStatus({ ok: true, msg });
       setOpen(null);
+      // Tell App to re-fetch overrides so the change shows up without a
+      // hard reload. /api/overrides has a 30 s edge cache so we add a
+      // short wait — without it the cached empty response wins.
+      if (onEditApplied) setTimeout(onEditApplied, 1200);
     } catch (e) {
       setStatus({ ok: false, msg: e.message });
     } finally {

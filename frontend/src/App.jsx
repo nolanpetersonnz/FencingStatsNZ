@@ -158,6 +158,14 @@ export default function App() {
     try { localStorage.removeItem('fl_session_licence_hash'); } catch {}
     setSession(null);
   };
+  const refreshOverrides = async () => {
+    const ov = await loadOverrides({ fresh: true });
+    if (ov) setOverrides({
+      name_overrides: ov.name_overrides || {},
+      club_overrides: ov.club_overrides || {},
+      flagged_bouts: ov.flagged_bouts || [],
+    });
+  };
 
   const pushHistory = () => setHistory(h => [...h, { view, selectedFencer, selectedComp, selectedClub }]);
   const goFencer = (k) => { pushHistory(); setSelectedFencer(k); setSelectedComp(null); setSelectedClub(null); setView('fencer'); };
@@ -266,6 +274,7 @@ export default function App() {
             isOwnProfile={sessionFencerKey && sessionFencerKey === selectedFencer}
             session={session}
             flaggedBouts={flaggedBouts}
+            onEditApplied={refreshOverrides}
             onBack={goBack}
             onSelectFencer={goFencer}
             onSelectComp={goComp}
