@@ -14,8 +14,6 @@ import CompetitionDetail from './components/CompetitionDetail.jsx';
 import Clubs from './components/Clubs.jsx';
 import ClubDetail from './components/ClubDetail.jsx';
 import HeadToHead from './components/HeadToHead.jsx';
-import Import from './components/Import.jsx';
-import Settings from './components/Settings.jsx';
 import Admin from './components/Admin.jsx';
 
 export default function App() {
@@ -254,9 +252,16 @@ export default function App() {
             overrides={overrides}
             onLeave={() => { window.location.hash = ''; }}
             onChange={refreshOverrides}
+            settings={settings}
+            setSettings={setSettings}
+            rawBouts={rawBouts}
+            hasData={hasData}
+            onImport={handleImport}
+            onLoadDemo={handleLoadDemo}
+            onClear={handleClear}
           />
-        ) : !hasData && view !== 'import' && view !== 'settings' ? (
-          <EmptyState onLoadDemo={handleLoadDemo} onGotoImport={() => setView('import')} />
+        ) : !hasData ? (
+          <EmptyState onLoadDemo={handleLoadDemo} onGotoImport={() => { window.location.hash = 'admin'; }} />
         ) : view === 'leaderboard' ? (
           <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} ageCategory={ageCategory} settings={settings} enrichment={enrichment} onSelectFencer={goFencer} onSelectClub={goClub} />
         ) : view === 'competitions' ? (
@@ -265,10 +270,6 @@ export default function App() {
           <Clubs fencers={fencers} gender={gender} weapon={weapon} onSelectClub={goClub} />
         ) : view === 'h2h' ? (
           <HeadToHead fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
-        ) : view === 'import' ? (
-          <Import onImport={handleImport} onLoadDemo={handleLoadDemo} hasData={hasData} onClear={handleClear} rawBouts={rawBouts} />
-        ) : view === 'settings' ? (
-          <Settings settings={settings} setSettings={setSettings} onRecompute={() => {}} />
         ) : view === 'fencer' && selectedFencer ? (
           <FencerProfile
             fencerKey={selectedFencer}

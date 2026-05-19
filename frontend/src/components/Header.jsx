@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, Settings as SettingsIcon, User } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import LoginModal from './LoginModal.jsx';
 
 const AGE_OPTIONS = [
@@ -82,7 +82,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
               <Search size={16} color="var(--ink-soft)" />
               <input
                 className="fl-input"
-                placeholder={hasData ? 'Search fencers, clubs…' : 'No data yet — see Import'}
+                placeholder={hasData ? 'Search fencers, clubs…' : 'No data yet'}
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setOpen(true); }}
                 onFocus={() => setOpen(true)}
@@ -113,8 +113,6 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
             <div className={`fl-tab ${view === 'competitions' ? 'active' : ''}`} onClick={() => setView('competitions')}>Competitions</div>
             <div className={`fl-tab ${view === 'clubs' ? 'active' : ''}`} onClick={() => setView('clubs')}>Clubs</div>
             <div className={`fl-tab ${view === 'h2h' ? 'active' : ''}`} onClick={() => setView('h2h')}>Head-to-Head</div>
-            <div className={`fl-tab ${view === 'import' ? 'active' : ''}`} onClick={() => setView('import')}>Import</div>
-            <div className={`fl-tab ${view === 'settings' ? 'active' : ''}`} onClick={() => setView('settings')}><SettingsIcon size={13} style={{ display: 'inline', verticalAlign: '-2px' }} /></div>
           </nav>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             {[['M', 'Mens'], ['W', 'Womens']].map(([g, label]) => (

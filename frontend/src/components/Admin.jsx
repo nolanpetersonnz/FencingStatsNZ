@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { adminList, adminAct, adminSetClubMeta, adminAssignFencer } from '../data/edits.js';
+import Import from './Import.jsx';
+import Settings from './Settings.jsx';
 
 // /#admin — paste the ADMIN_TOKEN once, then review and act on edit
 // submissions. Token persists in localStorage. Listing is server-side
@@ -47,11 +49,15 @@ function fmtPayload(edit) {
   return JSON.stringify(edit.payload);
 }
 
-export default function Admin({ onLeave, fencers = {}, overrides = {}, onChange }) {
+export default function Admin({
+  onLeave, fencers = {}, overrides = {}, onChange,
+  settings, setSettings, rawBouts, hasData,
+  onImport, onLoadDemo, onClear,
+}) {
   const [hasToken, setHasToken] = useState(() => !!localStorage.getItem('fl_admin_token'));
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState('pending'); // pending | applied | all
-  const [section, setSection] = useState('edits'); // edits | clubs
+  const [section, setSection] = useState('edits'); // edits | clubs | import | tuning
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState(null);
 
@@ -100,12 +106,17 @@ export default function Admin({ onLeave, fencers = {}, overrides = {}, onChange 
           <h2 className="fl-display" style={{ fontSize: '1.8rem', margin: '4px 0 0' }}>
             {section === 'edits'
               ? `${items.length} edits · ${items.filter((i) => i.status === 'pending').length} pending`
-              : 'Clubs'}
+              : section === 'clubs' ? 'Clubs'
+              : section === 'import' ? 'Data ingest'
+              : section === 'tuning' ? 'Tuning'
+              : ''}
           </h2>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button onClick={() => setSection('edits')} className={`fl-pill ${section === 'edits' ? 'active' : ''}`}>Edits</button>
           <button onClick={() => setSection('clubs')} className={`fl-pill ${section === 'clubs' ? 'active' : ''}`}>Clubs</button>
+          <button onClick={() => setSection('import')} className={`fl-pill ${section === 'import' ? 'active' : ''}`}>Import</button>
+          <button onClick={() => setSection('tuning')} className={`fl-pill ${section === 'tuning' ? 'active' : ''}`}>Tuning</button>
           <span style={{ width: 1, height: 18, background: 'var(--rule)', margin: '0 4px' }} />
           {section === 'edits' && ['pending', 'applied', 'all'].map((f) => (
             <button key={f} onClick={() => setFilter(f)} className={`fl-pill ${filter === f ? 'active' : ''}`}>{f}</button>
@@ -129,6 +140,20 @@ export default function Admin({ onLeave, fencers = {}, overrides = {}, onChange 
 
       {section === 'clubs' && (
         <ClubsPanel fencers={fencers} overrides={overrides} onChange={onChange} setErr={setErr} />
+      )}
+
+      {section === 'import' && (
+        <Import
+          onImport={onImport}
+          onLoadDemo={onLoadDemo}
+          hasData={hasData}
+          onClear={onClear}
+          rawBouts={rawBouts}
+        />
+      )}
+
+      {section === 'tuning' && (
+        <Settings settings={settings} setSettings={setSettings} onRecompute={() => {}} />
       )}
 
       {section === 'edits' && (
