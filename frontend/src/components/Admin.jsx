@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { adminList, adminAct } from '../data/edits.js';
+import { adminList, adminAct, adminSetClubMeta, adminAssignFencer } from '../data/edits.js';
 
 // /#admin — paste the ADMIN_TOKEN once, then review and act on edit
 // submissions. Token persists in localStorage. Listing is server-side
@@ -47,10 +47,11 @@ function fmtPayload(edit) {
   return JSON.stringify(edit.payload);
 }
 
-export default function Admin({ onLeave }) {
+export default function Admin({ onLeave, fencers = {}, overrides = {}, onChange }) {
   const [hasToken, setHasToken] = useState(() => !!localStorage.getItem('fl_admin_token'));
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState('pending'); // pending | applied | all
+  const [section, setSection] = useState('edits'); // edits | clubs
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState(null);
 
@@ -95,18 +96,19 @@ export default function Admin({ onLeave }) {
     <div className="fl-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18, gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <div className="fl-smallcaps">Admin · Edits queue</div>
-          <h2 className="fl-display" style={{ fontSize: '1.8rem', margin: '4px 0 0' }}>{items.length} total · {items.filter((i) => i.status === 'pending').length} pending</h2>
+          <div className="fl-smallcaps">Admin</div>
+          <h2 className="fl-display" style={{ fontSize: '1.8rem', margin: '4px 0 0' }}>
+            {section === 'edits'
+              ? `${items.length} edits · ${items.filter((i) => i.status === 'pending').length} pending`
+              : 'Clubs'}
+          </h2>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {['pending', 'applied', 'all'].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`fl-pill ${filter === f ? 'active' : ''}`}
-            >
-              {f}
-            </button>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button onClick={() => setSection('edits')} className={`fl-pill ${section === 'edits' ? 'active' : ''}`}>Edits</button>
+          <button onClick={() => setSection('clubs')} className={`fl-pill ${section === 'clubs' ? 'active' : ''}`}>Clubs</button>
+          <span style={{ width: 1, height: 18, background: 'var(--rule)', margin: '0 4px' }} />
+          {section === 'edits' && ['pending', 'applied', 'all'].map((f) => (
+            <button key={f} onClick={() => setFilter(f)} className={`fl-pill ${filter === f ? 'active' : ''}`}>{f}</button>
           ))}
           <button
             onClick={() => { localStorage.removeItem('fl_admin_token'); setHasToken(false); }}
@@ -125,6 +127,11 @@ export default function Admin({ onLeave }) {
         </div>
       )}
 
+      {section === 'clubs' && (
+        <ClubsPanel fencers={fencers} overrides={overrides} onChange={onChange} setErr={setErr} />
+      )}
+
+      {section === 'edits' && (
       <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
         {filtered.length === 0 && (
           <div className="fl-italic" style={{ padding: 40, textAlign: 'center', color: 'var(--ink-soft)' }}>
@@ -158,6 +165,174 @@ export default function Admin({ onLeave }) {
                   <span className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.85rem' }}>Note: {edit.admin_note}</span>
                 )}
               </div>
+            </div>
+          );
+        })}
+      </div>
+      )}
+    </div>
+  );
+}
+
+function ClubsPanel({ fencers, overrides, onChange, setErr }) {
+  const [filter, setFilter] = useState('');
+  const [editing, setEditing] = useState(null); // club name or null
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({ website: '', location: '', affiliated: '' });
+  const [assignOpen, setAssignOpen] = useState(null);
+  const [assignTo, setAssignTo] = useState('');
+
+  // Collect all known club names from current fencers + any in club_meta
+  // that may have zero members. Sorted alphabetically.
+  const clubList = useMemo(() => {
+    const counts = {};
+    for (const f of Object.values(fencers)) {
+      const c = (f.club || '').trim();
+      if (!c) continue;
+      counts[c] = (counts[c] || 0) + 1;
+    }
+    for (const c in (overrides.club_meta || {})) {
+      if (!(c in counts)) counts[c] = 0;
+    }
+    return Object.entries(counts)
+      .map(([name, n]) => ({ name, count: n, meta: overrides.club_meta?.[name] || null }))
+      .filter(c => !filter || c.name.toLowerCase().includes(filter.toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [fencers, overrides, filter]);
+
+  // Fencers indexed for the assign-to-club dropdown.
+  const fencersList = useMemo(() => Object.values(fencers)
+    .map(f => ({ key: f.key, name: f.name, club: f.club || '' }))
+    .sort((a, b) => a.name.localeCompare(b.name)), [fencers]);
+
+  const startEdit = (club) => {
+    setEditing(club.name);
+    setForm({
+      website: club.meta?.website || '',
+      location: club.meta?.location || '',
+      affiliated: club.meta?.affiliated === true ? 'yes' : club.meta?.affiliated === false ? 'no' : '',
+    });
+  };
+
+  const saveMeta = async () => {
+    setBusy(true);
+    try {
+      await adminSetClubMeta({
+        clubName: editing,
+        website: form.website,
+        location: form.location,
+        affiliated: form.affiliated === 'yes' ? true : form.affiliated === 'no' ? false : null,
+      });
+      setEditing(null);
+      onChange?.();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const clearMeta = async (club) => {
+    if (!confirm(`Clear all metadata for ${club}?`)) return;
+    setBusy(true);
+    try {
+      await adminSetClubMeta({ clubName: club, website: '', location: '', affiliated: null });
+      onChange?.();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const reassign = async (fencerKey, clubName) => {
+    setBusy(true);
+    try {
+      await adminAssignFencer({ fencerKey, clubName });
+      setAssignOpen(null);
+      setAssignTo('');
+      onChange?.();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const input = { width: '100%', padding: '8px 10px', fontSize: '0.95rem', fontFamily: 'Newsreader, serif', background: 'transparent', color: 'var(--ink)', border: '1px solid var(--rule)', outline: 'none', boxSizing: 'border-box' };
+
+  return (
+    <div>
+      <input
+        placeholder="Filter clubs..."
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        style={{ ...input, marginBottom: 16, maxWidth: 380 }}
+      />
+
+      <div className="fl-smallcaps" style={{ fontSize: '0.72rem', marginBottom: 8 }}>
+        Reassign a fencer
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 24, padding: '12px 14px', border: '1px solid var(--rule)' }}>
+        <select
+          value={assignOpen || ''}
+          onChange={(e) => { setAssignOpen(e.target.value); setAssignTo(fencersList.find(x => x.key === e.target.value)?.club || ''); }}
+          style={{ ...input, maxWidth: 260 }}
+        >
+          <option value="">— pick a fencer —</option>
+          {fencersList.map(f => (
+            <option key={f.key} value={f.key}>{f.name}{f.club ? ` · ${f.club}` : ''}</option>
+          ))}
+        </select>
+        {assignOpen && (
+          <>
+            <span className="fl-italic" style={{ color: 'var(--ink-soft)' }}>to</span>
+            <input
+              value={assignTo}
+              onChange={(e) => setAssignTo(e.target.value)}
+              placeholder="club name (blank = clear override)"
+              style={{ ...input, maxWidth: 260 }}
+            />
+            <button onClick={() => reassign(assignOpen, assignTo)} disabled={busy} className="fl-pill">Apply</button>
+            <button onClick={() => { setAssignOpen(null); setAssignTo(''); }} className="fl-pill">Cancel</button>
+          </>
+        )}
+      </div>
+
+      <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
+        {clubList.length === 0 && (
+          <div className="fl-italic" style={{ padding: 40, textAlign: 'center', color: 'var(--ink-soft)' }}>No clubs match.</div>
+        )}
+        {clubList.map((c) => {
+          const isEditing = editing === c.name;
+          return (
+            <div key={c.name} style={{ padding: '12px 0', borderBottom: '1px solid var(--rule-soft)' }}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <span className="fl-display" style={{ fontWeight: 600, fontSize: '1.05rem' }}>{c.name}</span>
+                <span className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.85rem' }}>
+                  {c.count} member{c.count === 1 ? '' : 's'}
+                </span>
+                {c.meta?.location && <span className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.85rem' }}>· {c.meta.location}</span>}
+                {c.meta?.website && <span className="fl-mono" style={{ color: 'var(--ox)', fontSize: '0.82rem' }}>· {c.meta.website.replace(/^https?:\/\//, '')}</span>}
+                {c.meta?.affiliated === true && <span className="fl-smallcaps" style={{ fontSize: '0.62rem', padding: '1px 6px', border: '1px solid var(--ox)', color: 'var(--ox)' }}>affiliated</span>}
+                {c.meta?.affiliated === false && <span className="fl-smallcaps" style={{ fontSize: '0.62rem', padding: '1px 6px', border: '1px solid var(--ink-faint)', color: 'var(--ink-faint)' }}>not affiliated</span>}
+              </div>
+              <div style={{ marginTop: 6, display: 'flex', gap: 8 }}>
+                <button onClick={() => isEditing ? setEditing(null) : startEdit(c)} className="fl-pill">{isEditing ? 'Cancel' : 'Edit'}</button>
+                {c.meta && <button onClick={() => clearMeta(c.name)} disabled={busy} className="fl-pill">Clear</button>}
+              </div>
+              {isEditing && (
+                <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+                  <input style={input} placeholder="Website (https://...)" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
+                  <input style={input} placeholder="Location (e.g. Wellington)" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+                  <select style={input} value={form.affiliated} onChange={(e) => setForm({ ...form, affiliated: e.target.value })}>
+                    <option value="">FNZ affiliation: unknown</option>
+                    <option value="yes">Affiliated</option>
+                    <option value="no">Not affiliated</option>
+                  </select>
+                  <button onClick={saveMeta} disabled={busy} className="fl-pill">{busy ? 'Saving...' : 'Save'}</button>
+                </div>
+              )}
             </div>
           );
         })}

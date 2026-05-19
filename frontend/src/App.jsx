@@ -22,7 +22,7 @@ export default function App() {
   const [rawBouts, setRawBouts] = useState([]);
   const [fencerInfo, setFencerInfo] = useState([]);
   const [session, setSession] = useState(null); // { licenceHash, info } when signed in
-  const [overrides, setOverrides] = useState({ name_overrides: {}, club_overrides: {}, flagged_bouts: [] });
+  const [overrides, setOverrides] = useState({ name_overrides: {}, club_overrides: {}, flagged_bouts: [], club_meta: {} });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [view, setView] = useState('leaderboard');
   const [selectedFencer, setSelectedFencer] = useState(null);
@@ -79,6 +79,7 @@ export default function App() {
         name_overrides: ov.name_overrides || {},
         club_overrides: ov.club_overrides || {},
         flagged_bouts: ov.flagged_bouts || [],
+        club_meta: ov.club_meta || {},
       });
 
       // Restore login session if a hash is in localStorage and still
@@ -164,6 +165,7 @@ export default function App() {
       name_overrides: ov.name_overrides || {},
       club_overrides: ov.club_overrides || {},
       flagged_bouts: ov.flagged_bouts || [],
+      club_meta: ov.club_meta || {},
     });
   };
 
@@ -247,7 +249,12 @@ export default function App() {
 
       <main style={{ maxWidth: 1240, margin: '0 auto', padding: '36px 32px 80px' }}>
         {view === 'admin' ? (
-          <Admin onLeave={() => { window.location.hash = ''; }} />
+          <Admin
+            fencers={fencers}
+            overrides={overrides}
+            onLeave={() => { window.location.hash = ''; }}
+            onChange={refreshOverrides}
+          />
         ) : !hasData && view !== 'import' && view !== 'settings' ? (
           <EmptyState onLoadDemo={handleLoadDemo} onGotoImport={() => setView('import')} />
         ) : view === 'leaderboard' ? (
@@ -255,7 +262,7 @@ export default function App() {
         ) : view === 'competitions' ? (
           <Competitions competitions={competitions} weapon={weapon} gender={gender} onSelectComp={goComp} />
         ) : view === 'clubs' ? (
-          <Clubs fencers={fencers} gender={gender} onSelectClub={goClub} />
+          <Clubs fencers={fencers} gender={gender} weapon={weapon} onSelectClub={goClub} />
         ) : view === 'h2h' ? (
           <HeadToHead fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
         ) : view === 'import' ? (
@@ -295,6 +302,7 @@ export default function App() {
             clubName={selectedClub}
             fencers={fencers}
             settings={settings}
+            clubMeta={overrides.club_meta?.[selectedClub] || null}
             onBack={goBack}
             onSelectFencer={goFencer}
           />

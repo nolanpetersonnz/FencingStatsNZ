@@ -68,3 +68,35 @@ export async function adminAct(id, action, adminNote) {
   if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
   return body;
 }
+
+// Set or clear club-level metadata (website, location, affiliation).
+// Pass website/location as empty strings or undefined to clear them.
+export async function adminSetClubMeta({ clubName, website, location, affiliated }) {
+  const res = await fetch('/api/admin', {
+    method: 'POST',
+    headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'set_club_meta',
+      payload: { club_name: clubName, website, location, affiliated },
+    }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+  return body;
+}
+
+// Move a fencer to a new club (admin override). Pass clubName: '' to
+// clear the override (the fencer falls back to their bout-derived club).
+export async function adminAssignFencer({ fencerKey, clubName }) {
+  const res = await fetch('/api/admin', {
+    method: 'POST',
+    headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'assign_fencer',
+      payload: { fencer_key: fencerKey, club_name: clubName },
+    }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+  return body;
+}

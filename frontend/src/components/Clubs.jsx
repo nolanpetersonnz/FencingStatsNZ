@@ -10,47 +10,53 @@ const median = (xs) => {
 };
 
 const WEAPON_KEYS = ['foil', 'epee', 'sabre'];
-const MIN_RANKED_MEMBERS = 5;
+// Minimum number of fencers active in the selected weapon for the
+// club to receive a tier letter. Below this we still list the club
+// (so members can find it) but its letter shows as "—" so a 1-fencer
+// club with one star doesn't outrank a deep club via median games.
+const MIN_RANKED_WEAPON_MEMBERS = 3;
 
-export function aggregateClubs(fencers, gender) {
+// Aggregate clubs against a specific weapon (and optional gender).
+// Members who haven't fenced that weapon don't contribute to the
+// median or top, and clubs whose entire weapon-active roster is empty
+// are dropped — that's the fix for "NZ Academy of Fencing ranks top
+// of Mens Epee with 0 epeeists".
+export function aggregateClubs(fencers, gender, weapon) {
   const groups = {};
   for (const f of Object.values(fencers)) {
     const club = (f.club || '').trim();
     if (!club) continue;
-    const totalBouts = Object.values(f.byWeapon).reduce((s, w) => s + w.pool.bouts + w.de.bouts, 0);
-    if (totalBouts < 1) continue;
     if (gender && !f.genders?.has(gender)) continue;
+    const wStream = f.byWeapon[weapon];
+    if (!wStream || (wStream.pool.bouts + wStream.de.bouts) === 0) continue;
     if (!groups[club]) groups[club] = [];
     groups[club].push(f);
   }
   return Object.entries(groups).map(([name, members]) => {
     const deRatings = [];
-    const ratedByWeapon = { foil: 0, epee: 0, sabre: 0 };
+    const poolRatings = [];
     for (const f of members) {
-      for (const w of WEAPON_KEYS) {
-        const de = f.byWeapon[w]?.de;
-        if (de && de.bouts > 0) {
-          deRatings.push(de.rating);
-          ratedByWeapon[w] += 1;
-        }
-      }
+      const de = f.byWeapon[weapon]?.de;
+      if (de && de.bouts > 0) deRatings.push(de.rating);
+      const pool = f.byWeapon[weapon]?.pool;
+      if (pool && pool.bouts > 0) poolRatings.push(pool.rating);
     }
     return {
       name,
       members,
       memberCount: members.length,
-      ratedByWeapon,
       deMedian: median(deRatings),
       deTop: deRatings.length ? Math.max(...deRatings) : null,
+      poolMedian: median(poolRatings),
     };
   });
 }
 
-export default function Clubs({ fencers, gender, onSelectClub }) {
+export default function Clubs({ fencers, gender, weapon, onSelectClub }) {
   const [sort, setSort] = useState('de');
   const [dir, setDir] = useState('desc');
 
-  const clubs = useMemo(() => aggregateClubs(fencers, gender), [fencers, gender]);
+  const clubs = useMemo(() => aggregateClubs(fencers, gender, weapon), [fencers, gender, weapon]);
 
   const toggleSort = (key) => {
     if (sort === key) setDir(dir === 'desc' ? 'asc' : 'desc');
@@ -67,8 +73,8 @@ export default function Clubs({ fencers, gender, onSelectClub }) {
         return a.name.localeCompare(b.name);
       }
       // For DE sorts, push under-threshold clubs to the bottom regardless of direction
-      const aSmall = a.memberCount < MIN_RANKED_MEMBERS;
-      const bSmall = b.memberCount < MIN_RANKED_MEMBERS;
+      const aSmall = a.memberCount < MIN_RANKED_WEAPON_MEMBERS;
+      const bSmall = b.memberCount < MIN_RANKED_WEAPON_MEMBERS;
       if (aSmall !== bSmall) return aSmall ? 1 : -1;
       if (sort === 'top') {
         const av = a.deTop ?? -Infinity, bv = b.deTop ?? -Infinity;
@@ -87,11 +93,12 @@ export default function Clubs({ fencers, gender, onSelectClub }) {
 
   const arrow = dir === 'desc' ? '↓' : '↑';
   const genderLabel = gender === 'W' ? 'Womens' : 'Mens';
+  const weaponLabel = weapon === 'epee' ? 'Épée' : (weapon || '').charAt(0).toUpperCase() + (weapon || '').slice(1);
 
   if (clubs.length === 0) {
     return (
       <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--ink-soft)' }} className="fl-italic">
-        No clubs with {genderLabel} fencers on record.
+        No clubs with {genderLabel} {weaponLabel} fencers on record.
       </div>
     );
   }
@@ -101,9 +108,9 @@ export default function Clubs({ fencers, gender, onSelectClub }) {
   return (
     <div className="fl-fade-in">
       <div style={{ marginBottom: 20 }}>
-        <div className="fl-smallcaps">Clubs · ranked by {genderLabel} DE median (all weapons)</div>
+        <div className="fl-smallcaps">Clubs · ranked by {genderLabel} {weaponLabel} DE median</div>
         <h2 className="fl-display" style={{ fontSize: '2rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
-          {clubs.length} clubs on record
+          {clubs.length} clubs with {weaponLabel.toLowerCase()} fencers
         </h2>
       </div>
 
@@ -124,7 +131,10 @@ export default function Clubs({ fencers, gender, onSelectClub }) {
         </div>
 
         {sorted.map((c, i) => {
-          const tier = c.deMedian != null ? strengthTier(c.deMedian) : { label: '—', color: 'var(--ink-faint)' };
+          // Tier only assigned to clubs with enough weapon-active members
+          // (small clubs with one strong member don't earn a letter).
+          const eligibleForTier = c.deMedian != null && c.memberCount >= MIN_RANKED_WEAPON_MEMBERS;
+          const tier = eligibleForTier ? strengthTier(c.deMedian) : { label: '—', color: 'var(--ink-faint)' };
           return (
             <div
               key={c.name}
@@ -138,14 +148,15 @@ export default function Clubs({ fencers, gender, onSelectClub }) {
               <div>
                 <div className="fl-display" style={{ fontSize: '1.25rem', fontWeight: 600 }}>
                   {c.name}
-                  {c.memberCount < MIN_RANKED_MEMBERS && (
+                  {c.memberCount < MIN_RANKED_WEAPON_MEMBERS && (
                     <span className="fl-italic" style={{ fontSize: '0.72rem', color: 'var(--ink-faint)', fontWeight: 400, marginLeft: 10, letterSpacing: 0 }}>
-                      under 5 fencers
+                      under {MIN_RANKED_WEAPON_MEMBERS} {weaponLabel.toLowerCase()} fencers
                     </span>
                   )}
                 </div>
                 <div className="fl-italic" style={{ fontSize: '0.82rem', color: 'var(--ink-faint)' }}>
-                  {c.ratedByWeapon.foil} foil · {c.ratedByWeapon.epee} épée · {c.ratedByWeapon.sabre} sabre
+                  {c.memberCount} active in {weaponLabel.toLowerCase()}
+                  {c.poolMedian != null && <> · pool median {fmtRating(c.poolMedian)}</>}
                 </div>
               </div>
               <div className="fl-mono" style={{ textAlign: 'right', fontSize: '1.05rem', fontWeight: sort === 'members' ? 600 : 500 }}>
