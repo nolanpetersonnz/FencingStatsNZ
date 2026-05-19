@@ -636,7 +636,7 @@
     "name_keys": [
       "alana thompson"
     ],
-    "dob_year": 2023,
+    "dob_year": null,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Burnside High School",
@@ -912,33 +912,6 @@
   {
     "display_name": "Alex Holton",
     "name_keys": [
-      "alex holton"
-    ],
-    "dob_year": 2002,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Piwakawaka",
-    "clubs": [
-      "Piwakawaka Fencing Club",
-      "Fencing Institute",
-      "Pīwakawaka Fencing",
-      "Piwakawaka Fencing",
-      "Piwakawaka"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 13,
-        "as_of": "2025-06-01"
-      }
-    },
-    "licence_hashes": [
-      "63633f9fcb2e34b2b069b234594904c8b9c1f891fe83d2e340158c8c2b23ce0f",
-      "bef7cf367ce5b050f954a237679b67f177af3c07b56e2d6cf2284abe3013b818"
-    ]
-  },
-  {
-    "display_name": "Alex Holton",
-    "name_keys": [
       "alex holton",
       "alexander holton"
     ],
@@ -948,7 +921,10 @@
     "current_club": "Piwakawaka Fencing Club",
     "clubs": [
       "Piwakawaka Fencing Club",
-      "Piwakawaka Fencing"
+      "Fencing Institute",
+      "Pīwakawaka Fencing",
+      "Piwakawaka Fencing",
+      "Piwakawaka"
     ],
     "rankings": {
       "epee_M": {
@@ -957,7 +933,9 @@
       }
     },
     "licence_hashes": [
-      "8da01d030e51036b23452cb21d2acb72344d043f2d6a871ab4c2adf2f6b8b446"
+      "63633f9fcb2e34b2b069b234594904c8b9c1f891fe83d2e340158c8c2b23ce0f",
+      "8da01d030e51036b23452cb21d2acb72344d043f2d6a871ab4c2adf2f6b8b446",
+      "bef7cf367ce5b050f954a237679b67f177af3c07b56e2d6cf2284abe3013b818"
     ]
   },
   {
@@ -1010,6 +988,30 @@
     ]
   },
   {
+    "display_name": "Alex Wu",
+    "name_keys": [
+      "alex wu"
+    ],
+    "dob_year": 2010,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "NZ Academy of Fencing",
+    "clubs": [
+      "NZ Academy of Fencing",
+      "Auckand Normal Intermediate",
+      "St Peter's College"
+    ],
+    "rankings": {
+      "sabre_M": {
+        "rank": 5,
+        "as_of": "2023-09-17"
+      }
+    },
+    "licence_hashes": [
+      "4857641ec7fa528b3c34acd72e04942393180b0770da059e75f83791974f2485"
+    ]
+  },
+  {
     "display_name": "Alexander Bett",
     "name_keys": [
       "alexander bett"
@@ -1038,7 +1040,7 @@
     "name_keys": [
       "alexander hales"
     ],
-    "dob_year": 2023,
+    "dob_year": null,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Havelock North High School",
@@ -3407,6 +3409,35 @@
     ]
   },
   {
+    "display_name": "Ben Peltola",
+    "name_keys": [
+      "ben peltola",
+      "benjamin peltola"
+    ],
+    "dob_year": 2002,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Invictus Fencing",
+    "clubs": [
+      "Auckland Swords",
+      "Auckland Grammar School",
+      "Invictus Fencing"
+    ],
+    "rankings": {
+      "foil_M": {
+        "rank": 5,
+        "as_of": "2023-10-21"
+      },
+      "sabre_M": {
+        "rank": 11,
+        "as_of": "2023-04-10"
+      }
+    },
+    "licence_hashes": [
+      "7a72ec8bbe36a1efb2cf276f008086e670dd4e10ba9e22a8dd350f1a3ed50a46"
+    ]
+  },
+  {
     "display_name": "Ben Simpson",
     "name_keys": [
       "ben simpson"
@@ -3621,19 +3652,16 @@
   {
     "display_name": "Benjamin Peltola",
     "name_keys": [
-      "ben peltola",
       "benjamin peltola"
     ],
     "dob_year": 2002,
-    "handedness": "right",
+    "handedness": "left",
     "nation": "NZL",
     "current_club": "Pulse Fencing",
     "clubs": [
-      "Auckland Swords",
       "Auckland Swords Club",
-      "Auckland Grammar School",
-      "Invictus Fencing",
       "Invictus Fencing Club",
+      "Invictus Fencing",
       "Pulse Fencing"
     ],
     "rankings": {
@@ -3641,18 +3669,13 @@
         "rank": 2,
         "as_of": "2025-09-14"
       },
-      "sabre_M": {
-        "rank": 11,
-        "as_of": "2023-04-10"
-      },
       "epee_M": {
         "rank": 20,
         "as_of": "2023-05-28"
       }
     },
     "licence_hashes": [
-      "6658cbaf3d553b3773bd09885c8baf391a3bfddd9b493bf40a90eff6532f9dfd",
-      "7a72ec8bbe36a1efb2cf276f008086e670dd4e10ba9e22a8dd350f1a3ed50a46"
+      "6658cbaf3d553b3773bd09885c8baf391a3bfddd9b493bf40a90eff6532f9dfd"
     ]
   },
   {
@@ -3989,34 +4012,11 @@
     "dob_year": 1976,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": "Auckland University Fencing",
+    "current_club": "Salle Dublin",
     "clubs": [
       "United Fencing Club",
       "Auckland University Fencing Club",
-      "Auckland University Fencing"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 14,
-        "as_of": "2025-11-30"
-      }
-    },
-    "licence_hashes": [
-      "12d8e9fe826b2f6d882dd888846ee4851a3aabd3673a8cc3705008de48bc7c88",
-      "557da9838681c54e5df13ad9682203697fa2bd005d1baec3cdcb66ca4f4f52e8",
-      "9e9cccadde7c34113dfd583ab9b7bd7e3f4927e2e88c07364b4431d87eabac70"
-    ]
-  },
-  {
-    "display_name": "Brendan Lindsay",
-    "name_keys": [
-      "brendan lindsay"
-    ],
-    "dob_year": 2026,
-    "handedness": "right",
-    "nation": "IRL",
-    "current_club": "Salle Dublin",
-    "clubs": [
+      "Auckland University Fencing",
       "Salle Dublin"
     ],
     "rankings": {
@@ -4024,7 +4024,12 @@
         "rank": 20,
         "as_of": "2026-04-12"
       }
-    }
+    },
+    "licence_hashes": [
+      "12d8e9fe826b2f6d882dd888846ee4851a3aabd3673a8cc3705008de48bc7c88",
+      "557da9838681c54e5df13ad9682203697fa2bd005d1baec3cdcb66ca4f4f52e8",
+      "9e9cccadde7c34113dfd583ab9b7bd7e3f4927e2e88c07364b4431d87eabac70"
+    ]
   },
   {
     "display_name": "Brendon Chen",
@@ -4192,16 +4197,13 @@
   {
     "display_name": "Bryan Lee",
     "name_keys": [
-      "bryan lee",
-      "bryan yi-zhen lee"
+      "bryan lee"
     ],
     "dob_year": 2007,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Auckland Grammar School for Boys",
     "clubs": [
-      "Auckland Grammar School",
-      "NZ Academy of Fencing",
       "Auckland Grammar School for Boys"
     ],
     "rankings": {
@@ -4213,14 +4215,12 @@
         "rank": 10,
         "as_of": "2023-08-26"
       }
-    },
-    "licence_hashes": [
-      "9d2040907319ee4b3464f75e12f64efa4b0acd95b7e9aee0c976cbd90ae395f9"
-    ]
+    }
   },
   {
     "display_name": "Bryan Yi-Zhen Lee",
     "name_keys": [
+      "bryan lee",
       "bryan yi-zhen lee"
     ],
     "dob_year": 2007,
@@ -4228,8 +4228,8 @@
     "nation": "NZL",
     "current_club": "Auckland Grammar School",
     "clubs": [
-      "NZ Academy of Fencing",
-      "Auckland Grammar School"
+      "Auckland Grammar School",
+      "NZ Academy of Fencing"
     ],
     "rankings": {
       "foil_M": {
@@ -4242,6 +4242,7 @@
       }
     },
     "licence_hashes": [
+      "9d2040907319ee4b3464f75e12f64efa4b0acd95b7e9aee0c976cbd90ae395f9",
       "ccf11d0a09d3aadb4cc4e8158792f67e2242dc103618f9446179301e630372a3"
     ]
   },
@@ -4374,7 +4375,7 @@
     "name_keys": [
       "callum matthew"
     ],
-    "dob_year": 2024,
+    "dob_year": 2007,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Hamilton Boys High School",
@@ -4471,7 +4472,7 @@
     "name_keys": [
       "cao yuwei"
     ],
-    "dob_year": 2022,
+    "dob_year": null,
     "handedness": "right",
     "nation": "NZL",
     "current_club": null,
@@ -4808,22 +4809,30 @@
   {
     "display_name": "Charles Bioletti",
     "name_keys": [
-      "charles bioletti"
+      "charles bioletti",
+      "charlie bioletti"
     ],
     "dob_year": 2002,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Auckland Swords Club",
     "clubs": [
+      "Auckland Swords",
+      "North",
       "Auckland Swords Club"
     ],
     "rankings": {
       "epee_M": {
         "rank": 1,
         "as_of": "2026-04-12"
+      },
+      "sabre_M": {
+        "rank": 3,
+        "as_of": "2023-02-18"
       }
     },
     "licence_hashes": [
+      "9c385a7a9c0e1feb2360179f924494c225c371f14f47a692e8e2442d50b01dc0",
       "d9e3e2e9d20edac9c2f7d699dff847628715d20ccdb53dc8c6c677ba08304fa7"
     ]
   },
@@ -4875,6 +4884,23 @@
     ]
   },
   {
+    "display_name": "Charles Lumb",
+    "name_keys": [
+      "charles lumb"
+    ],
+    "dob_year": 1957,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": null,
+    "clubs": [],
+    "rankings": {
+      "epee_M": {
+        "rank": 38,
+        "as_of": "2022-06-26"
+      }
+    }
+  },
+  {
     "display_name": "Charlie Bennett",
     "name_keys": [
       "charlie bennett"
@@ -4899,36 +4925,6 @@
   {
     "display_name": "Charlie Bioletti",
     "name_keys": [
-      "charles bioletti",
-      "charlie bioletti"
-    ],
-    "dob_year": 2002,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Auckand Swords Club",
-    "clubs": [
-      "Auckland Swords",
-      "Auckland Swords Club",
-      "North",
-      "Auckand Swords Club"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 1,
-        "as_of": "2025-08-17"
-      },
-      "sabre_M": {
-        "rank": 3,
-        "as_of": "2023-02-18"
-      }
-    },
-    "licence_hashes": [
-      "9c385a7a9c0e1feb2360179f924494c225c371f14f47a692e8e2442d50b01dc0"
-    ]
-  },
-  {
-    "display_name": "Charlie Bioletti",
-    "name_keys": [
       "charlie bioletti"
     ],
     "dob_year": 2000,
@@ -4940,6 +4936,26 @@
       "epee_M": {
         "rank": 2,
         "as_of": "2024-06-02"
+      }
+    }
+  },
+  {
+    "display_name": "Charlie Bioletti",
+    "name_keys": [
+      "charlie bioletti"
+    ],
+    "dob_year": 2002,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Auckand Swords Club",
+    "clubs": [
+      "Auckland Swords Club",
+      "Auckand Swords Club"
+    ],
+    "rankings": {
+      "epee_M": {
+        "rank": 1,
+        "as_of": "2025-08-17"
       }
     }
   },
@@ -5286,15 +5302,16 @@
     "dob_year": 2000,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": "Salle Jean Louis Club",
+    "current_club": "Salle Jean Louis Fencing Club",
     "clubs": [
       "Salle Jean Louis Club",
-      "Salle Jean Louis"
+      "Salle Jean Louis",
+      "Salle Jean Louis Fencing Club"
     ],
     "rankings": {
       "epee_M": {
-        "rank": 5,
-        "as_of": "2021-08-01"
+        "rank": 13,
+        "as_of": "2026-05-10"
       },
       "sabre_M": {
         "rank": 9,
@@ -5302,29 +5319,8 @@
       }
     },
     "licence_hashes": [
+      "0a514d471b419260ed08226368f9e9a6d6fe2ff425d7cf943b8f2fd0dfa4e6d7",
       "3e4223d51b1a5329f7fa3f18bf8b4fbd92eada178f7e25d59c9889aa7c9d330a"
-    ]
-  },
-  {
-    "display_name": "Chris Macdonald",
-    "name_keys": [
-      "chris macdonald"
-    ],
-    "dob_year": 2000,
-    "handedness": "left",
-    "nation": "NZL",
-    "current_club": "Salle Jean Louis Fencing Club",
-    "clubs": [
-      "Salle Jean Louis Fencing Club"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 13,
-        "as_of": "2026-05-10"
-      }
-    },
-    "licence_hashes": [
-      "0a514d471b419260ed08226368f9e9a6d6fe2ff425d7cf943b8f2fd0dfa4e6d7"
     ]
   },
   {
@@ -6273,14 +6269,39 @@
     "dob_year": 2007,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": "The Fencing Institute",
+    "current_club": "Piwakawaka",
     "clubs": [
       "Piwakawaka Fencing Club",
-      "Piwakawaka",
       "Christ's College",
       "Pīwakawaka Fencing",
       "Piwakawaka Fencing",
       "Christs College",
+      "Piwakawaka"
+    ],
+    "rankings": {
+      "epee_M": {
+        "rank": 29,
+        "as_of": "2024-10-27"
+      }
+    },
+    "licence_hashes": [
+      "6596df46fd87e6e3d36058dd7d350ed4035e17ec59b06c9656381364e678c33e"
+    ]
+  },
+  {
+    "display_name": "Daniel Gourley",
+    "name_keys": [
+      "daniel gourley"
+    ],
+    "dob_year": 2007,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "The Fencing Institute",
+    "clubs": [
+      "Piwakawaka",
+      "Piwakawaka Fencing",
+      "Christ's College",
+      "Piwakawaka Fencing Club",
       "NZL",
       "The Fencing Institute"
     ],
@@ -6296,7 +6317,6 @@
     },
     "licence_hashes": [
       "051dc31e6b962a6d961e9c5a00e0f7f5a601fd4a502c3ccf884770764fa581e2",
-      "6596df46fd87e6e3d36058dd7d350ed4035e17ec59b06c9656381364e678c33e",
       "aa1cd66196dc842fff47bf00e0d7477ecef87848237a81f7621521505ff86300"
     ]
   },
@@ -8204,9 +8224,7 @@
     "current_club": "Pulse Fencing Club",
     "clubs": [
       "Pulse Fencing",
-      "ACG Sunderland",
-      "Pulse Fencing Club",
-      "NZL"
+      "Pulse Fencing Club"
     ],
     "rankings": {
       "foil_W": {
@@ -8215,7 +8233,31 @@
       }
     },
     "licence_hashes": [
-      "81e97f1572050e3f9cdefd944b57145ce04c3266e448296f4911bbdcf473f9e7",
+      "81e97f1572050e3f9cdefd944b57145ce04c3266e448296f4911bbdcf473f9e7"
+    ]
+  },
+  {
+    "display_name": "Emily Shiyi Luo",
+    "name_keys": [
+      "emily shiyi luo"
+    ],
+    "dob_year": 2012,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "NZL",
+    "clubs": [
+      "Pulse Fencing",
+      "ACG Sunderland",
+      "Pulse Fencing Club",
+      "NZL"
+    ],
+    "rankings": {
+      "foil_W": {
+        "rank": 16,
+        "as_of": "2025-07-12"
+      }
+    },
+    "licence_hashes": [
       "d2f556148920392215e221bafc3a5294826fb35b0e52fa40da78844e1e72e64a",
       "fd6940300092a5ba548e0cc45ac25913000ce836c80e67e24cc3087dc6cc26c3"
     ]
@@ -8625,30 +8667,6 @@
   {
     "display_name": "Eric Jiuzun Yan",
     "name_keys": [
-      "eric jiuzun yan"
-    ],
-    "dob_year": 2008,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Kristin School",
-    "clubs": [
-      "Pulse Fencing",
-      "Kristin School",
-      "Pulse Fencing Club"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 3,
-        "as_of": "2024-09-07"
-      }
-    },
-    "licence_hashes": [
-      "be4406c2b7cd410182dde01432ccbade821d5e2af930aac83de50e4ef4e182b8"
-    ]
-  },
-  {
-    "display_name": "Eric Jiuzun Yan",
-    "name_keys": [
       "eric jiuzun yan",
       "jiuzun yan"
     ],
@@ -8658,6 +8676,7 @@
     "current_club": "Pulse Fencing Club",
     "clubs": [
       "Pulse Fencing",
+      "Kristin School",
       "Pulse Fencing Club"
     ],
     "rankings": {
@@ -8667,7 +8686,8 @@
       }
     },
     "licence_hashes": [
-      "24f83edcf7974f4032acf31224b6637cbb8b6fc062c902c1a85f102040e9319c"
+      "24f83edcf7974f4032acf31224b6637cbb8b6fc062c902c1a85f102040e9319c",
+      "be4406c2b7cd410182dde01432ccbade821d5e2af930aac83de50e4ef4e182b8"
     ]
   },
   {
@@ -9964,23 +9984,6 @@
     ]
   },
   {
-    "display_name": "Ge Shen",
-    "name_keys": [
-      "ge shen"
-    ],
-    "dob_year": null,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": null,
-    "clubs": [],
-    "rankings": {
-      "epee_W": {
-        "rank": 1,
-        "as_of": "2022-06-25"
-      }
-    }
-  },
-  {
     "display_name": "Genevieve Kirkby-Swain",
     "name_keys": [
       "genevieve kirkby - swain",
@@ -10334,6 +10337,23 @@
     ]
   },
   {
+    "display_name": "Grace Ge Shen",
+    "name_keys": [
+      "grace ge shen"
+    ],
+    "dob_year": null,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": null,
+    "clubs": [],
+    "rankings": {
+      "epee_W": {
+        "rank": 5,
+        "as_of": "2022-02-07"
+      }
+    }
+  },
+  {
     "display_name": "Grace Lee",
     "name_keys": [
       "grace lee"
@@ -10608,42 +10628,6 @@
       "112b51c74f1021f8a4de3193a569c94c9fd9d5625a1030d29162fa45e173b547",
       "6482f44e63c94a8fa53af82eadff4e80ad68658edd30e16768b8b470d1660fd6"
     ]
-  },
-  {
-    "display_name": "Grant Tweddle",
-    "name_keys": [
-      "grant tweddle"
-    ],
-    "dob_year": 2022,
-    "handedness": "right",
-    "nation": null,
-    "current_club": "Wellington Swords Club",
-    "clubs": [
-      "Wellington Swords Club"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 20,
-        "as_of": "2022-10-09"
-      }
-    }
-  },
-  {
-    "display_name": "Grant Tweddle",
-    "name_keys": [
-      "grant tweddle"
-    ],
-    "dob_year": null,
-    "handedness": null,
-    "nation": null,
-    "current_club": null,
-    "clubs": [],
-    "rankings": {
-      "epee_M": {
-        "rank": 10,
-        "as_of": null
-      }
-    }
   },
   {
     "display_name": "Greta Pinna",
@@ -11338,6 +11322,28 @@
   {
     "display_name": "Harry Zhou",
     "name_keys": [
+      "harry zhou"
+    ],
+    "dob_year": 2010,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Bucklands Beach Intermediate",
+    "clubs": [
+      "Bucklands Beach Intermediate"
+    ],
+    "rankings": {
+      "foil_M": {
+        "rank": 12,
+        "as_of": "2023-03-12"
+      }
+    },
+    "licence_hashes": [
+      "2211d25ab5058140b6294bd62b8bf6d9985f779e33f1421b951908cba337e2cf"
+    ]
+  },
+  {
+    "display_name": "Harry Zhou",
+    "name_keys": [
       "chenqi zhou",
       "harry zhou"
     ],
@@ -11346,7 +11352,6 @@
     "nation": "NZL",
     "current_club": "NZ Academy of Fencing",
     "clubs": [
-      "Bucklands Beach Intermediate",
       "NZ Academy of Fencing",
       "Macleans College Fencing Club",
       "Academy of Fencing",
@@ -11354,17 +11359,12 @@
       "NZ Acadamy of Fencing"
     ],
     "rankings": {
-      "foil_M": {
-        "rank": 12,
-        "as_of": "2023-03-12"
-      },
       "sabre_M": {
         "rank": 5,
         "as_of": "2026-04-11"
       }
     },
     "licence_hashes": [
-      "2211d25ab5058140b6294bd62b8bf6d9985f779e33f1421b951908cba337e2cf",
       "d34b4b9bdfcfe373c63e60d4e96506852b6e04e4b27380637c4cb5b04f894c7f"
     ]
   },
@@ -11556,31 +11556,6 @@
     ]
   },
   {
-    "display_name": "Helen H Wang",
-    "name_keys": [
-      "helen h wang",
-      "helen wang"
-    ],
-    "dob_year": 2022,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Pulse Fencing",
-    "clubs": [
-      "Auckland University Fencing",
-      "Auckland Swords",
-      "Pulse Fencing"
-    ],
-    "rankings": {
-      "foil_W": {
-        "rank": 7,
-        "as_of": "2023-10-15"
-      }
-    },
-    "licence_hashes": [
-      "f879da8b3aad1e20df59e93826cd910c94188983f997e10ef82af3f80026a846"
-    ]
-  },
-  {
     "display_name": "Helen Luo",
     "name_keys": [
       "helen luo"
@@ -11613,6 +11588,8 @@
     "nation": "NZL",
     "current_club": "Pulse Fencing",
     "clubs": [
+      "Auckland University Fencing",
+      "Auckland Swords",
       "Pulse Fencing",
       "Rangitoto College"
     ],
@@ -11623,7 +11600,8 @@
       }
     },
     "licence_hashes": [
-      "0ed81aa72828a724a792a16b8c03114fb06737c484bedc47a6a0deebf6f5e2b6"
+      "0ed81aa72828a724a792a16b8c03114fb06737c484bedc47a6a0deebf6f5e2b6",
+      "f879da8b3aad1e20df59e93826cd910c94188983f997e10ef82af3f80026a846"
     ]
   },
   {
@@ -11906,10 +11884,10 @@
     "nation": "NZL",
     "current_club": "Canterbury Uni Fencing Club",
     "clubs": [
+      "University of Canterbury Fencing Club",
       "University Of Canterbury Fencing Club",
       "The Fencing Institue",
       "The Fencing Institute",
-      "University of Canterbury Fencing Club",
       "Canterbury Uni Fencing Club"
     ],
     "rankings": {
@@ -11943,27 +11921,6 @@
     "licence_hashes": [
       "792ef54040dcd5def2fd169440360dcae05e843c342fe1fbc104d360a69aca3c"
     ]
-  },
-  {
-    "display_name": "Hugh Mercer-Beumelburg",
-    "name_keys": [
-      "hugh mercer-beumelburg"
-    ],
-    "dob_year": 1998,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "The Fencing Institute",
-    "clubs": [
-      "University of Canterbury Fencing Club",
-      "The Fencing Institue",
-      "The Fencing Institute"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 10,
-        "as_of": "2024-06-23"
-      }
-    }
   },
   {
     "display_name": "Hugh Thompson",
@@ -12045,7 +12002,8 @@
   {
     "display_name": "Huiqiao Jiang",
     "name_keys": [
-      "huiqiao jiang"
+      "huiqiao jiang",
+      "olivia jiang"
     ],
     "dob_year": 2008,
     "handedness": "right",
@@ -12053,8 +12011,8 @@
     "current_club": "Pulse Fencing Club",
     "clubs": [
       "NZ Academy of Fencing",
-      "New Zealand Academy Of Fencing",
       "ACG Strathallan",
+      "New Zealand Academy Of Fencing",
       "Pulse Fencing",
       "Pulse Fencing Club"
     ],
@@ -12065,6 +12023,7 @@
       }
     },
     "licence_hashes": [
+      "44406a3cce9fa1eb47a21f172b6efa9d9c1b12bf52bc9890ca9edebd681d02b9",
       "56d58cda4c604daed07e55f38c913010e4c21820377be14d8723c79a8acb32b9",
       "c84f3e52e6960f3396552af176ffae19fa466cb553de69c40e724ca9d091e934"
     ]
@@ -12121,8 +12080,6 @@
     "nation": "NZL",
     "current_club": "Auckland Swords Club",
     "clubs": [
-      "Wellington South Fencing Club",
-      "Scots College",
       "Auckland Swords",
       "Auckland Swords Club"
     ],
@@ -12133,7 +12090,30 @@
       }
     },
     "licence_hashes": [
-      "85bef4a32f243778bc5f4ac7f0d40cdc4922ffc2d843cc0b4d2c0e9b5fafa6be",
+      "85bef4a32f243778bc5f4ac7f0d40cdc4922ffc2d843cc0b4d2c0e9b5fafa6be"
+    ]
+  },
+  {
+    "display_name": "Hunter Sari",
+    "name_keys": [
+      "hunter sari"
+    ],
+    "dob_year": 2005,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Auckland Swords",
+    "clubs": [
+      "Wellington South Fencing Club",
+      "Scots College",
+      "Auckland Swords"
+    ],
+    "rankings": {
+      "epee_M": {
+        "rank": 28,
+        "as_of": "2024-03-03"
+      }
+    },
+    "licence_hashes": [
       "f9029d2009a0fa81e8a5bc82b68257a2725b3553f2876a99659871ae49ae3831"
     ]
   },
@@ -12141,6 +12121,34 @@
     "display_name": "I Tung Liu",
     "name_keys": [
       "i tung liu",
+      "i-tung liu"
+    ],
+    "dob_year": 2008,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "The Fencing Institute",
+    "clubs": [
+      "The Fencing Institute",
+      "Villa Maria College"
+    ],
+    "rankings": {
+      "foil_W": {
+        "rank": 22,
+        "as_of": "2024-09-08"
+      },
+      "sabre_W": {
+        "rank": 1,
+        "as_of": "2025-06-21"
+      }
+    },
+    "licence_hashes": [
+      "8beaf2b92eaf67d9c55123001165fc96f7d7c94f97f9ac986494c8991a68c68e",
+      "a889f913a33620819b7d3876dbf72463e763890d84c780cf5ecea8952e72c811"
+    ]
+  },
+  {
+    "display_name": "I-Tung Liu",
+    "name_keys": [
       "i-tung liu",
       "laura liu"
     ],
@@ -12155,17 +12163,15 @@
     ],
     "rankings": {
       "sabre_W": {
-        "rank": 1,
-        "as_of": "2025-06-21"
+        "rank": 8,
+        "as_of": "2024-06-02"
       },
       "foil_W": {
-        "rank": 22,
-        "as_of": "2024-09-08"
+        "rank": 7,
+        "as_of": "2024-06-03"
       }
     },
     "licence_hashes": [
-      "8beaf2b92eaf67d9c55123001165fc96f7d7c94f97f9ac986494c8991a68c68e",
-      "a889f913a33620819b7d3876dbf72463e763890d84c780cf5ecea8952e72c811",
       "b4a2a6c507f6d71e792fb0bc476589ad4a82d9905a752be77038153623b6c2c9"
     ]
   },
@@ -13159,29 +13165,6 @@
     ]
   },
   {
-    "display_name": "Jacob Takuira-Mita",
-    "name_keys": [
-      "jacob takuira-mita"
-    ],
-    "dob_year": 2024,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "The Fencing Institute",
-    "clubs": [
-      "The Fencing Institute"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 16,
-        "as_of": "2024-06-01"
-      },
-      "epee_M": {
-        "rank": 16,
-        "as_of": "2024-06-02"
-      }
-    }
-  },
-  {
     "display_name": "Jacob Yan Hao Zhu",
     "name_keys": [
       "jacob yan hao zhu",
@@ -13192,10 +13175,6 @@
     "nation": "NZL",
     "current_club": "Pulse Fencing Club",
     "clubs": [
-      "ACG Parnell",
-      "Kristin School",
-      "JF Fencing",
-      "JF Fencing School",
       "Pulse Fencing",
       "Pulse Fencing Club"
     ],
@@ -13206,7 +13185,32 @@
       }
     },
     "licence_hashes": [
-      "38d9892ef23641b0b4dff0f6a16a2cc5bb6ebf3734db543122c3769992dbd613",
+      "38d9892ef23641b0b4dff0f6a16a2cc5bb6ebf3734db543122c3769992dbd613"
+    ]
+  },
+  {
+    "display_name": "Jacob Zhu",
+    "name_keys": [
+      "jacob zhu"
+    ],
+    "dob_year": 2010,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Pulse Fencing",
+    "clubs": [
+      "ACG Parnell",
+      "Kristin School",
+      "JF Fencing",
+      "JF Fencing School",
+      "Pulse Fencing"
+    ],
+    "rankings": {
+      "foil_M": {
+        "rank": 11,
+        "as_of": "2024-10-20"
+      }
+    },
+    "licence_hashes": [
       "4943190811b1ae0dc0c90aaf619995a535a198e133b0c1364b68e6fe8cbda1d7",
       "a3856a5e37bcfcbb02e966c81b7b824926ee6b8c430369246929f163274f295e"
     ]
@@ -14494,25 +14498,6 @@
     ]
   },
   {
-    "display_name": "Jinghan Wang",
-    "name_keys": [
-      "jinghan wang"
-    ],
-    "dob_year": 2007,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Pulse Fencing",
-    "clubs": [
-      "Pulse Fencing"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 8,
-        "as_of": "2025-05-31"
-      }
-    }
-  },
-  {
     "display_name": "JinYi Zhang",
     "name_keys": [
       "jinyi zhang"
@@ -14559,21 +14544,18 @@
   {
     "display_name": "Jiuqing Michael Yan",
     "name_keys": [
-      "jiuqing (michael) yan",
       "jiuqing michael yan",
       "jiuqing yan",
-      "michael jiuqing yan",
-      "michael yan"
+      "michael jiuqing yan"
     ],
     "dob_year": 2011,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Pulse Fencing Club",
     "clubs": [
-      "JF Fencing",
+      "Pulse Fencing",
       "Kristin School",
-      "Pulse Fencing Club",
-      "Pulse Fencing"
+      "Pulse Fencing Club"
     ],
     "rankings": {
       "foil_M": {
@@ -14583,8 +14565,7 @@
     },
     "licence_hashes": [
       "730e4019e55448fd58f59961768921c659c05a4cd057444b311eb18e3bc7f226",
-      "c2708226878a19fcea16bee89776078a5e500029d90aceac63ac78b74fe402fb",
-      "fef666c426851844c9cc005d5984ca8fffc8f6424e59d661def41b6b19b1f960"
+      "c2708226878a19fcea16bee89776078a5e500029d90aceac63ac78b74fe402fb"
     ]
   },
   {
@@ -15942,6 +15923,7 @@
   {
     "display_name": "Kate Gourley",
     "name_keys": [
+      "daniel gourley",
       "kate gourley"
     ],
     "dob_year": 2005,
@@ -15950,9 +15932,10 @@
     "current_club": "University of Canterbury Fencing Club",
     "clubs": [
       "Rangi Ruru Girls School",
+      "Piwakawaka Fencing Club",
+      "Pīwakawaka Fencing",
       "Piwakawaka",
       "Piwakawaka Fencing",
-      "Piwakawaka Fencing Club",
       "NZL",
       "University of Canterbury Fencing Club"
     ],
@@ -15964,41 +15947,16 @@
       "epee_W": {
         "rank": 13,
         "as_of": "2026-04-11"
-      }
-    },
-    "licence_hashes": [
-      "a06c6f83b0677347146a6cc7136172c9f75c786359563d5ae25dc10ef0381f00",
-      "bbc317f1d59214c8c3fc28d93f0320a91f96ad5fc7520913798ff812e6dea819"
-    ]
-  },
-  {
-    "display_name": "Kate Gourley",
-    "name_keys": [
-      "daniel gourley",
-      "kate gourley"
-    ],
-    "dob_year": 2005,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Piwakawaka Fencing",
-    "clubs": [
-      "Piwakawaka Fencing Club",
-      "Rangi Ruru Girls School",
-      "Pīwakawaka Fencing",
-      "Piwakawaka Fencing"
-    ],
-    "rankings": {
+      },
       "epee_M": {
         "rank": 1,
         "as_of": "2021-03-21"
-      },
-      "epee_W": {
-        "rank": 7,
-        "as_of": "2023-07-15"
       }
     },
     "licence_hashes": [
-      "06e20904e7dbe0dc5d16cdb1c7eb037ff04dc7224fb9243691212537fb44c8b5"
+      "06e20904e7dbe0dc5d16cdb1c7eb037ff04dc7224fb9243691212537fb44c8b5",
+      "a06c6f83b0677347146a6cc7136172c9f75c786359563d5ae25dc10ef0381f00",
+      "bbc317f1d59214c8c3fc28d93f0320a91f96ad5fc7520913798ff812e6dea819"
     ]
   },
   {
@@ -16781,30 +16739,6 @@
     "licence_hashes": [
       "73d075ae0d5ae497f888cf601918832e5379b47f01b98a710f2d72472e9d0b1d"
     ]
-  },
-  {
-    "display_name": "Laura Liu",
-    "name_keys": [
-      "laura liu"
-    ],
-    "dob_year": 2008,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "The Fencing Institute",
-    "clubs": [
-      "Villa Maria College",
-      "The Fencing Institute"
-    ],
-    "rankings": {
-      "sabre_W": {
-        "rank": 8,
-        "as_of": "2024-03-02"
-      },
-      "foil_W": {
-        "rank": 16,
-        "as_of": "2023-08-27"
-      }
-    }
   },
   {
     "display_name": "Laura Tea Louison-Grepin",
@@ -17974,25 +17908,6 @@
     "name_keys": [
       "lucas cai"
     ],
-    "dob_year": 2023,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Scots College",
-    "clubs": [
-      "Scots College"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 26,
-        "as_of": "2024-10-26"
-      }
-    }
-  },
-  {
-    "display_name": "Lucas Cai",
-    "name_keys": [
-      "lucas cai"
-    ],
     "dob_year": 2009,
     "handedness": "right",
     "nation": "NZL",
@@ -18008,18 +17923,6 @@
         "as_of": "2025-05-31"
       }
     }
-  },
-  {
-    "display_name": "Lucas Cai",
-    "name_keys": [
-      "lucas cai"
-    ],
-    "dob_year": null,
-    "handedness": null,
-    "nation": null,
-    "current_club": null,
-    "clubs": [],
-    "rankings": {}
   },
   {
     "display_name": "Lucas Firth",
@@ -20105,8 +20008,8 @@
     "nation": "NZL",
     "current_club": "Invictus Fencing",
     "clubs": [
-      "Invictus Fencing",
       "Macleans College",
+      "Invictus Fencing",
       "NZ Academy of Fencing"
     ],
     "rankings": {
@@ -20601,6 +20504,34 @@
     ]
   },
   {
+    "display_name": "Michael Yan",
+    "name_keys": [
+      "jiuqing (michael) yan",
+      "jiuqing yan",
+      "michael jiuqing yan",
+      "michael yan"
+    ],
+    "dob_year": 2011,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Pulse Fencing",
+    "clubs": [
+      "JF Fencing",
+      "Kristin School",
+      "Pulse Fencing Club",
+      "Pulse Fencing"
+    ],
+    "rankings": {
+      "foil_M": {
+        "rank": 17,
+        "as_of": "2024-10-26"
+      }
+    },
+    "licence_hashes": [
+      "fef666c426851844c9cc005d5984ca8fffc8f6424e59d661def41b6b19b1f960"
+    ]
+  },
+  {
     "display_name": "Michaela Bayly",
     "name_keys": [
       "michaela bayly"
@@ -20897,6 +20828,25 @@
     }
   },
   {
+    "display_name": "Millian Shiyu Chen",
+    "name_keys": [
+      "millian shiyu chen"
+    ],
+    "dob_year": 2006,
+    "handedness": "right",
+    "nation": "CHN",
+    "current_club": "Pulse Fencing",
+    "clubs": [
+      "Pulse Fencing"
+    ],
+    "rankings": {
+      "sabre_W": {
+        "rank": 1,
+        "as_of": "2023-07-15"
+      }
+    }
+  },
+  {
     "display_name": "Millie Sarjeant",
     "name_keys": [
       "amelia sarjeant",
@@ -20957,27 +20907,6 @@
     "licence_hashes": [
       "27f64c166ba00d6c49cde9ccbe340e2bb9ba0e9fed95f6e68fdae40e0337b5d4"
     ]
-  },
-  {
-    "display_name": "Millie Sarjeant",
-    "name_keys": [
-      "millie sarjeant"
-    ],
-    "dob_year": 2006,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Christchurch Girls High School",
-    "clubs": [
-      "Piwakawaka Fencing",
-      "Piwakawaka",
-      "Christchurch Girls High School"
-    ],
-    "rankings": {
-      "epee_W": {
-        "rank": 6,
-        "as_of": "2023-08-26"
-      }
-    }
   },
   {
     "display_name": "Milo Henshaw",
@@ -21124,8 +21053,7 @@
       "Kristin School",
       "JF Fencing",
       "JF Fencing School",
-      "Pulse Fencing",
-      "NZL"
+      "Pulse Fencing"
     ],
     "rankings": {
       "foil_W": {
@@ -21134,7 +21062,28 @@
       }
     },
     "licence_hashes": [
-      "3f7b4315e329c0b91c6576aeb56cd0fdacbc5bcf9d6214f7c8d353a67dc834d9",
+      "3f7b4315e329c0b91c6576aeb56cd0fdacbc5bcf9d6214f7c8d353a67dc834d9"
+    ]
+  },
+  {
+    "display_name": "Miya Yan xin Zhu",
+    "name_keys": [
+      "miya yan xin zhu"
+    ],
+    "dob_year": 2013,
+    "handedness": "right",
+    "nation": null,
+    "current_club": "NZL",
+    "clubs": [
+      "NZL"
+    ],
+    "rankings": {
+      "foil_W": {
+        "rank": 19,
+        "as_of": "2025-07-12"
+      }
+    },
+    "licence_hashes": [
       "91efd94df9e32ce43e4863e10c0cf9c1da99bba5b694b0dbeb1537374496b8c7"
     ]
   },
@@ -21217,7 +21166,10 @@
     "nation": "NZL",
     "current_club": "The Fencing Institute",
     "clubs": [
-      "The Fencing Institute"
+      "Fencing Institute",
+      "Christ's College",
+      "The Fencing Institute",
+      "The Fencing Institue"
     ],
     "rankings": {
       "foil_M": {
@@ -21226,7 +21178,9 @@
       }
     },
     "licence_hashes": [
-      "a95b5aed400a41d91fe43ed1a095445ad34084014e89c25ae2a20bbfc0d041ee"
+      "949940320cb43c1b62e20e9cc09051431e06837a33c24e208ddd90b6230b0704",
+      "a95b5aed400a41d91fe43ed1a095445ad34084014e89c25ae2a20bbfc0d041ee",
+      "e302f0a2f062c179d10145ae2566e412685fba2b2fb1e9e3bdfe7dea6da66d53"
     ]
   },
   {
@@ -21546,41 +21500,18 @@
   {
     "display_name": "Nathan Diao",
     "name_keys": [
+      "nathan bohan diao",
       "nathan diao"
     ],
     "dob_year": 2006,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": "ACG Parnell",
-    "clubs": [
-      "NZ Academy of Fencing",
-      "Auckland International College",
-      "ACG Parnell"
-    ],
-    "rankings": {
-      "sabre_M": {
-        "rank": 2,
-        "as_of": "2023-08-26"
-      }
-    },
-    "licence_hashes": [
-      "86a6740d25245b7b852ce6ae31ef4bf053f3600857e0c7f316f8f0f28c537d65"
-    ]
-  },
-  {
-    "display_name": "Nathan Diao",
-    "name_keys": [
-      "nathan bohan diao",
-      "nathan diao"
-    ],
-    "dob_year": 2006,
-    "handedness": "left",
-    "nation": "NZL",
     "current_club": "NZ Academy of Fencing",
     "clubs": [
       "NZ Academy of Fencing",
-      "New Zealand Academy of Fencing",
-      "Auckland International College"
+      "Auckland International College",
+      "ACG Parnell",
+      "New Zealand Academy of Fencing"
     ],
     "rankings": {
       "sabre_M": {
@@ -21589,7 +21520,8 @@
       }
     },
     "licence_hashes": [
-      "6b388aee01c786edf48b8c0413099b1660b0f633c97fde6b77b931320b13ffc3"
+      "6b388aee01c786edf48b8c0413099b1660b0f633c97fde6b77b931320b13ffc3",
+      "86a6740d25245b7b852ce6ae31ef4bf053f3600857e0c7f316f8f0f28c537d65"
     ]
   },
   {
@@ -21848,6 +21780,25 @@
     ]
   },
   {
+    "display_name": "Nicholas Ustin",
+    "name_keys": [
+      "nicholas ustin"
+    ],
+    "dob_year": 1967,
+    "handedness": "left",
+    "nation": "NZL",
+    "current_club": "Pulse Fencing",
+    "clubs": [
+      "Pulse Fencing"
+    ],
+    "rankings": {
+      "foil_M": {
+        "rank": 7,
+        "as_of": "2023-09-17"
+      }
+    }
+  },
+  {
     "display_name": "Nick Peters",
     "name_keys": [
       "nick peters"
@@ -21881,37 +21832,15 @@
   {
     "display_name": "Nick Ustin",
     "name_keys": [
+      "nicholas ustin",
       "nick ustin"
     ],
     "dob_year": 1967,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": "Auckland Swords",
-    "clubs": [
-      "Auckland Swords"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 5,
-        "as_of": "2021-08-07"
-      }
-    },
-    "licence_hashes": [
-      "c68252c31a4f3dffd9e440a39420626c19c6a47b5ccfbdad42efb1bc2c47f3e9"
-    ]
-  },
-  {
-    "display_name": "Nick Ustin",
-    "name_keys": [
-      "nicholas ustin",
-      "nick ustin"
-    ],
-    "dob_year": 1967,
-    "handedness": "left",
-    "nation": "NZL",
     "current_club": "Pulse Fencing Club",
     "clubs": [
-      "Salle Jean Louis Club",
+      "Auckland Swords",
       "Pulse Fencing",
       "Pulse Fencing Club"
     ],
@@ -21922,6 +21851,7 @@
       }
     },
     "licence_hashes": [
+      "c68252c31a4f3dffd9e440a39420626c19c6a47b5ccfbdad42efb1bc2c47f3e9",
       "f9c57b7978603a43225f894c7c3bf91bec9014e98fb8fcd24c84422bad367a7a"
     ]
   },
@@ -22707,30 +22637,6 @@
     },
     "licence_hashes": [
       "df6d76327b86f9945df7f03e3e4ccf06f02d90efdc4c3fb6588fb8e74936e38d"
-    ]
-  },
-  {
-    "display_name": "Olivia Jiang",
-    "name_keys": [
-      "huiqiao jiang",
-      "olivia jiang"
-    ],
-    "dob_year": 2008,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "ACG Strathallan",
-    "clubs": [
-      "NZ Academy of Fencing",
-      "ACG Strathallan"
-    ],
-    "rankings": {
-      "sabre_W": {
-        "rank": 1,
-        "as_of": "2021-07-10"
-      }
-    },
-    "licence_hashes": [
-      "44406a3cce9fa1eb47a21f172b6efa9d9c1b12bf52bc9890ca9edebd681d02b9"
     ]
   },
   {
@@ -23833,20 +23739,47 @@
     "nation": "NZL",
     "current_club": "University of Canterbury Fencing Club",
     "clubs": [
-      "University of Canterbury Fencing Club",
       "Fencing Institute",
       "The Fencing Institute",
-      "University of Canterbury",
+      "University of Canterbury Fencing Club",
       "Canterbury Uni Fencing Club"
+    ],
+    "rankings": {
+      "epee_W": {
+        "rank": 12,
+        "as_of": "2024-10-26"
+      },
+      "sabre_W": {
+        "rank": 12,
+        "as_of": "2023-09-30"
+      },
+      "foil_W": {
+        "rank": 2,
+        "as_of": "2025-10-04"
+      }
+    },
+    "licence_hashes": [
+      "1aaf201c61f53e59506c96737da4c52effa72542cd6b52044627f7f5fba30fae"
+    ]
+  },
+  {
+    "display_name": "Renee Phillips",
+    "name_keys": [
+      "renee phillips"
+    ],
+    "dob_year": 2003,
+    "handedness": "left",
+    "nation": "NZL",
+    "current_club": "University of Canterbury Fencing Club",
+    "clubs": [
+      "University of Canterbury Fencing Club",
+      "University of Canterbury",
+      "The Fencing Institute"
     ],
     "rankings": {
       "epee_W": {
         "rank": 6,
         "as_of": "2025-11-29"
-      },
-      "sabre_W": {
-        "rank": 12,
-        "as_of": "2023-09-30"
       },
       "foil_W": {
         "rank": 19,
@@ -23854,7 +23787,6 @@
       }
     },
     "licence_hashes": [
-      "1aaf201c61f53e59506c96737da4c52effa72542cd6b52044627f7f5fba30fae",
       "d55a3fcc7ba7c5f876ce779d9679e25b048604816804d484a0002cfb7c24600f"
     ]
   },
@@ -23981,19 +23913,22 @@
     ]
   },
   {
-    "display_name": "Rick Cheng",
+    "display_name": "Rob Ogg",
     "name_keys": [
-      "rick cheng"
+      "rob ogg"
     ],
-    "dob_year": 2021,
+    "dob_year": 1955,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": null,
-    "clubs": [],
+    "current_club": "Pulse Fencing",
+    "clubs": [
+      "Auckland Swords Club",
+      "Pulse Fencing"
+    ],
     "rankings": {
-      "sabre_M": {
-        "rank": 2,
-        "as_of": "2021-04-25"
+      "foil_M": {
+        "rank": 3,
+        "as_of": "2025-06-01"
       }
     }
   },
@@ -24052,7 +23987,6 @@
     "current_club": "Pulse Fencing Club",
     "clubs": [
       "Pulse Fencing",
-      "Auckland Swords Club",
       "Auckland Swords",
       "Pulse Fencing Club"
     ],
@@ -24063,30 +23997,9 @@
       }
     },
     "licence_hashes": [
+      "590fd19ab70ba425a83cb5a22f121fd88a1d382904179f478c174644dabf4aac",
       "74ee7807cf8fad377658e4a662d6db1698278cf356e3731c34706794f1c6abb5",
       "f4bd42923473c94d41c337771bd1beef47c667f17a2991e8939fd5e0f0d7cac1"
-    ]
-  },
-  {
-    "display_name": "Robert Ogg",
-    "name_keys": [
-      "robert ogg"
-    ],
-    "dob_year": 1955,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Auckland Swords",
-    "clubs": [
-      "Auckland Swords"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 6,
-        "as_of": "2022-06-25"
-      }
-    },
-    "licence_hashes": [
-      "590fd19ab70ba425a83cb5a22f121fd88a1d382904179f478c174644dabf4aac"
     ]
   },
   {
@@ -24289,6 +24202,7 @@
   {
     "display_name": "Ruairi Boyd",
     "name_keys": [
+      "luke boyd",
       "ruairi boyd"
     ],
     "dob_year": 2005,
@@ -24299,34 +24213,7 @@
       "Fencing Institute",
       "Cashmere High School",
       "The Fencing Institute",
-      "The Fencing Institue"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 11,
-        "as_of": "2023-10-21"
-      },
-      "sabre_M": {
-        "rank": 1,
-        "as_of": "2023-06-24"
-      }
-    },
-    "licence_hashes": [
-      "4e66e0dcb8f257d687afb5b2a552413daab25ed6d94525eb6847d96581eca774"
-    ]
-  },
-  {
-    "display_name": "Ruairi Boyd",
-    "name_keys": [
-      "luke boyd",
-      "ruairi boyd"
-    ],
-    "dob_year": 2005,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "The Fencing Institute",
-    "clubs": [
-      "The Fencing Institute",
+      "The Fencing Institue",
       "United Fencing Club"
     ],
     "rankings": {
@@ -24340,6 +24227,7 @@
       }
     },
     "licence_hashes": [
+      "4e66e0dcb8f257d687afb5b2a552413daab25ed6d94525eb6847d96581eca774",
       "f139393e38c7efdcf1503f053ee12f4e4f802026dcef34a8d8c18a2fa0d25ae3"
     ]
   },
@@ -24534,7 +24422,7 @@
     "name_keys": [
       "ruiqing xu"
     ],
-    "dob_year": 2024,
+    "dob_year": 2004,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Phoenix Fencing",
@@ -25450,6 +25338,7 @@
     "current_club": "WEL Fencing Club",
     "clubs": [
       "WEL Fencing Club",
+      "Wellesly College",
       "Wellington Fencing Club",
       "Hutt Valley High School"
     ],
@@ -25462,25 +25351,6 @@
     "licence_hashes": [
       "ee1dc43bf81aad5e917de5f3645fc0722b37afdaf40caf7213d1ab4b20950a8d"
     ]
-  },
-  {
-    "display_name": "Samuel Li",
-    "name_keys": [
-      "samuel li"
-    ],
-    "dob_year": 2023,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Wellesly College",
-    "clubs": [
-      "Wellesly College"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 19,
-        "as_of": "2023-08-26"
-      }
-    }
   },
   {
     "display_name": "Samuel Taylor-Sinclair",
@@ -25976,6 +25846,29 @@
     }
   },
   {
+    "display_name": "Sera Cox",
+    "name_keys": [
+      "sera cox"
+    ],
+    "dob_year": 2004,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Mid South",
+    "clubs": [
+      "Mid South"
+    ],
+    "rankings": {
+      "epee_W": {
+        "rank": 1,
+        "as_of": "2021-08-07"
+      },
+      "sabre_W": {
+        "rank": 1,
+        "as_of": "2021-04-25"
+      }
+    }
+  },
+  {
     "display_name": "Seraphine Cox",
     "name_keys": [
       "sera cox",
@@ -25985,22 +25878,27 @@
     "dob_year": 2004,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": "Piwakawaka",
+    "current_club": "Claymore Swords",
     "clubs": [
       "Christchurch Girls High School",
+      "Mid South",
       "Pīwakawaka Fencing",
       "Piwakawaka Fencing",
+      "Piwakawaka",
       "United Fencing Club",
-      "Piwakawaka"
+      "Piwakawaka Fencing Club",
+      "NZL",
+      "Claymore Swords",
+      "Claymore Swords Club"
     ],
     "rankings": {
       "foil_W": {
         "rank": 1,
-        "as_of": "2021-03-20"
+        "as_of": "2025-10-04"
       },
       "epee_W": {
         "rank": 3,
-        "as_of": "2024-10-26"
+        "as_of": "2026-04-11"
       },
       "sabre_W": {
         "rank": 1,
@@ -26008,63 +25906,9 @@
       }
     },
     "licence_hashes": [
-      "7affe996a850959a04d9473d5b8c2558fd52dd06f962ec3bfe9ad968655a3b44"
-    ]
-  },
-  {
-    "display_name": "Seraphine Cox",
-    "name_keys": [
-      "sera cox",
-      "seraphine cox"
-    ],
-    "dob_year": 2004,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Claymore Swords",
-    "clubs": [
-      "Mid South",
-      "Piwakawaka Fencing Club",
-      "NZL",
-      "Claymore Swords",
-      "Claymore Swords Club"
-    ],
-    "rankings": {
-      "epee_W": {
-        "rank": 3,
-        "as_of": "2026-04-11"
-      },
-      "sabre_W": {
-        "rank": 1,
-        "as_of": "2021-04-25"
-      },
-      "foil_W": {
-        "rank": 1,
-        "as_of": "2025-10-04"
-      }
-    },
-    "licence_hashes": [
+      "7affe996a850959a04d9473d5b8c2558fd52dd06f962ec3bfe9ad968655a3b44",
       "a7dc56dea76c087dcff535abe907dd2ab06611f4b2350ba0aad766f0d8c07911"
     ]
-  },
-  {
-    "display_name": "Seraphine Cox",
-    "name_keys": [
-      "seraphine cox"
-    ],
-    "dob_year": 2004,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Piwakawaka",
-    "clubs": [
-      "Mid South",
-      "Piwakawaka"
-    ],
-    "rankings": {
-      "epee_W": {
-        "rank": 1,
-        "as_of": "2023-07-01"
-      }
-    }
   },
   {
     "display_name": "Shawn Li",
@@ -27729,58 +27573,18 @@
     "name_keys": [
       "thibault schneider"
     ],
-    "dob_year": 2026,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Hawkes Bay Blades",
-    "clubs": [
-      "Hawkes Bay Blades"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 15,
-        "as_of": "2024-03-03"
-      }
-    },
-    "licence_hashes": [
-      "2fbc7273dfb30df3c93314b3b6a638b54c65f7332aba8b0a1c82cfcfa1a4313f"
-    ]
-  },
-  {
-    "display_name": "Thibault Schneider",
-    "name_keys": [
-      "thibault schneider"
-    ],
     "dob_year": 2006,
     "handedness": "right",
-    "nation": null,
+    "nation": "NZL",
     "current_club": "Hawke's Bay Blades",
     "clubs": [
+      "Havelock North High School",
       "Hawke's Bay Blades"
     ],
     "rankings": {
       "epee_M": {
         "rank": 12,
         "as_of": "2023-10-08"
-      }
-    }
-  },
-  {
-    "display_name": "Thibault Schneider",
-    "name_keys": [
-      "thibault schneider"
-    ],
-    "dob_year": 2023,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Havelock North High School",
-    "clubs": [
-      "Havelock North High School"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 36,
-        "as_of": "2023-08-27"
       }
     }
   },
@@ -27816,6 +27620,25 @@
       "3fcf1c1b7a8264bb47b14d8a244579bce41f40a74e00975c9d13439921d911dc",
       "aae1dfcba983430166cdd305babc4b8fd73ba4def7c2420e0b508410f96e3275"
     ]
+  },
+  {
+    "display_name": "Thomas Eyre-Walker",
+    "name_keys": [
+      "thomas eyre-walker"
+    ],
+    "dob_year": 2009,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "The Fencing Institute",
+    "clubs": [
+      "The Fencing Institute"
+    ],
+    "rankings": {
+      "epee_M": {
+        "rank": 28,
+        "as_of": "2025-06-01"
+      }
+    }
   },
   {
     "display_name": "Thomas Hoskin",
@@ -28108,32 +27931,6 @@
     "name_keys": [
       "tim wang"
     ],
-    "dob_year": 2006,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "The Fencing Institute",
-    "clubs": [
-      "Fencing Institute",
-      "Christ's College",
-      "The Fencing Institute",
-      "The Fencing Institue"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 2,
-        "as_of": "2025-10-04"
-      }
-    },
-    "licence_hashes": [
-      "949940320cb43c1b62e20e9cc09051431e06837a33c24e208ddd90b6230b0704",
-      "e302f0a2f062c179d10145ae2566e412685fba2b2fb1e9e3bdfe7dea6da66d53"
-    ]
-  },
-  {
-    "display_name": "Tim Wang",
-    "name_keys": [
-      "tim wang"
-    ],
     "dob_year": 2004,
     "handedness": "right",
     "nation": "NZL",
@@ -28360,9 +28157,11 @@
     "current_club": "The Fencing Institute",
     "clubs": [
       "Piwakawaka Fencing",
+      "Christs College",
+      "Christ's College",
+      "Piwakawaka",
       "Piwakawaka Fencing Club",
       "NZL",
-      "Christ's College",
       "The Fencing Institute"
     ],
     "rankings": {
@@ -28372,33 +28171,9 @@
       }
     },
     "licence_hashes": [
+      "0bc959da7d6828164db466931e5f86be21d96222114e303f766258536bb4b587",
       "1c4994c0b7dccf0cf49011e65f172deb7c6f24a63a917e66335b534f84246ad2",
       "7f808290c5242583e1eb90bf14c2f71642e2932de1760fa0284cabce89c2c08a"
-    ]
-  },
-  {
-    "display_name": "Tom Eyre-Walker",
-    "name_keys": [
-      "tom eyre-walker"
-    ],
-    "dob_year": 2009,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Piwakawaka Fencing",
-    "clubs": [
-      "Christs College",
-      "Christ's College",
-      "Piwakawaka",
-      "Piwakawaka Fencing"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 12,
-        "as_of": "2024-04-27"
-      }
-    },
-    "licence_hashes": [
-      "0bc959da7d6828164db466931e5f86be21d96222114e303f766258536bb4b587"
     ]
   },
   {
@@ -28430,34 +28205,13 @@
   {
     "display_name": "Tomasina Grick",
     "name_keys": [
-      "tomasina grick"
-    ],
-    "dob_year": 2005,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Piwakawaka",
-    "clubs": [
-      "Avonside Girls",
-      "Piwakawaka Fencing",
-      "Piwakawaka"
-    ],
-    "rankings": {
-      "epee_W": {
-        "rank": 12,
-        "as_of": "2023-07-01"
-      }
-    }
-  },
-  {
-    "display_name": "Tommy Grick",
-    "name_keys": [
       "tomasina grick",
       "tommy grick"
     ],
     "dob_year": 2005,
     "handedness": "right",
     "nation": "NZL",
-    "current_club": "Piwakawaka",
+    "current_club": "Piwakawaka Fencing",
     "clubs": [
       "Avonside Girls",
       "Avonside High School",
@@ -28468,8 +28222,8 @@
     ],
     "rankings": {
       "epee_W": {
-        "rank": 18,
-        "as_of": "2024-10-26"
+        "rank": 1,
+        "as_of": "2024-10-05"
       },
       "foil_W": {
         "rank": 3,
@@ -28478,7 +28232,29 @@
     },
     "licence_hashes": [
       "212459e0e3ce892b57299145e5b39092b89e34b729381b8c387e86c31de589b6",
-      "3d8360ac9049e37f7327cb7a6e7eb3d51dbb25f6d550bee33ed4d50bf5e48859",
+      "3d8360ac9049e37f7327cb7a6e7eb3d51dbb25f6d550bee33ed4d50bf5e48859"
+    ]
+  },
+  {
+    "display_name": "Tommy Grick",
+    "name_keys": [
+      "tommy grick"
+    ],
+    "dob_year": 2005,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Piwakawaka",
+    "clubs": [
+      "Piwakawaka Fencing",
+      "Piwakawaka"
+    ],
+    "rankings": {
+      "epee_W": {
+        "rank": 18,
+        "as_of": "2024-10-26"
+      }
+    },
+    "licence_hashes": [
       "e151e929e64c40e836e28dfcea5d1e7d340bb1433dac8d14d708594cbc70d4ac"
     ]
   },
@@ -29059,6 +28835,27 @@
     }
   },
   {
+    "display_name": "Wanyu Wen",
+    "name_keys": [
+      "wanyu wen"
+    ],
+    "dob_year": 2006,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Kristin School",
+    "clubs": [
+      "Kirstin School",
+      "Pulse Fencing Club",
+      "Kristin School"
+    ],
+    "rankings": {
+      "foil_W": {
+        "rank": 2,
+        "as_of": "2023-08-27"
+      }
+    }
+  },
+  {
     "display_name": "Wayne Layton",
     "name_keys": [
       "wayne layton"
@@ -29079,6 +28876,25 @@
     "licence_hashes": [
       "682a2484462420fba894ea1d888de0a45970a87f72b667e0dea3015467626e39"
     ]
+  },
+  {
+    "display_name": "Wendy Chen",
+    "name_keys": [
+      "wendy chen"
+    ],
+    "dob_year": 2007,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Diocesan School for Girls",
+    "clubs": [
+      "Diocesan School for Girls"
+    ],
+    "rankings": {
+      "foil_W": {
+        "rank": 14,
+        "as_of": "2023-08-27"
+      }
+    }
   },
   {
     "display_name": "Wendy Pinwen Chen",
@@ -29106,29 +28922,6 @@
   {
     "display_name": "Wendy Wen",
     "name_keys": [
-      "wendy wen"
-    ],
-    "dob_year": 2006,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Kristin School",
-    "clubs": [
-      "Kristin School",
-      "Kirstin School"
-    ],
-    "rankings": {
-      "foil_W": {
-        "rank": 3,
-        "as_of": "2021-07-10"
-      }
-    },
-    "licence_hashes": [
-      "bd4efa9fd0e82dfb3ff5bfc11913d5dad4c71ab56668b2ec36519d00a44055df"
-    ]
-  },
-  {
-    "display_name": "Wendy Wen",
-    "name_keys": [
       "wanyu wen",
       "wendy wen"
     ],
@@ -29137,11 +28930,10 @@
     "nation": "NZL",
     "current_club": "Pulse Fencing",
     "clubs": [
-      "Kirstin School",
       "Kristin School",
+      "Kirstin School",
       "Auckland Swords",
-      "Pulse Fencing",
-      "Pulse Fencing Club"
+      "Pulse Fencing"
     ],
     "rankings": {
       "foil_W": {
@@ -29150,7 +28942,8 @@
       }
     },
     "licence_hashes": [
-      "80203ea48eaccd6521ecc19598e41b905412eafbaf931da342cd426dd54a0ea3"
+      "80203ea48eaccd6521ecc19598e41b905412eafbaf931da342cd426dd54a0ea3",
+      "bd4efa9fd0e82dfb3ff5bfc11913d5dad4c71ab56668b2ec36519d00a44055df"
     ]
   },
   {
@@ -29422,6 +29215,38 @@
     ]
   },
   {
+    "display_name": "William Mcneil",
+    "name_keys": [
+      "william mcneil"
+    ],
+    "dob_year": 2007,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Piwakawaka Fencing",
+    "clubs": [
+      "Cathedral Grammar",
+      "Piwakawaka Fencing Club",
+      "Pīwakawaka Fencing",
+      "Piwakawaka Fencing",
+      "Christs College",
+      "Christ's College",
+      "Piwakawaka"
+    ],
+    "rankings": {
+      "epee_M": {
+        "rank": 13,
+        "as_of": "2025-08-10"
+      }
+    },
+    "licence_hashes": [
+      "480687b10c7ef38bae0dc09ee617e81509ce6e88fd736406ec09b1039ab42271",
+      "707abe9bb36b78cf5ecf0c646f21523950d6584032dbc45b9f23e3ef5ea81aa3",
+      "ad7d6bf1b54640b8dcc11c40eda0e5837e28f8bb343cbd0655559e0a20884290",
+      "ca6e5748eccc1129510a7a5bc079ddb80c1c3926dc938c46285e922834adf860",
+      "ff985ca9670f587bf12de730ea4fe85db720664c1a675ad8afc6616482a9d8cb"
+    ]
+  },
+  {
     "display_name": "William Schmidt",
     "name_keys": [
       "william schmidt"
@@ -29647,13 +29472,7 @@
     "nation": "NZL",
     "current_club": "Auckland University Fencing",
     "clubs": [
-      "Cathedral Grammar",
-      "Piwakawaka Fencing Club",
-      "Pīwakawaka Fencing",
       "Piwakawaka Fencing",
-      "Christs College",
-      "Christ's College",
-      "Piwakawaka",
       "Auckland University Fencing"
     ],
     "rankings": {
@@ -29663,12 +29482,7 @@
       }
     },
     "licence_hashes": [
-      "480687b10c7ef38bae0dc09ee617e81509ce6e88fd736406ec09b1039ab42271",
-      "707abe9bb36b78cf5ecf0c646f21523950d6584032dbc45b9f23e3ef5ea81aa3",
-      "ad7d6bf1b54640b8dcc11c40eda0e5837e28f8bb343cbd0655559e0a20884290",
-      "ca6e5748eccc1129510a7a5bc079ddb80c1c3926dc938c46285e922834adf860",
-      "ff664eac9dea08ac3b93cd6c2d27629618a5f41c428e4761b6db364a5aab1102",
-      "ff985ca9670f587bf12de730ea4fe85db720664c1a675ad8afc6616482a9d8cb"
+      "ff664eac9dea08ac3b93cd6c2d27629618a5f41c428e4761b6db364a5aab1102"
     ]
   },
   {
@@ -29819,26 +29633,7 @@
     }
   },
   {
-    "display_name": "Xinqi Chen",
-    "name_keys": [
-      "xinqi chen"
-    ],
-    "dob_year": 2009,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Macleans College",
-    "clubs": [
-      "Macleans College"
-    ],
-    "rankings": {
-      "foil_M": {
-        "rank": 33,
-        "as_of": "2023-08-26"
-      }
-    }
-  },
-  {
-    "display_name": "XinRui (Louise) Yuan",
+    "display_name": "XinRui Yuan",
     "name_keys": [
       "xinrui (louise) yuan",
       "xinrui yuan"
@@ -29848,30 +29643,8 @@
     "nation": "CHN",
     "current_club": "WEL Fencing Club",
     "clubs": [
-      "Wellington Fencing Club",
-      "WEL Fencing Club"
-    ],
-    "rankings": {
-      "foil_W": {
-        "rank": 13,
-        "as_of": "2025-10-27"
-      }
-    },
-    "licence_hashes": [
-      "3b9ad9af73b41014911efee8177af3b8654bb09f10b04c2373e4aac7805599be"
-    ]
-  },
-  {
-    "display_name": "XinRui Yuan",
-    "name_keys": [
-      "xinrui yuan"
-    ],
-    "dob_year": 2012,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "WEL Fencing Club",
-    "clubs": [
       "WEL Fencing Club",
+      "Wellington Fencing Club",
       "NZL"
     ],
     "rankings": {
@@ -29881,6 +29654,7 @@
       }
     },
     "licence_hashes": [
+      "3b9ad9af73b41014911efee8177af3b8654bb09f10b04c2373e4aac7805599be",
       "f05f2bada705facc2cb4cd5ef8f4590df6f228772f0fa329df9f53717bc33ff8"
     ]
   },
@@ -30420,12 +30194,11 @@
       "youfu wu"
     ],
     "dob_year": 2010,
-    "handedness": "right",
+    "handedness": "left",
     "nation": "NZL",
     "current_club": "NZ Academy of Fencing",
     "clubs": [
       "NZ Academy of Fencing",
-      "Auckand Normal Intermediate",
       "St Peter's College",
       "New Zealand Academy of Fencing"
     ],
@@ -30436,8 +30209,7 @@
       }
     },
     "licence_hashes": [
-      "1b3520938789f045f3d1c3e8f4964a8b24942dfb066be39ac567389ad7606ef3",
-      "4857641ec7fa528b3c34acd72e04942393180b0770da059e75f83791974f2485"
+      "1b3520938789f045f3d1c3e8f4964a8b24942dfb066be39ac567389ad7606ef3"
     ]
   },
   {
@@ -30669,6 +30441,23 @@
     ]
   },
   {
+    "display_name": "Yuwei Cao",
+    "name_keys": [
+      "yuwei cao"
+    ],
+    "dob_year": 2007,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": null,
+    "clubs": [],
+    "rankings": {
+      "foil_M": {
+        "rank": 3,
+        "as_of": "2021-04-25"
+      }
+    }
+  },
+  {
     "display_name": "Yvette Luo",
     "name_keys": [
       "yvette luo"
@@ -30730,8 +30519,9 @@
     "current_club": "Auckland Swords Club",
     "clubs": [
       "Auckland Swords",
-      "Auckand Swords Club",
-      "Auckland Swords Club"
+      "Mount Albert Grammar School",
+      "Auckland Swords Club",
+      "Auckand Swords Club"
     ],
     "rankings": {
       "epee_M": {
@@ -30740,7 +30530,8 @@
       }
     },
     "licence_hashes": [
-      "52e64c2540601d855d25d91f5a1cf6c937780fe3938aa1bc2fa544bc5e488f2b"
+      "52e64c2540601d855d25d91f5a1cf6c937780fe3938aa1bc2fa544bc5e488f2b",
+      "77b332e967e15bfe466614d0ca93ebb95164f5be74635b95de07cbc034a14c5b"
     ]
   },
   {
@@ -30809,31 +30600,6 @@
     },
     "licence_hashes": [
       "0130f7de40b9761dc55ea1a1e9d5e3f7512f98b783c97b356906b93872b44e61"
-    ]
-  },
-  {
-    "display_name": "Zak Benson",
-    "name_keys": [
-      "zachary benson",
-      "zak benson"
-    ],
-    "dob_year": 2000,
-    "handedness": "right",
-    "nation": "NZL",
-    "current_club": "Auckland Swords Club",
-    "clubs": [
-      "Auckland Swords",
-      "Mount Albert Grammar School",
-      "Auckland Swords Club"
-    ],
-    "rankings": {
-      "epee_M": {
-        "rank": 15,
-        "as_of": "2023-09-24"
-      }
-    },
-    "licence_hashes": [
-      "77b332e967e15bfe466614d0ca93ebb95164f5be74635b95de07cbc034a14c5b"
     ]
   },
   {
@@ -30941,20 +30707,15 @@
   {
     "display_name": "Zhiyuan Aiden Qin",
     "name_keys": [
-      "aiden zhiyuan qin",
-      "zhiyuan aiden qin",
-      "zhiyuan qin"
+      "zhiyuan aiden qin"
     ],
     "dob_year": 2007,
     "handedness": "right",
     "nation": "NZL",
     "current_club": "Auckland Swords Club",
     "clubs": [
-      "Auckland Swords",
-      "Kings College",
-      "Auckland Swords Fencing Club",
-      "Auckand Swords Club",
-      "Auckland Swords Club"
+      "Auckland Swords Club",
+      "Auckland Swords Fencing Club"
     ],
     "rankings": {
       "epee_M": {
@@ -30963,7 +30724,33 @@
       }
     },
     "licence_hashes": [
-      "84cf4d30139ec04c6b7264b12c42176f6a6003d1a4f87a5417fc24b062abc5a3",
+      "84cf4d30139ec04c6b7264b12c42176f6a6003d1a4f87a5417fc24b062abc5a3"
+    ]
+  },
+  {
+    "display_name": "Zhiyuan Qin",
+    "name_keys": [
+      "aiden zhiyuan qin",
+      "zhiyuan aiden qin",
+      "zhiyuan qin"
+    ],
+    "dob_year": 2007,
+    "handedness": "right",
+    "nation": "NZL",
+    "current_club": "Auckand Swords Club",
+    "clubs": [
+      "Auckland Swords",
+      "Kings College",
+      "Auckland Swords Fencing Club",
+      "Auckand Swords Club"
+    ],
+    "rankings": {
+      "epee_M": {
+        "rank": 37,
+        "as_of": "2024-10-27"
+      }
+    },
+    "licence_hashes": [
       "fe93a6a6741f86ad17686746bf373b755b14724f7e969b8ede98c89eba0d895d"
     ]
   },

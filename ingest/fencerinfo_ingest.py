@@ -137,7 +137,8 @@ def merge_record(tgt, src):
     tgt["name_strict_keys"].update(src["name_strict_keys"])
     tgt["clubs"].extend(src["clubs"])
     tgt["rankings"].extend(src["rankings"])
-    if src["dob_year"] is not None and tgt["dob_year"] is None:
+    if (src["dob_year"] is not None and tgt["dob_year"] is None
+            and is_plausible_dob_year(src["dob_year"])):
         tgt["dob_year"] = src["dob_year"]
     if not tgt["handedness"]:
         tgt["handedness"] = src["handedness"]
@@ -146,11 +147,21 @@ def merge_record(tgt, src):
     tgt["licences"].update(src["licences"])
 
 
+def is_plausible_dob_year(year: int) -> bool:
+    # Reject XML data-entry errors that record a baby as a fencer (e.g.
+    # DateNaissance="03.01.2026"). The youngest realistic competitor in
+    # NZ events is ~7 years old, so we require the fencer to be at
+    # least that old in the script's current year. Lower bound rejects
+    # obvious-typo birth years like 1015.
+    now = datetime.now().year
+    return 1900 <= year <= now - 7
+
+
 def absorb(rec, comp_date, name, dob, club, hand, nation, weapon, gender, rank, licence):
     if name:
         rec["displays"].append((comp_date, name))
         rec["name_strict_keys"].add(name_key_strict(name))
-    if dob and rec["dob_year"] is None:
+    if dob and rec["dob_year"] is None and is_plausible_dob_year(dob.year):
         rec["dob_year"] = dob.year
     if hand and not rec["handedness"]:
         rec["handedness"] = hand
