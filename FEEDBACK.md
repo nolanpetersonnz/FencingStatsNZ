@@ -7,23 +7,29 @@ Status: **open** (not yet addressed), **addressed** (shipped, link to version), 
 
 ## Round 2 — broader review
 
-### Club strength tier formula favours tiny clubs — **open**
+### Club strength tier formula favours tiny clubs — **partially addressed in [0.1.10]**
 - Source: reviewer, 2026-05
 - "The club section strength doesn't work quite perhaps the way it should, with the very small clubs being able to get the A and Australia coming out as B, and most of the substantive clubs as C."
 - Root cause (hypothesised): aggregate club rating is computed in a way that small clubs with one or two high-rated members rank above larger clubs whose distribution naturally regresses toward the mean. Australian clubs are pulled in because of trans-Tasman events but their member count is small in our dataset.
-- Direction: needs a strength metric that rewards depth, not just peaks. Candidate: weighted blend of median + top-N average, with a minimum-member threshold to qualify.
-- Status: open — needs design decision before implementation.
+- Addressed in [0.1.10]:
+  - Clubs page now respects the global weapon pill, so the median is computed against the active weapon rather than a foil+épée+sabre composite. Knocked NZ Academy of Fencing (29 members, 0 épéeists) off the top of the Mens Épée list.
+  - Tier letter requires at least 3 members active in the selected weapon. Below-threshold clubs show an em-dash instead of A/B/C. Small clubs with one star can still appear (so members can find them), but they don't carry a misleading letter.
+- Still open: "Australia coming B" — Australia still meets the 3-member-in-weapon threshold for Mens Foil/Épée and lands at the top by median. Options if you want them gone: (1) tag Australia (and other non-NZ entries) as non-affiliated via the admin Clubs panel and hide non-affiliated from the leaderboard once enough are tagged; (2) raise the threshold further; (3) restrict the ledger to NZL-nation fencers only.
 
-### Club section should answer "where should I fence?" — **open**
+### Club section should answer "where should I fence?" — **partially addressed in [0.1.10]**
 - Source: reviewer, 2026-05
 - "It would also be useful to think about the club section from the perspective of: if I'm a fencer and looking to go fence somewhere, where should I go? That might mean having information about locations and also doing some filtering in terms of which clubs are actually affiliated versus non-affiliated."
 - Direction: the current club page is built around "how strong is this club?" The reviewer is pointing out a different question entirely — "should I train here?" — which calls for location, affiliation status, weapons offered, training times, contact info. None of this is in the FeNZ API.
-- Status: open — requires data we don't currently have. Probably a manual / community-maintained `clubs.json` overlay.
+- Addressed in [0.1.10]:
+  - `/#admin` → Clubs section lets an admin set website, location, and FNZ-affiliation per club. Persisted in Upstash `club_meta`, served via `/api/overrides`.
+  - `ClubDetail` renders the location, a clickable website link, and an affiliation badge under the club heading when set.
+- Still open: weapons offered, training times, contact info; a UX-led page redesign that surfaces "where to fence" before "how strong"; bulk import of the affiliation list (currently a fencer-by-fencer manual exercise).
 
-### Affiliated vs non-affiliated club filtering — **open**
+### Affiliated vs non-affiliated club filtering — **data layer addressed in [0.1.10]; filter UI still open**
 - Source: reviewer, 2026-05
 - Related to above. Some clubs in the dataset aren't formally FeNZ-affiliated, which matters for fencers choosing where to compete.
-- Status: open — needs an affiliation list from FeNZ.
+- Addressed in [0.1.10]: affiliation flag now editable in the admin Clubs panel and rendered as a badge on the club detail page. Stored in `club_meta`.
+- Still open: a public "hide non-affiliated" toggle on the Clubs page. Cheap to add (~10 lines) once enough clubs are tagged that the filter is useful.
 
 ### "What does it show you're capable of?" — **noted, not actionable**
 - Source: reviewer, 2026-05
