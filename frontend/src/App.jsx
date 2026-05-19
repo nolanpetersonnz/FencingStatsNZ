@@ -311,7 +311,7 @@ export default function App() {
 
         <footer style={{ marginTop: 80, paddingTop: 24, borderTop: '1px solid var(--rule)' }}>
           <div className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.85rem', textAlign: 'center' }}>
-            A prototype  ·  Rating algorithm under development  ·  Data persists locally
+            Beta  ·  Feedback: <a href="mailto:nolanpeterson.nz@gmail.com" style={{ color: 'var(--ink-soft)' }}>nolanpeterson.nz@gmail.com</a>
           </div>
         </footer>
       </main>
