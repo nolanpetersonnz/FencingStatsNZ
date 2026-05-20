@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { adminList, adminAct, adminSetClubMeta, adminAssignFencer } from '../data/edits.js';
+import { adminList, adminAct, adminSetClubMeta, adminAssignFencer, adminMergeFencers } from '../data/edits.js';
 import Import from './Import.jsx';
 import Settings from './Settings.jsx';
 
@@ -57,7 +57,7 @@ export default function Admin({
   const [hasToken, setHasToken] = useState(() => !!localStorage.getItem('fl_admin_token'));
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState('pending'); // pending | applied | all
-  const [section, setSection] = useState('edits'); // edits | clubs | import | tuning
+  const [section, setSection] = useState('edits'); // edits | clubs | merges | import | tuning
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState(null);
 
@@ -107,6 +107,7 @@ export default function Admin({
             {section === 'edits'
               ? `${items.length} edits · ${items.filter((i) => i.status === 'pending').length} pending`
               : section === 'clubs' ? 'Clubs'
+              : section === 'merges' ? 'Profile merges'
               : section === 'import' ? 'Data ingest'
               : section === 'tuning' ? 'Tuning'
               : ''}
@@ -115,6 +116,7 @@ export default function Admin({
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button onClick={() => setSection('edits')} className={`fl-pill ${section === 'edits' ? 'active' : ''}`}>Edits</button>
           <button onClick={() => setSection('clubs')} className={`fl-pill ${section === 'clubs' ? 'active' : ''}`}>Clubs</button>
+          <button onClick={() => setSection('merges')} className={`fl-pill ${section === 'merges' ? 'active' : ''}`}>Merges</button>
           <button onClick={() => setSection('import')} className={`fl-pill ${section === 'import' ? 'active' : ''}`}>Import</button>
           <button onClick={() => setSection('tuning')} className={`fl-pill ${section === 'tuning' ? 'active' : ''}`}>Tuning</button>
           <span style={{ width: 1, height: 18, background: 'var(--rule)', margin: '0 4px' }} />
@@ -140,6 +142,10 @@ export default function Admin({
 
       {section === 'clubs' && (
         <ClubsPanel fencers={fencers} overrides={overrides} onChange={onChange} setErr={setErr} />
+      )}
+
+      {section === 'merges' && (
+        <MergesPanel fencers={fencers} overrides={overrides} onChange={onChange} setErr={setErr} />
       )}
 
       {section === 'import' && (
@@ -361,6 +367,129 @@ function ClubsPanel({ fencers, overrides, onChange, setErr }) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function MergesPanel({ fencers, overrides, onChange, setErr }) {
+  const [source, setSource] = useState('');
+  const [target, setTarget] = useState('');
+  const [filter, setFilter] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const merges = overrides.merges || {};
+  const fencersList = useMemo(() => Object.values(fencers)
+    .map(f => ({ key: f.key, name: f.name, club: f.club || '' }))
+    .sort((a, b) => a.name.localeCompare(b.name)), [fencers]);
+
+  const filteredFencers = useMemo(() => {
+    if (!filter.trim()) return fencersList;
+    const q = filter.toLowerCase();
+    return fencersList.filter(f => f.name.toLowerCase().includes(q) || f.club.toLowerCase().includes(q));
+  }, [fencersList, filter]);
+
+  const mergeRows = useMemo(() => {
+    return Object.entries(merges)
+      .map(([src, info]) => ({
+        source: src,
+        target: info?.merge_into || '',
+        target_name: info?.merge_into_name || info?.merge_into || '',
+      }))
+      .sort((a, b) => a.source.localeCompare(b.source));
+  }, [merges]);
+
+  const submit = async () => {
+    if (!source || !target) return;
+    if (source === target) {
+      setErr('Source and target must differ.');
+      return;
+    }
+    const tgt = fencersList.find(f => f.key === target);
+    if (!confirm(`Merge "${fencersList.find(f => f.key === source)?.name || source}" into "${tgt?.name || target}"?\n\nAll bouts from the source profile will be attributed to the target. This can be undone.`)) return;
+    setBusy(true);
+    try {
+      await adminMergeFencers({ sourceKey: source, targetKey: target, targetName: tgt?.name || '' });
+      setSource(''); setTarget(''); setFilter('');
+      onChange?.();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const unmerge = async (sourceKey) => {
+    if (!confirm(`Unmerge "${sourceKey}"? The profile will be restored as a separate fencer on the next data load.`)) return;
+    setBusy(true);
+    try {
+      await adminMergeFencers({ sourceKey, targetKey: '', targetName: '' });
+      onChange?.();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const input = { width: '100%', padding: '8px 10px', fontSize: '0.95rem', fontFamily: 'Newsreader, serif', background: 'transparent', color: 'var(--ink)', border: '1px solid var(--rule)', outline: 'none', boxSizing: 'border-box' };
+
+  return (
+    <div>
+      <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 14 }}>
+        Pick two profiles that belong to the same person. Bouts from the
+        source are attributed to the target so the two records collapse
+        into one rating history.
+      </p>
+
+      <input
+        placeholder="Filter fencers by name or club..."
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        style={{ ...input, marginBottom: 12, maxWidth: 380 }}
+      />
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 24, padding: '12px 14px', border: '1px solid var(--rule)' }}>
+        <select value={source} onChange={(e) => setSource(e.target.value)} style={{ ...input, maxWidth: 260 }}>
+          <option value="">— source profile —</option>
+          {filteredFencers.map(f => (
+            <option key={f.key} value={f.key}>{f.name}{f.club ? ` · ${f.club}` : ''}</option>
+          ))}
+        </select>
+        <span className="fl-italic" style={{ color: 'var(--ink-soft)' }}>into</span>
+        <select value={target} onChange={(e) => setTarget(e.target.value)} style={{ ...input, maxWidth: 260 }}>
+          <option value="">— target profile —</option>
+          {filteredFencers.filter(f => f.key !== source).map(f => (
+            <option key={f.key} value={f.key}>{f.name}{f.club ? ` · ${f.club}` : ''}</option>
+          ))}
+        </select>
+        <button onClick={submit} disabled={busy || !source || !target} className="fl-pill">
+          {busy ? 'Merging...' : 'Merge'}
+        </button>
+        {(source || target) && (
+          <button onClick={() => { setSource(''); setTarget(''); }} className="fl-pill">Clear</button>
+        )}
+      </div>
+
+      <div className="fl-smallcaps" style={{ fontSize: '0.72rem', marginBottom: 8 }}>
+        Active merges ({mergeRows.length})
+      </div>
+      <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
+        {mergeRows.length === 0 && (
+          <div className="fl-italic" style={{ padding: 24, textAlign: 'center', color: 'var(--ink-soft)' }}>
+            No merges yet.
+          </div>
+        )}
+        {mergeRows.map((m) => (
+          <div key={m.source} style={{ padding: '10px 0', borderBottom: '1px solid var(--rule-soft)', display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
+            <span className="fl-mono" style={{ fontSize: '0.88rem' }}>{m.source}</span>
+            <span className="fl-italic" style={{ color: 'var(--ink-soft)' }}>→</span>
+            <span className="fl-display" style={{ fontWeight: 600 }}>{m.target_name}</span>
+            <button onClick={() => unmerge(m.source)} disabled={busy} className="fl-pill" style={{ marginLeft: 'auto' }}>
+              Unmerge
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );

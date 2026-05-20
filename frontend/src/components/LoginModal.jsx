@@ -75,9 +75,11 @@ export default function LoginModal({ onClose, onLogin, fencerInfo }) {
         </div>
 
         <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: 18 }}>
-          Enter the FNZ or FIE licence number on your fencer card. We hash it
-          locally and compare against the registry — your number is never
-          transmitted in plain text.
+          Enter the FNZ or FIE licence number on your fencer card. Numeric
+          codes (e.g. <span className="fl-mono">34567</span>) and SP-prefixed
+          codes (e.g. <span className="fl-mono">SP1234567</span>) are both
+          accepted. We hash it locally and compare against the registry —
+          your number is never transmitted in plain text.
         </p>
 
         <form onSubmit={submit}>
@@ -86,7 +88,7 @@ export default function LoginModal({ onClose, onLogin, fencerInfo }) {
             type="text"
             value={value}
             onChange={(e) => { setValue(e.target.value); if (status === 'error') setStatus('idle'); }}
-            placeholder="e.g. 34567 or 7654321"
+            placeholder="e.g. 34567 or SP1234567"
             autoComplete="off"
             spellCheck={false}
             style={{

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import STYLE from './styles.js';
 import { DEFAULT_SETTINGS } from './constants.js';
-import { processBouts, makeDemoBouts, parseCSV } from './data/pipeline.js';
+import { processBouts, makeDemoBouts, parseCSV, nameKey } from './data/pipeline.js';
 import { loadFromStorage, saveToStorage, clearStorage } from './data/storage.js';
 import { loadFencerInfo, buildEnrichmentIndex, findFencerByLicenceHash, fencerKeyForInfo } from './data/fencerInfo.js';
 import { loadOverrides } from './data/edits.js';
@@ -20,7 +20,7 @@ export default function App() {
   const [rawBouts, setRawBouts] = useState([]);
   const [fencerInfo, setFencerInfo] = useState([]);
   const [session, setSession] = useState(null); // { licenceHash, info } when signed in
-  const [overrides, setOverrides] = useState({ name_overrides: {}, club_overrides: {}, flagged_bouts: [], club_meta: {} });
+  const [overrides, setOverrides] = useState({ name_overrides: {}, club_overrides: {}, flagged_bouts: [], club_meta: {}, merges: {} });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [view, setView] = useState('leaderboard');
   const [selectedFencer, setSelectedFencer] = useState(null);
@@ -78,6 +78,7 @@ export default function App() {
         club_overrides: ov.club_overrides || {},
         flagged_bouts: ov.flagged_bouts || [],
         club_meta: ov.club_meta || {},
+        merges: ov.merges || {},
       });
 
       // Restore login session if a hash is in localStorage and still
@@ -106,9 +107,40 @@ export default function App() {
     else saveToStorage({ rawBouts, settings });
   }, [rawBouts, settings, loaded, serverSourced]);
 
+  // Apply admin merges by rewriting fencer names on raw bouts before
+  // processBouts runs. Source-key bouts get attributed to the target's
+  // canonical name, so the two profiles collapse into one rating
+  // history. Stored name (`merge_into_name`) wins; fall back to the
+  // first occurrence of the target key in the bout list.
+  const mergedRawBouts = useMemo(() => {
+    const merges = overrides.merges || {};
+    const sources = Object.keys(merges);
+    if (sources.length === 0) return rawBouts;
+    const targetNames = {};
+    for (const src of sources) {
+      const m = merges[src];
+      if (m?.merge_into_name) targetNames[m.merge_into] = m.merge_into_name;
+    }
+    for (const b of rawBouts) {
+      const ka = nameKey(b.fencer_a), kb = nameKey(b.fencer_b);
+      if (ka && !targetNames[ka]) targetNames[ka] = b.fencer_a;
+      if (kb && !targetNames[kb]) targetNames[kb] = b.fencer_b;
+    }
+    return rawBouts.map((b) => {
+      const ka = nameKey(b.fencer_a), kb = nameKey(b.fencer_b);
+      const ta = merges[ka]?.merge_into;
+      const tb = merges[kb]?.merge_into;
+      if (!ta && !tb) return b;
+      const next = { ...b };
+      if (ta) next.fencer_a = targetNames[ta] || ta;
+      if (tb) next.fencer_b = targetNames[tb] || tb;
+      return next;
+    });
+  }, [rawBouts, overrides.merges]);
+
   const { fencers: rawFencers, bouts, competitions } = useMemo(
-    () => processBouts(rawBouts, settings),
-    [rawBouts, settings]
+    () => processBouts(mergedRawBouts, settings),
+    [mergedRawBouts, settings]
   );
 
   // Apply live name/club overrides over the bout-derived fencers map.
@@ -164,6 +196,7 @@ export default function App() {
       club_overrides: ov.club_overrides || {},
       flagged_bouts: ov.flagged_bouts || [],
       club_meta: ov.club_meta || {},
+      merges: ov.merges || {},
     });
   };
 

@@ -90,6 +90,46 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (action === 'merge_fencers') {
+    // Admin-direct merge: rewrite all future reads of `source_key` to
+    // `target_key`. Pass target_key === '' (or omit) to undo a merge.
+    // `target_name` is stored so the client can render the merged
+    // fencer under their canonical display name without a lookup.
+    const source = String(payload?.source_key || '').trim().toLowerCase();
+    const target = String(payload?.target_key || '').trim().toLowerCase();
+    const targetName = String(payload?.target_name || '').trim();
+    if (!source) {
+      res.status(400).json({ error: 'source_key required' });
+      return;
+    }
+    if (target && source === target) {
+      res.status(400).json({ error: 'source and target must differ' });
+      return;
+    }
+    const cur = (await db.get('merges')) || {};
+    const parsed = typeof cur === 'string' ? JSON.parse(cur) : cur;
+    if (!target) {
+      delete parsed[source];
+    } else {
+      // Reject chains: if target itself is already merged into someone
+      // else, point source at the ultimate target instead.
+      let finalTarget = target;
+      const seen = new Set([source]);
+      while (parsed[finalTarget]?.merge_into && !seen.has(finalTarget)) {
+        seen.add(finalTarget);
+        finalTarget = parsed[finalTarget].merge_into;
+      }
+      parsed[source] = {
+        merge_into: finalTarget,
+        merge_into_name: targetName || null,
+        edit_id: `admin-${Date.now()}`,
+      };
+    }
+    await db.set('merges', JSON.stringify(parsed));
+    res.status(200).json({ ok: true, merges: parsed });
+    return;
+  }
+
   if (action === 'assign_fencer') {
     const fkey = String(payload?.fencer_key || '').trim().toLowerCase();
     const club = String(payload?.club_name ?? '').trim();

@@ -17,10 +17,11 @@ export default async function handler(req, res) {
 
   try {
     const db = redis();
-    const [overridesRaw, flagged, clubMetaRaw] = await Promise.all([
+    const [overridesRaw, flagged, clubMetaRaw, mergesRaw] = await Promise.all([
       db.get('overrides'),
       db.smembers('flagged_bouts'),
       db.get('club_meta'),
+      db.get('merges'),
     ]);
     const overrides = overridesRaw
       ? (typeof overridesRaw === 'string' ? JSON.parse(overridesRaw) : overridesRaw)
@@ -28,14 +29,18 @@ export default async function handler(req, res) {
     const clubMeta = clubMetaRaw
       ? (typeof clubMetaRaw === 'string' ? JSON.parse(clubMetaRaw) : clubMetaRaw)
       : {};
+    const merges = mergesRaw
+      ? (typeof mergesRaw === 'string' ? JSON.parse(mergesRaw) : mergesRaw)
+      : {};
     res.status(200).json({
       name_overrides: overrides.name_overrides || {},
       club_overrides: overrides.club_overrides || {},
       flagged_bouts: Array.isArray(flagged) ? flagged : [],
       club_meta: clubMeta,
+      merges,
     });
   } catch (e) {
     console.warn('overrides-fetch-failed', e);
-    res.status(200).json({ name_overrides: {}, club_overrides: {}, flagged_bouts: [], club_meta: {} });
+    res.status(200).json({ name_overrides: {}, club_overrides: {}, flagged_bouts: [], club_meta: {}, merges: {} });
   }
 }
