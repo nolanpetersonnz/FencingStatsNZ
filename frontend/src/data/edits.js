@@ -85,6 +85,23 @@ export async function adminSetClubMeta({ clubName, website, location, affiliated
   return body;
 }
 
+// Merge two fencer profiles. Bouts attributed to `sourceKey` are
+// rewritten to `targetKey` before rating processing, so the two records
+// become one. Pass targetKey: '' to undo a previous merge.
+export async function adminMergeFencers({ sourceKey, targetKey, targetName }) {
+  const res = await fetch('/api/admin', {
+    method: 'POST',
+    headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'merge_fencers',
+      payload: { source_key: sourceKey, target_key: targetKey, target_name: targetName },
+    }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+  return body;
+}
+
 // Move a fencer to a new club (admin override). Pass clubName: '' to
 // clear the override (the fencer falls back to their bout-derived club).
 export async function adminAssignFencer({ fencerKey, clubName }) {
