@@ -586,6 +586,40 @@ export function strengthTier(median) {
   return { label: 'D', color: 'var(--ink-faint)' };
 }
 
+// Bracket size implied by a DE round label (Final=2, SF=4, QF=8, T16=16, …).
+const DE_ROUND_SIZE = { final: 2, sf: 4, qf: 8 };
+function deRoundSize(round) {
+  const r = (round || '').toString().trim().toLowerCase();
+  if (DE_ROUND_SIZE[r]) return DE_ROUND_SIZE[r];
+  const m = /^t(\d+)$/.exec(r);
+  return m ? parseInt(m[1], 10) : Infinity;
+}
+
+function ordinal(n) {
+  const v = n % 100;
+  const s = ['th', 'st', 'nd', 'rd'];
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+}
+
+// Derive a fencer's placement at one competition from their DE bouts. Official
+// placings aren't in the FeNZ data, so this is reconstructed from the bracket:
+// the fencer who never lost a DE placed 1st, the fencer who lost the final 2nd,
+// and everyone eliminated earlier is *tied* at the top of their round's band —
+// fencing runs no classification bouts, so the two losing semi-finalists share
+// 3rd, the four quarter-finalists share 5th, and so on (lose the round of N →
+// "{N/2+1} tied"). Returns { rank, label }, rank = that place for sorting, or
+// null when there were no DE bouts (pool-only).
+export function deFinish(myDeBouts, key) {
+  if (!myDeBouts || myDeBouts.length === 0) return null;
+  const losses = myDeBouts.filter((b) => b.winnerKey && b.winnerKey !== key);
+  if (losses.length === 0) return { rank: 1, label: '1' };
+  const size = Math.min(...losses.map((b) => deRoundSize(b.deRound)));
+  if (!Number.isFinite(size)) return { rank: 9999, label: 'DE' };
+  if (size === 2) return { rank: 2, label: '2' };
+  const place = Math.floor(size / 2) + 1;
+  return { rank: place, label: `${ordinal(place)} tied` };
+}
+
 function mulberry32(a) {
   return function () {
     a |= 0; a = (a + 0x6D2B79F5) | 0;

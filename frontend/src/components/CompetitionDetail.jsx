@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtDelta, fmtDate } from '../utils/formatters.js';
-import { strengthTier } from '../data/pipeline.js';
+import { strengthTier, deFinish } from '../data/pipeline.js';
 
 export default function CompetitionDetail({ compId, competitions, fencers, bouts, onBack, onSelectFencer, onSelectClub }) {
   const c = competitions.find(x => x.id === compId);
@@ -31,17 +31,43 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         f, key: k, wins, losses, bouts: myBouts.length,
         poolBefore: pool.before, poolAfter: pool.after, poolDelta,
         deBefore: de.before, deAfter: de.after, deDelta,
-        totalDelta,
+        totalDelta, finish: deFinish(deBouts, k),
         hasAnyDelta: poolDelta !== null || deDelta !== null,
       };
-    }).sort((a, b) => {
-      if (a.hasAnyDelta !== b.hasAnyDelta) return a.hasAnyDelta ? -1 : 1;
-      return b.totalDelta - a.totalDelta;
     });
   }, [c, fencers]);
 
+  const [sortMode, setSortMode] = useState('results');
+  const rows = useMemo(() => {
+    const list = [...fencerStats];
+    if (sortMode === 'results') {
+      list.sort((a, b) => {
+        const ra = a.finish ? a.finish.rank : Infinity;
+        const rb = b.finish ? b.finish.rank : Infinity;
+        if (ra !== rb) return ra - rb;
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return a.losses - b.losses;
+      });
+    } else {
+      list.sort((a, b) => {
+        if (a.hasAnyDelta !== b.hasAnyDelta) return a.hasAnyDelta ? -1 : 1;
+        return b.totalDelta - a.totalDelta;
+      });
+    }
+    return list;
+  }, [fencerStats, sortMode]);
+
   if (!c) return <div style={{ padding: 60, textAlign: 'center' }} className="fl-italic">Competition not found.</div>;
   const tier = strengthTier(c.poolMedian);
+
+  // Pool-only fencers (no DE bouts) placed below everyone who reached the
+  // bracket. We can't rank them against each other, but the band is known:
+  // (DE entrants + 1) … field size. Shown when the comp actually had a DE.
+  const fieldSize = fencerStats.length;
+  const deEntrants = fencerStats.filter((s) => s.finish).length;
+  const poolOnlyLabel = deEntrants === 0
+    ? '—'
+    : (deEntrants + 1 >= fieldSize ? `${fieldSize}` : `${deEntrants + 1}–${fieldSize}`);
 
   return (
     <div className="fl-fade-in">
@@ -79,12 +105,24 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         ))}
       </div>
 
-      <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Performance</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 4, gap: 16, flexWrap: 'wrap' }}>
+        <div className="fl-smallcaps">Performance</div>
+        <div className="fl-smallcaps" style={{ display: 'flex', gap: 16 }}>
+          <span className="fl-link" onClick={() => setSortMode('elo')} style={{ color: sortMode === 'elo' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+            Elo change{sortMode === 'elo' && <span style={{ color: 'var(--ox)' }}> ↓</span>}
+          </span>
+          <span className="fl-link" onClick={() => setSortMode('results')} style={{ color: sortMode === 'results' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+            Results{sortMode === 'results' && <span style={{ color: 'var(--ox)' }}> ↓</span>}
+          </span>
+        </div>
+      </div>
       <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
-        Ordered by total Elo change at this competition (pool + DE), highest first.
+        {sortMode === 'elo'
+          ? 'Ordered by total Elo change at this competition (pool + DE), highest first.'
+          : 'Ordered by finish — champion first, then by the deepest DE round reached. Placement is reconstructed from the bracket; official placings aren’t in the data.'}
       </div>
       <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
-        {fencerStats.map((s, i) => (
+        {rows.map((s, i) => (
           <div key={s.key} className="fl-link fl-row-hover" onClick={() => onSelectFencer(s.key)}
             style={{ display: 'grid', gridTemplateColumns: '40px 1fr 90px 1fr 1fr', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--rule-soft)' }}>
             <div className="fl-mono" style={{ color: 'var(--ink-faint)', fontSize: '0.95rem' }}>{(i + 1).toString().padStart(2, '0')}</div>
@@ -106,30 +144,38 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
               <span style={{ color: 'var(--ink-faint)' }}>·</span>
               <span style={{ color: 'var(--red-light)' }}>{s.losses}</span>
             </div>
-            <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.82rem', paddingRight: 8 }}>
-              {s.poolDelta !== null ? (
-                <>
-                  <span className="fl-smallcaps" style={{ fontSize: '0.58rem', color: 'var(--ink-faint)' }}>POOL </span>
-                  <span style={{ color: 'var(--ink-soft)' }}>{fmtRating(s.poolBefore)}</span>
-                  <span style={{ color: 'var(--ink-faint)' }}>→</span>
-                  <span style={{ fontWeight: 600, color: s.poolDelta > 0 ? 'var(--green)' : s.poolDelta < 0 ? 'var(--red-light)' : 'var(--ink)' }}>
-                    {fmtRating(s.poolAfter)} ({fmtDelta(s.poolDelta)})
-                  </span>
-                </>
-              ) : <span style={{ color: 'var(--ink-faint)' }}>—</span>}
-            </div>
-            <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.82rem' }}>
-              {s.deDelta !== null ? (
-                <>
-                  <span className="fl-smallcaps" style={{ fontSize: '0.58rem', color: 'var(--ox)' }}>DE </span>
-                  <span style={{ color: 'var(--ink-soft)' }}>{fmtRating(s.deBefore)}</span>
-                  <span style={{ color: 'var(--ink-faint)' }}>→</span>
-                  <span style={{ fontWeight: 600, color: s.deDelta > 0 ? 'var(--green)' : s.deDelta < 0 ? 'var(--red-light)' : 'var(--ink)' }}>
-                    {fmtRating(s.deAfter)} ({fmtDelta(s.deDelta)})
-                  </span>
-                </>
-              ) : <span style={{ color: 'var(--ink-faint)' }}>—</span>}
-            </div>
+            {sortMode === 'results' ? (
+              <div className="fl-mono" style={{ gridColumn: '4 / 6', textAlign: 'right', fontWeight: 600, fontSize: '1rem', color: s.finish?.rank === 1 ? 'var(--ox)' : s.finish ? 'var(--ink)' : 'var(--ink-faint)' }}>
+                {s.finish ? s.finish.label : poolOnlyLabel}
+              </div>
+            ) : (
+              <>
+                <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.82rem', paddingRight: 8 }}>
+                  {s.poolDelta !== null ? (
+                    <>
+                      <span className="fl-smallcaps" style={{ fontSize: '0.58rem', color: 'var(--ink-faint)' }}>POOL </span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{fmtRating(s.poolBefore)}</span>
+                      <span style={{ color: 'var(--ink-faint)' }}>→</span>
+                      <span style={{ fontWeight: 600, color: s.poolDelta > 0 ? 'var(--green)' : s.poolDelta < 0 ? 'var(--red-light)' : 'var(--ink)' }}>
+                        {fmtRating(s.poolAfter)} ({fmtDelta(s.poolDelta)})
+                      </span>
+                    </>
+                  ) : <span style={{ color: 'var(--ink-faint)' }}>—</span>}
+                </div>
+                <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.82rem' }}>
+                  {s.deDelta !== null ? (
+                    <>
+                      <span className="fl-smallcaps" style={{ fontSize: '0.58rem', color: 'var(--ox)' }}>DE </span>
+                      <span style={{ color: 'var(--ink-soft)' }}>{fmtRating(s.deBefore)}</span>
+                      <span style={{ color: 'var(--ink-faint)' }}>→</span>
+                      <span style={{ fontWeight: 600, color: s.deDelta > 0 ? 'var(--green)' : s.deDelta < 0 ? 'var(--red-light)' : 'var(--ink)' }}>
+                        {fmtRating(s.deAfter)} ({fmtDelta(s.deDelta)})
+                      </span>
+                    </>
+                  ) : <span style={{ color: 'var(--ink-faint)' }}>—</span>}
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>

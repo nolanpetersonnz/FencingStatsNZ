@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  parseCSV, processBouts, parseAgeCategory, withdrawalSide,
+  parseCSV, processBouts, parseAgeCategory, withdrawalSide, deFinish,
 } from '../src/data/pipeline.js';
 import { DEFAULT_SETTINGS } from '../src/constants.js';
 
@@ -76,6 +76,26 @@ test('a withdrawal is a loss for the withdrawer but moves no rating', () => {
   assert.equal(bouts[0].deltaB, 0);
   assert.equal(bouts[0].winnerKey, 'alice a');
   assert.equal(bouts[0].withdrawal, 'b');
+});
+
+// ---- DE finish derivation (Phase 1 Results view) ----------------------------
+test('deFinish reconstructs numeric placement from the DE bracket', () => {
+  const champ = [{ deRound: 'SF', winnerKey: 'me' }, { deRound: 'Final', winnerKey: 'me' }];
+  assert.deepEqual(deFinish(champ, 'me'), { rank: 1, label: '1' });
+
+  const runnerUp = [{ deRound: 'SF', winnerKey: 'me' }, { deRound: 'Final', winnerKey: 'opp' }];
+  assert.deepEqual(deFinish(runnerUp, 'me'), { rank: 2, label: '2' });
+
+  const lostSF = [{ deRound: 'QF', winnerKey: 'me' }, { deRound: 'SF', winnerKey: 'opp' }];
+  assert.deepEqual(deFinish(lostSF, 'me'), { rank: 3, label: '3rd tied' });
+
+  const lostQF = [{ deRound: 'T16', winnerKey: 'me' }, { deRound: 'QF', winnerKey: 'opp' }];
+  assert.deepEqual(deFinish(lostQF, 'me'), { rank: 5, label: '5th tied' });
+
+  const lostT16 = [{ deRound: 'T16', winnerKey: 'opp' }];
+  assert.deepEqual(deFinish(lostT16, 'me'), { rank: 9, label: '9th tied' });
+
+  assert.equal(deFinish([], 'me'), null); // pool-only fencer
 });
 
 // ---- Real dataset smoke test ------------------------------------------------
