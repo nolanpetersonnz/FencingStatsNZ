@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.13] - 2026-05-28
+### Added
+- "Results" view on the Competition detail Performance table, now the **default** ordering (toggle back to "Elo change" anytime). Official placings aren't in the FeNZ data, so placement is reconstructed from the DE bracket (new tested helper `deFinish` in `pipeline.js`) and shown as a place: `1` (won the DE), `2` (lost the final), then tied bands for everyone eliminated earlier, since fencing runs no classification bouts — `3rd tied` (lost a semi), `5th tied` (lost a quarter), `9th tied`, …; pool-only fencers get the below-the-cut range (DE entrants + 1 … field size, e.g. `17–32`). Each row shows its placement and W–L record. Addresses the FEEDBACK Round 3 request to "see who won, not just elo gain"
+### Fixed
+- Activity-implausible dates of birth no longer win the registry lookup. When a fencer is split into two records by a data-entry typo on one DOB, `buildEnrichmentIndex` could surface the wrong year — Chantelle May appeared as 2018 (impossible: she holds a 2024 national foil ranking, so she'd be 6) instead of 2004, which had placed a senior fencer in the Junior and Cadet leaderboards. A DOB that would make the fencer younger than 8 at the time of any ranking they hold is now demoted. The guard is deliberately narrow — exactly one record in the registry trips it — so genuine namesakes are left alone (the two James McKenzies, a 1977 veteran and a 1997 senior, both stay plausible and unchanged)
+
 ## [0.1.12] - 2026-05-28
 ### Fixed
 - Medical and other non-result withdrawals no longer move ratings. FeNZ tableau data carries a per-fencer result `code`; alongside the normal `V`/`D` (victory/defeat) it uses `MED` (medical), `A` (abandon), `DNF`, and `E`/`EXC` (exclusion) for fencers who didn't lose on the strip. The ingest now reads this code and tags such bouts with a new `flag` column (`wd_a` / `wd_b`); `processBouts` records the bout as a loss for the fencer who withdrew and a win for the opponent, but contributes nothing to either rating. The 16 such bouts already in `bouts.csv` — recorded as 0–0 results that nudged both ratings as ties — were backfilled from the API cache. Reported via an anonymous DM (FEEDBACK Round 3)
