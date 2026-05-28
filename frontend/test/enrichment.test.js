@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { buildEnrichmentIndex } from '../src/data/fencerInfo.js';
+import { buildEnrichmentIndex, genderFromEnrichment } from '../src/data/fencerInfo.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const info = JSON.parse(readFileSync(resolve(__dirname, '../../ingest/fencers.json'), 'utf8'));
@@ -46,6 +46,15 @@ test('plausible namesake DOBs are not disturbed (James McKenzie stays 1977)', ()
   const rec = idx['james mckenzie'];
   assert.ok(rec);
   assert.equal(rec.dob_year, 1977);
+});
+
+// Gender fallback for mixed-event-only fencers, from registry ranking keys.
+test('genderFromEnrichment reads gender from FNZ ranking keys', () => {
+  assert.equal(genderFromEnrichment({ rankings: { foil_W: {} } }), 'W');
+  assert.equal(genderFromEnrichment({ rankings: { epee_M: {}, foil_M: {} } }), 'M');
+  assert.equal(genderFromEnrichment({ rankings: { foil_W: {}, epee_M: {} } }), null); // straddles
+  assert.equal(genderFromEnrichment({ rankings: {} }), null);
+  assert.equal(genderFromEnrichment(null), null);
 });
 
 test('a record always wins its own canonical name key', () => {

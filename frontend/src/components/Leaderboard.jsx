@@ -124,7 +124,8 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
           </h2>
         </div>
         <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
-          <label className="fl-smallcaps" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <label className="fl-smallcaps" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'help' }}
+            title="Hide fencers with fewer than this many bouts in the selected weapon. Set it to 1 to see everyone, including less-active fencers. If you have a rating but aren't listed, lower this or check the weapon/gender filters.">
             Min bouts
             <input type="number" min={1} max={50} value={minBouts} onChange={e => setMinBouts(Math.max(1, parseInt(e.target.value) || 1))}
               style={{ width: 50, fontFamily: 'JetBrains Mono', background: 'transparent', border: 'none', borderBottom: '1px solid var(--rule)', padding: '2px 4px', outline: 'none', color: 'var(--ink)', fontSize: '0.9rem' }} />
