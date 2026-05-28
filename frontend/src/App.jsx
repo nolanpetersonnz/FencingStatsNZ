@@ -3,7 +3,7 @@ import STYLE from './styles.js';
 import { DEFAULT_SETTINGS } from './constants.js';
 import { processBouts, makeDemoBouts, parseCSV, nameKey } from './data/pipeline.js';
 import { loadFromStorage, saveToStorage, clearStorage } from './data/storage.js';
-import { loadFencerInfo, buildEnrichmentIndex, findFencerByLicenceHash, fencerKeyForInfo } from './data/fencerInfo.js';
+import { loadFencerInfo, buildEnrichmentIndex, genderFromEnrichment, findFencerByLicenceHash, fencerKeyForInfo } from './data/fencerInfo.js';
 import { loadOverrides } from './data/edits.js';
 import Header from './components/Header.jsx';
 import EmptyState from './components/EmptyState.jsx';
@@ -143,34 +143,38 @@ export default function App() {
     [mergedRawBouts, settings]
   );
 
-  // Apply live name/club overrides over the bout-derived fencers map.
-  // Overrides win over what processBouts inferred from the latest bout.
-  // We clone shallow so the original object stays stable for rating
-  // memoisation in other components.
+  // name_key → enrichment record, derived from the shipped fencers.json.
+  // Defined before `fencers` so the gender fallback below can use it.
+  const enrichment = useMemo(() => buildEnrichmentIndex(fencerInfo), [fencerInfo]);
+
+  // Apply live name/club overrides over the bout-derived fencers map, and fill
+  // gender from the registry when bout data couldn't determine it (mixed-event-
+  // only fencers), so they aren't silently dropped from the gendered leaderboards.
+  // Overrides win over what processBouts inferred from the latest bout. We clone
+  // shallow so the original object stays stable for rating memoisation elsewhere.
   const fencers = useMemo(() => {
     const { name_overrides, club_overrides } = overrides;
-    if (!Object.keys(name_overrides).length && !Object.keys(club_overrides).length) return rawFencers;
     const out = {};
     for (const k in rawFencers) {
       const f = rawFencers[k];
       const newName = name_overrides[k]?.value;
       const newClub = club_overrides[k]?.value;
-      if (newName || newClub) {
-        out[k] = { ...f, name: newName || f.name, club: newClub != null ? newClub : f.club };
+      const eg = f.genders.size === 0 ? genderFromEnrichment(enrichment[k]) : null;
+      if (newName || newClub || eg) {
+        out[k] = {
+          ...f,
+          name: newName || f.name,
+          club: newClub != null ? newClub : f.club,
+          genders: eg ? new Set([eg]) : f.genders,
+        };
       } else {
         out[k] = f;
       }
     }
     return out;
-  }, [rawFencers, overrides]);
+  }, [rawFencers, overrides, enrichment]);
 
   const flaggedBouts = useMemo(() => new Set(overrides.flagged_bouts || []), [overrides]);
-
-  // name_key → enrichment record, derived from the shipped fencers.json.
-  // Components read enrichment lazily via this map rather than mutating
-  // the bout-derived fencers (which are recomputed on every settings
-  // change).
-  const enrichment = useMemo(() => buildEnrichmentIndex(fencerInfo), [fencerInfo]);
 
   // The session fencer's key in the current `fencers` map — null when
   // signed out, or when the signed-in person has no bouts in the dataset.

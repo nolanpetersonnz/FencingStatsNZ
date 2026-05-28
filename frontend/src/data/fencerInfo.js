@@ -73,6 +73,22 @@ export function buildEnrichmentIndex(info) {
   return idx;
 }
 
+// Infer a fencer's gender from their registry record when the bout data
+// couldn't — fencers who only ever appear in mixed events have their per-row
+// gender label cleared during dedupe, so the majority vote in processBouts
+// comes up empty and they vanish from both gendered leaderboards. The FNZ
+// ranking keys encode gender ("foil_W" / "epee_M"). Returns 'M' | 'W' | null
+// (null when there's no ranking, or the record straddles both — unresolvable).
+export function genderFromEnrichment(rec) {
+  if (!rec || !rec.rankings) return null;
+  const keys = Object.keys(rec.rankings);
+  const hasW = keys.some((k) => k.endsWith('_W'));
+  const hasM = keys.some((k) => k.endsWith('_M'));
+  if (hasW && !hasM) return 'W';
+  if (hasM && !hasW) return 'M';
+  return null;
+}
+
 // Pepper bundled in at build time. Vite exposes import.meta.env.VITE_*
 // to client code. If absent, hashing still works but isn't peppered —
 // the ingest script will have emitted unsalted hashes in that case too.
