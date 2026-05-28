@@ -58,6 +58,12 @@ Posted the beta to the NZ fencing community Facebook group; collected responses 
 - Resolution: the lookup now gives a record an ownership bonus for a name_key that matches its own display_name, so the canonically-named fencer always wins their own key over a sibling alias. The underlying licence-keyed merge still mixes aliases; fixing that needs the raw XML and is upstream data quality.
 - Status: addressed in [0.1.12].
 
+### Wrong date of birth from a typo'd split record (Chantelle May) — **addressed in [0.1.13]**
+- Source: Nolan (internal QA), 2026-05-28 — "Chantelle May is showing in juniors. She is not born in 2018."
+- Root cause: distinct from the sibling-alias case above. The registry merges by (loose-name, DOB), so a data-entry typo on one birth year splits a single fencer into two records — Chantelle May as both 2004 and an impossible 2018. The 2018 record (carrying a 2024 national foil ranking — she'd be 6) won the lookup on club count, and a 2018 DOB satisfies both Junior (U20) and Cadet (U17) eligibility, so she surfaced in those leaderboards.
+- Resolution: `buildEnrichmentIndex` now demotes any DOB that would make a fencer younger than 8 at the time of an official ranking they hold. Exactly one record in the registry trips this, so genuine namesakes with two plausible years (the 1977 veteran and 1997 senior "James McKenzie") are untouched.
+- Status: addressed in [0.1.13].
+
 ### Medical withdrawals counted as losses — **addressed in [0.1.12]**
 - Source: anonymous DM (with screenshot of bracket showing a fencer marked as having lost via medical withdrawal)
 - "I think it's struggling a bit with medical withdrawals. It says he lost as well."
@@ -72,10 +78,10 @@ Posted the beta to the NZ fencing community Facebook group; collected responses 
 - Direction: investigate parameter tuning (tau, initial RD); consider adding visual aids that exaggerate perceived differences without distorting the math.
 - Status: open.
 
-### Show winner in competition view, not just elo change — **small fix, open**
+### Show winner in competition view, not just elo change — **addressed in [0.1.13]**
 - Source: friend (DM) — "when clicking on a comp it's annoying only being able to see people's elo gain. You should also be able to see who won. So maybe a little like selection button to change between the two"
-- Direction: add a sort/toggle to the competition detail view that switches between elo gain and final placing. Should be a small change.
-- Status: open, low effort.
+- Resolution: the Competition detail Performance table defaults to a "Results" view (toggle to "Elo change"). It shows each fencer's placement — 1, 2, then tied bands (3rd tied, 5th tied, 9th tied, …) for fencers eliminated in the same DE round, plus a below-the-cut range for pool-only fencers — alongside the W–L record. Official placings aren't in the FeNZ data, so placement is reconstructed from the DE bracket.
+- Status: addressed in [0.1.13].
 
 ### Expected pool wins (askFRED-style) — **noted**
 - Source: friend (DM, on behalf of Joel) — "Joel really wants what ask Fred has in the US which is expected pool wins. So you can compare your pool results with what you're expected to get."
