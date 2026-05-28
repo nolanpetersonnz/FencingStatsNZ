@@ -90,12 +90,25 @@ test('deFinish reconstructs numeric placement from the DE bracket', () => {
   assert.deepEqual(deFinish(lostSF, 'me'), { rank: 3, label: '3rd tied' });
 
   const lostQF = [{ deRound: 'T16', winnerKey: 'me' }, { deRound: 'QF', winnerKey: 'opp' }];
-  assert.deepEqual(deFinish(lostQF, 'me'), { rank: 5, label: '5th tied' });
+  assert.deepEqual(deFinish(lostQF, 'me'), { rank: 5, label: '5–8' });
 
   const lostT16 = [{ deRound: 'T16', winnerKey: 'opp' }];
-  assert.deepEqual(deFinish(lostT16, 'me'), { rank: 9, label: '9th tied' });
+  assert.deepEqual(deFinish(lostT16, 'me'), { rank: 9, label: '9–16' });
+
+  const lostT32 = [{ deRound: 'T32', winnerKey: 'opp' }];
+  assert.deepEqual(deFinish(lostT32, 'me'), { rank: 17, label: '17–32' });
 
   assert.equal(deFinish([], 'me'), null); // pool-only fencer
+});
+
+// ---- Most-recent club (Phase 1: Brendan's affiliation request) --------------
+test('a fencer\'s club follows their most recent bout, not the first', () => {
+  const raw = [
+    { date: '2024-01-01', competition: 'Old Cup 2024', weapon: 'epee', bout_type: 'de', de_round: 'Final', gender: 'Mens', fencer_a: 'Mover M', club_a: 'Alpha Club', fencer_b: 'Other O', club_b: 'Beta Club', score_a: '15', score_b: '10' },
+    { date: '2026-01-01', competition: 'New Cup 2026', weapon: 'epee', bout_type: 'de', de_round: 'Final', gender: 'Mens', fencer_a: 'Mover M', club_a: 'Gamma Club', fencer_b: 'Other O', club_b: 'Beta Club', score_a: '15', score_b: '8' },
+  ];
+  const { fencers } = processBouts(raw, S);
+  assert.equal(fencers['mover m'].club, 'Gamma Club');
 });
 
 // ---- Real dataset smoke test ------------------------------------------------
