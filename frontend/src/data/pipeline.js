@@ -89,6 +89,20 @@ export const normWeapon = (w) => {
 };
 export const normBoutType = (t) => ((t || '').toLowerCase().trim().startsWith('d') ? 'de' : 'pool');
 
+// Withdrawal / no-result flag set by the ingest on bouts where a fencer has a
+// non-standard DE result code (medical, abandon, DNF, exclusion). Such a bout
+// is recorded as a loss for the fencer who withdrew and a win for the opponent,
+// but moves neither rating. Returns 'a' | 'b' | 'both' | null. The `flag`
+// column is optional — bouts without it (older CSVs) parse as normal results.
+export function withdrawalSide(b) {
+  const f = (b && b.flag != null ? String(b.flag) : '').toLowerCase().trim();
+  if (!f) return null;
+  if (f === 'wd_a' || f === 'wd:a') return 'a';
+  if (f === 'wd_b' || f === 'wd:b') return 'b';
+  if (f.startsWith('wd')) return 'both';
+  return null;
+}
+
 // Age categories for rating streams. Open/Senior is the default bucket.
 export const AGE_CATEGORIES = ['cadet', 'junior', 'senior', 'veteran'];
 
@@ -112,6 +126,10 @@ export function parseAgeCategory(comp) {
   const x = (comp || '').toLowerCase().trim();
   if (AGE_OVERRIDES[x]) return AGE_OVERRIDES[x];
   if (/\bvet\w*\b|\bmasters?\b/.test(x)) return 'veteran';
+  // Secondary-schools events are age-restricted (NZ school years 9–13). They
+  // match no U-band keyword, so without this they fell through to 'senior' and
+  // their bouts wrongly fed the senior stream / made fencers native seniors.
+  if (/\bsec(ondary)?\.?\s*schools?\b/.test(x)) return 'cadet';
   if (/\bu20\b|\bunder ?20\b|\bjunior\b/.test(x)) return 'junior';
   if (/\bu1[3-7]\b|\bunder ?1[3-7]\b|\bcadet\b|\byouth\b/.test(x)) return 'cadet';
   return 'senior';
@@ -382,6 +400,7 @@ export function processBouts(rawBouts, settings) {
       for (const b of periodBouts) {
         const kA = nameKey(b.fencer_a), kB = nameKey(b.fencer_b);
         if (!kA || !kB || kA === kB) continue;
+        if (withdrawalSide(b)) continue; // no rating contribution
         const sA = parseInt(b.score_a, 10), sB = parseInt(b.score_b, 10);
         if (isNaN(sA) || isNaN(sB)) continue;
         const scoreA = sA > sB ? 1 : sB > sA ? 0 : 0.5;
@@ -419,6 +438,22 @@ export function processBouts(rawBouts, settings) {
       applyStream(perFencerPool, snapPool, 'pool');
       applyStream(perFencerDe, snapDe, 'de');
 
+      // Withdrawals: tally the loss (withdrawer) / win (opponent) on each stream
+      // this period feeds, with no rating movement (they were skipped above).
+      for (const b of periodBouts) {
+        const side = withdrawalSide(b);
+        if (!side) continue;
+        const kA = nameKey(b.fencer_a), kB = nameKey(b.fencer_b);
+        if (!kA || !kB || kA === kB) continue;
+        if (!fencers[kA] || !fencers[kB]) continue;
+        const sA = getStream(fencers[kA], weapon, ageStream, b._type);
+        const sB = getStream(fencers[kB], weapon, ageStream, b._type);
+        sA.bouts += 1; sB.bouts += 1;
+        if (side === 'a') { sA.losses += 1; sB.wins += 1; }
+        else if (side === 'b') { sB.losses += 1; sA.wins += 1; }
+        else { sA.losses += 1; sB.losses += 1; }
+      }
+
       if (isTop) { topSnapPool = snapPool; topSnapDe = snapDe; }
     }
 
@@ -454,6 +489,14 @@ export function processBouts(rawBouts, settings) {
         if (!bY[periodCategory] || year > bY[periodCategory]) bY[periodCategory] = year;
       }
 
+      // Withdrawals carry zero rating movement; the opponent is the winner.
+      const wd = withdrawalSide(b);
+      const ratingAAfter = wd ? snap[kA].rating : wepA.rating;
+      const ratingBAfter = wd ? snap[kB].rating : wepB.rating;
+      const winnerKey = wd
+        ? (wd === 'a' ? kB : wd === 'b' ? kA : null)
+        : (sA > sB ? kA : sB > sA ? kB : null);
+
       bouts.push({
         id: bouts.length,
         date, weapon, type: b._type, deRound: (b.de_round || '').trim(),
@@ -461,9 +504,10 @@ export function processBouts(rawBouts, settings) {
         ageCategory: periodCategory,
         keyA: kA, keyB: kB, scoreA: sA, scoreB: sB,
         ratingABefore: snap[kA].rating, ratingBBefore: snap[kB].rating,
-        ratingAAfter: wepA.rating, ratingBAfter: wepB.rating,
-        deltaA: wepA.rating - snap[kA].rating, deltaB: wepB.rating - snap[kB].rating,
-        winnerKey: sA > sB ? kA : sB > sA ? kB : null,
+        ratingAAfter, ratingBAfter,
+        deltaA: ratingAAfter - snap[kA].rating, deltaB: ratingBAfter - snap[kB].rating,
+        winnerKey,
+        ...(wd ? { withdrawal: wd } : {}),
       });
 
       const compId = `${b.competition || 'Unnamed'}|${weapon}|${date}`;
