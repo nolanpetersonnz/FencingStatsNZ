@@ -44,7 +44,7 @@ Glicko-2 is not necessarily the *right* algorithm for fencing. It was chosen as 
 
 FencingTimeLive recently blocked CSV exports from their results pages. To work around this, the ingest script (`ingest/fenz_ingest.py`) pulls directly from the FeNZ public API — the same data FeNZ uses to publish results on their own site. A side effect is that this gives FeNZ an incentive to keep their results up to date, since the data is only as good as what they enter.
 
-The shipped dataset currently spans 2018–2026 and contains ~56k bouts. DE brackets in the FeNZ cache occasionally place fencer rows at the wrong slot, which would produce phantom bouts and drop real ones; the ingest now verifies adjacent pairs by score consistency, falls back to score-matching across the round, and reconstructs blank-name slots from final standings. If you spot a bout that looks wrong, open an issue with the competition and round.
+The shipped dataset currently spans 2024–2026 (2024-02-17 → 2026-05-10) and contains ~17k bouts. DE brackets in the FeNZ cache occasionally place fencer rows at the wrong slot, which would produce phantom bouts and drop real ones; the ingest now verifies adjacent pairs by score consistency, falls back to score-matching across the round, and reconstructs blank-name slots from final standings. Medical withdrawals, abandons, and exclusions are detected from the FeNZ result codes and recorded as a loss for the fencer who withdrew without moving either rating — an injury retirement shouldn't read as a skill result. If you spot a bout that looks wrong, open an issue with the competition and round.
 
 ---
 
@@ -90,7 +90,7 @@ FeNZ's current ranking sums your top five competition placings — it weighs dif
 Because pool fencing and direct elimination are different skills. Pool bouts are five-touch, with low stakes individually. DE bouts are fifteen-touches, with high-pressure. A fencer can be strong at one and average at the other. Treating them as one number hides where your strengths actually live. 
 
 **Why are some fencers missing from the data?**
-The dataset covers competitions registered with FeNZ from 2018 onward. If a fencer only ever competed at unregistered events, in non-FeNZ tournaments, or before 2018, they won't appear. If they've competed in registered events but are still missing, open an issue with the competition name and I'll fix it.
+The dataset covers competitions registered with FeNZ from 2024 onward. If a fencer only ever competed at unregistered events, in non-FeNZ tournaments, or before 2024, they won't appear. If they've competed in registered events but are still missing, open an issue with the competition name and I'll fix it.
 
 **Is this an official FeNZ tool?**
 Not at this time. The project is developed independently and uses FeNZ's public results data. I'm in active discussion with Fencing NZ about possible collaboration.
