@@ -28,19 +28,39 @@ export async function loadFencerInfo() {
 // "Joel Ball-La Hood" with different DOBs), prefer the one with more
 // signal — license hashes, then a DOB, then number of clubs known.
 //
-// Ownership override: a record whose own `display_name` IS this key is its
-// canonical owner and outranks any record that merely lists the key as an
-// alias. Shared/mis-entered licence numbers in the source XML can fold a
-// stray alias of one family member into a sibling's record (e.g. Kate
-// Gourley's record carrying "daniel gourley"); without this, the club-count
-// tiebreaker could let the sibling win the key and surface the wrong DOB.
+// Two collision modes are handled:
+//   1. Cross-person alias (Gourley): a shared/mis-entered licence in the source
+//      XML folds one fencer's name alias into a sibling's record (e.g. Kate
+//      Gourley's record carrying "daniel gourley"). The ownership bonus — a
+//      record whose own `display_name` IS this key — makes the canonical owner
+//      outrank any record that merely lists the key as an alias.
+//   2. Same person, typo DOB (Chantelle May): the (loose-name, dob_year)
+//      registry merge splits one fencer into two records when a data-entry typo
+//      gives one a bad DOB — Chantelle May appears as both 2004 and an
+//      impossible 2018, the latter from a bad source row, which put a senior
+//      foil fencer into the Junior/Cadet leaderboards. We demote any DOB that
+//      is activity-implausible (younger than MIN_PLAUSIBLE_AGE at the time of
+//      an official ranking the record holds). This is deliberately narrow: it
+//      fixes clear errors without disturbing real namesakes — e.g. the two
+//      James McKenzies (a 1977 veteran and a 1997 senior) both stay plausible.
+const MIN_PLAUSIBLE_AGE = 8;
 export function buildEnrichmentIndex(info) {
   if (!Array.isArray(info)) return {};
   const signal = (r) =>
     (r.licence_hashes?.length ? 100 : 0) +
     (r.dob_year ? 10 : 0) +
     (r.clubs?.length || 0);
-  const score = (r, key) => signal(r) + (nameKey(r.display_name) === key ? 1000 : 0);
+  const implausibleDob = (r) => {
+    if (!r.dob_year) return false;
+    const asOf = Object.values(r.rankings || {})
+      .map((x) => parseInt((x.as_of || '').slice(0, 4), 10))
+      .filter(Number.isFinite);
+    return asOf.length > 0 && Math.min(...asOf) - r.dob_year < MIN_PLAUSIBLE_AGE;
+  };
+  const score = (r, key) =>
+    signal(r)
+    + (nameKey(r.display_name) === key ? 1e6 : 0)
+    - (implausibleDob(r) ? 1e9 : 0);
   const idx = {};
   for (const rec of info) {
     for (const k of rec.name_keys || []) {
