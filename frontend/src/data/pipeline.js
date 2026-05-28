@@ -331,7 +331,10 @@ export function processBouts(rawBouts, settings) {
       for (const cat of AGE_CATEGORIES) slot.byAge[cat] = { pool: freshStream(), de: freshStream() };
       fencers[k].byWeapon[weapon] = slot;
     }
-    if (canonClub && !fencers[k].club) fencers[k].club = canonClub;
+    // Track the most-recent affiliation: periods are processed in date order,
+    // so overwriting with each non-empty club leaves the latest one. Fencers
+    // move clubs over time and the displayed club should follow (Brendan).
+    if (canonClub) fencers[k].club = canonClub;
     return fencers[k];
   };
 
@@ -595,29 +598,24 @@ function deRoundSize(round) {
   return m ? parseInt(m[1], 10) : Infinity;
 }
 
-function ordinal(n) {
-  const v = n % 100;
-  const s = ['th', 'st', 'nd', 'rd'];
-  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
-}
-
 // Derive a fencer's placement at one competition from their DE bouts. Official
 // placings aren't in the FeNZ data, so this is reconstructed from the bracket:
-// the fencer who never lost a DE placed 1st, the fencer who lost the final 2nd,
-// and everyone eliminated earlier is *tied* at the top of their round's band —
-// fencing runs no classification bouts, so the two losing semi-finalists share
-// 3rd, the four quarter-finalists share 5th, and so on (lose the round of N →
-// "{N/2+1} tied"). Returns { rank, label }, rank = that place for sorting, or
-// null when there were no DE bouts (pool-only).
+// 1st (never lost a DE), 2nd (lost the final), then 3rd — fencing awards two
+// bronzes and runs no 3rd-place bout, so the losing semi-finalists are "3rd
+// tied" with no 4th. Deeper rounds are reported as the round's place band:
+// lose the table of 8 → "5–8", of 16 → "9–16", of 32 → "17–32", and so on.
+// Returns { rank, label }, rank = the band's top place for sorting, or null
+// when there were no DE bouts (pool-only).
 export function deFinish(myDeBouts, key) {
   if (!myDeBouts || myDeBouts.length === 0) return null;
   const losses = myDeBouts.filter((b) => b.winnerKey && b.winnerKey !== key);
   if (losses.length === 0) return { rank: 1, label: '1' };
   const size = Math.min(...losses.map((b) => deRoundSize(b.deRound)));
   if (!Number.isFinite(size)) return { rank: 9999, label: 'DE' };
-  if (size === 2) return { rank: 2, label: '2' };
-  const place = Math.floor(size / 2) + 1;
-  return { rank: place, label: `${ordinal(place)} tied` };
+  if (size === 2) return { rank: 2, label: '2' };          // lost the final
+  if (size === 4) return { rank: 3, label: '3rd tied' };   // two bronzes, no 4th
+  const low = size / 2 + 1;
+  return { rank: low, label: `${low}–${size}` };           // 5–8, 9–16, 17–32, …
 }
 
 function mulberry32(a) {
