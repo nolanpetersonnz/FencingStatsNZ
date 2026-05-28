@@ -30,12 +30,12 @@ Posted the beta to the NZ fencing community Facebook group; collected responses 
 - Direction: interesting future work but not v1 scope. Possibly a separate page rather than something baked into ratings.
 - Status: deferred.
 
-### Connectivity floor for appearance in main rankings — **open**
+### Connectivity floor for appearance in main rankings — **addressed in [0.1.13]**
 - Source: Sam Webster (email)
 - "What are the requirements for showing up in the main ranking page? I've not fenced a huge amount recently but I have a profile with a rating and don't show up in the main list for foil."
-- Root cause (likely): the Min Bouts filter on the leaderboard hides fencers below a threshold, but the threshold value and its visibility to users aren't well-documented. Sam is asking a reasonable question and the answer should be discoverable.
-- Direction: (a) document the threshold clearly in the FAQ or as a tooltip on the leaderboard; (b) consider whether the default threshold is set appropriately; (c) consider whether fencers below the threshold should be visible with a "provisional" indicator rather than hidden entirely.
-- Status: open.
+- Investigation: the Min Bouts filter wasn't the cause — it defaults to 1, so anyone with a bout in the weapon passes. The real silent exclusion was **undetermined gender**: a fencer who only ever fenced mixed events has no single-gender row to vote on, so they were dropped from both the Men's and Women's leaderboards (33 rated fencers, 11 with foil bouts). (Sam himself has no bouts in the current 2024+ dataset under that name — a separate data-coverage matter.)
+- Resolution: gender now falls back to the FNZ registry ranking keys (`foil_W` / `epee_M`) when bout data is inconclusive, recovering 31 of the 33; and the Min Bouts control has a tooltip explaining it and pointing at the weapon/gender filters.
+- Status: addressed in [0.1.13]; a "provisional" indicator for very-low-bout fencers remains a possible future refinement.
 
 ### Non-FeNZ data ingestion / private competitions — **noted, deferred**
 - Source: Sam Webster (email)
@@ -80,7 +80,7 @@ Posted the beta to the NZ fencing community Facebook group; collected responses 
 
 ### Show winner in competition view, not just elo change — **addressed in [0.1.13]**
 - Source: friend (DM) — "when clicking on a comp it's annoying only being able to see people's elo gain. You should also be able to see who won. So maybe a little like selection button to change between the two"
-- Resolution: the Competition detail Performance table defaults to a "Results" view (toggle to "Elo change"). It shows each fencer's placement — 1, 2, then tied bands (3rd tied, 5th tied, 9th tied, …) for fencers eliminated in the same DE round, plus a below-the-cut range for pool-only fencers — alongside the W–L record. Official placings aren't in the FeNZ data, so placement is reconstructed from the DE bracket.
+- Resolution: the Competition detail Performance table defaults to a "Results" view (toggle to "Elo change"). It shows each fencer's placement — 1, 2, then 3rd tied (two bronzes, no 4th), then place bands 5–8, 9–16, 17–32, … for the deeper rounds, plus a below-the-cut range for pool-only fencers — alongside the W–L record. Official placings aren't in the FeNZ data, so placement is reconstructed from the DE bracket.
 - Status: addressed in [0.1.13].
 
 ### Expected pool wins (askFRED-style) — **noted**
@@ -108,11 +108,12 @@ Posted the beta to the NZ fencing community Facebook group; collected responses 
 - Direction: substantial feature, deferred. Interesting because it ties to a real concern Brendan raised about seeding distortions producing perverse pool/bracket pairings.
 - Status: noted, deferred.
 
-### Club affiliation tracking — **open**
+### Club affiliation tracking — **addressed in [0.1.13]**
 - Source: Brendan Lindsay (email)
 - "Why do NZ Ranking & these ratings never update the fencer's details (eg correct club name)? Some fencers move club affiliation over time, but the reports (almost) always default to your initial club selection, even if that changes later."
-- Currently the system takes the most-recent affiliation seen in the data, but this isn't surfaced visibly and may be ingesting the wrong field. Worth verifying and making visible.
-- Status: open, small fix.
+- Root cause: `ensure()` in the pipeline set a fencer's club only on first sight (`!fencers[k].club`), so it stuck to the earliest club seen — exactly the "initial club selection" Brendan describes. (An earlier note here that it took the most-recent affiliation was mistaken.)
+- Resolution: the pipeline now overwrites with each non-empty club as it walks bouts in date order, so the displayed club follows the fencer's most-recent bout. Admin/self-edit `club_overrides` still win on top.
+- Status: addressed in [0.1.13], small fix.
 
 ### Sam McArthur's "rewards only fencing when you feel good mentally" critique — **explained, no code change**
 - Source: Sam McArthur (FB comment on initial post)
