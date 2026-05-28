@@ -5,6 +5,18 @@ export const fromG2 = (mu, phi) => ({ rating: mu * SCALE + 1500, rd: phi * SCALE
 export const gFn = (phi) => 1 / Math.sqrt(1 + (3 * phi * phi) / (Math.PI * Math.PI));
 export const eFn = (mu, mu_j, phi_j) => 1 / (1 + Math.exp(-gFn(phi_j) * (mu - mu_j)));
 
+// Probability that fencer A beats fencer B, given each side's rating and RD.
+// Glicko-2 expected score with the two uncertainties combined, so a bout
+// involving a high-RD (provisional) fencer is pulled toward 50%. This is the
+// canonical win-probability used across the app — Head-to-Head predictions and
+// the competition difficulty / expected-pool-wins view.
+export function winProbability(ratingA, rdA, ratingB, rdB) {
+  const { mu: muA, phi: phiA } = toG2(ratingA, rdA);
+  const { mu: muB, phi: phiB } = toG2(ratingB, rdB);
+  const combinedPhi = Math.sqrt(phiA * phiA + phiB * phiB);
+  return 1 / (1 + Math.exp(-gFn(combinedPhi) * (muA - muB)));
+}
+
 export function newVolatility(sigma, delta, phi, v, tau) {
   const a = Math.log(sigma * sigma);
   const f = (x) => {

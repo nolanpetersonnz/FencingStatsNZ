@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
   parseCSV, processBouts, parseAgeCategory, withdrawalSide, deFinish,
+  difficultyTier, fieldOverview,
 } from '../src/data/pipeline.js';
 import { DEFAULT_SETTINGS } from '../src/constants.js';
 
@@ -99,6 +100,36 @@ test('deFinish reconstructs numeric placement from the DE bracket', () => {
   assert.deepEqual(deFinish(lostT32, 'me'), { rank: 17, label: '17–32' });
 
   assert.equal(deFinish([], 'me'), null); // pool-only fencer
+});
+
+// ---- Field overview / expected pool wins ------------------------------------
+test('difficultyTier buckets win probability blue→red', () => {
+  assert.equal(difficultyTier(0.90).key, 'easy');
+  assert.equal(difficultyTier(0.70).key, 'favoured');
+  assert.equal(difficultyTier(0.50).key, 'even');
+  assert.equal(difficultyTier(0.30).key, 'hard');
+  assert.equal(difficultyTier(0.10).key, 'veryhard');
+});
+
+test('fieldOverview: expected pool wins sum, actual, and per-fencer diff', () => {
+  // Round-robin pool of 3, plus a DE bout, so we can check the invariants.
+  const pool = (a, b, sa, sb) => ({ date: '2025-01-01', competition: 'Cup 2025', weapon: 'epee', bout_type: 'pool', de_round: '', gender: 'Mens', fencer_a: a, club_a: 'C', fencer_b: b, club_b: 'C', score_a: String(sa), score_b: String(sb) });
+  const raw = [
+    pool('Ann A', 'Bea B', 5, 3), pool('Ann A', 'Cat C', 5, 4), pool('Bea B', 'Cat C', 5, 2),
+  ];
+  const { fencers, bouts } = processBouts(raw, S);
+  const fo = (name) => fieldOverview(bouts.filter(b => b.keyA === name || b.keyB === name), name, fencers);
+  // Conservation: expected wins across the pool == actual wins == number of bouts.
+  const keys = ['ann a', 'bea b', 'cat c'];
+  const totalExp = keys.reduce((s, k) => s + fo(k).exp, 0);
+  const totalAct = keys.reduce((s, k) => s + fo(k).act, 0);
+  assert.equal(totalAct, 3);                       // 3 pool bouts, 3 wins total
+  assert.ok(Math.abs(totalExp - 3) < 1e-9, `Σ expected ${totalExp} ≈ 3`);
+  // Ann won both her pool bouts.
+  const ann = fo('ann a');
+  assert.equal(ann.act, 2);
+  assert.equal(ann.pool.length, 2);
+  assert.ok(ann.pool.every(p => typeof p.tier.color === 'string'));
 });
 
 // ---- Most-recent club (Phase 1: Brendan's affiliation request) --------------
