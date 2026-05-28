@@ -30,6 +30,24 @@ for (const [key, [name, dob]] of Object.entries(expected)) {
   });
 }
 
+// Same person split into two records by a data-entry typo on one DOB. The
+// impossible year (Chantelle May as 2018 — she holds a national foil ranking,
+// so she can't be 6) is activity-implausible and must lose to the real 2004.
+test('an activity-implausible DOB is demoted (Chantelle May → 2004, not 2018)', () => {
+  const rec = idx['chantelle may'];
+  assert.ok(rec);
+  assert.equal(rec.dob_year, 2004);
+});
+
+// The fix must be surgical: a genuine namesake whose DOBs are both plausible
+// is left alone. "James McKenzie" is a 1977 veteran and a 1997 senior; the
+// veteran-consistent 1977 record should keep the key, unchanged by the guard.
+test('plausible namesake DOBs are not disturbed (James McKenzie stays 1977)', () => {
+  const rec = idx['james mckenzie'];
+  assert.ok(rec);
+  assert.equal(rec.dob_year, 1977);
+});
+
 test('a record always wins its own canonical name key', () => {
   // No key should resolve to a record whose display_name differs, UNLESS no
   // record is literally named that key (nicknames like "charlie"/"charles").
