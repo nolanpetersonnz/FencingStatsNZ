@@ -1,4 +1,4 @@
-import { updateRating } from '../engine/glicko2.js';
+import { updateRating, winProbability } from '../engine/glicko2.js';
 
 export const nameKey = (n) => (n || '').trim().toLowerCase().replace(/\s+/g, ' ');
 
@@ -507,6 +507,7 @@ export function processBouts(rawBouts, settings) {
         ageCategory: periodCategory,
         keyA: kA, keyB: kB, scoreA: sA, scoreB: sB,
         ratingABefore: snap[kA].rating, ratingBBefore: snap[kB].rating,
+        rdABefore: snap[kA].rd, rdBBefore: snap[kB].rd,
         ratingAAfter, ratingBAfter,
         deltaA: ratingAAfter - snap[kA].rating, deltaB: ratingBAfter - snap[kB].rating,
         winnerKey,
@@ -616,6 +617,49 @@ export function deFinish(myDeBouts, key) {
   if (size === 4) return { rank: 3, label: '3rd tied' };   // two bronzes, no 4th
   const low = size / 2 + 1;
   return { rank: low, label: `${low}–${size}` };           // 5–8, 9–16, 17–32, …
+}
+
+// Difficulty tier of a matchup from a fencer's point of view, keyed on their
+// pre-bout win probability (high prob = easy opponent). Colours run blue →
+// green → grey → orange → red. The model that drives these is calibrated —
+// across the dataset, predicted favourites win at close to the predicted rate.
+export function difficultyTier(pWin) {
+  if (pWin >= 0.8) return { key: 'easy', label: 'Easy', color: '#2F6FB3' };
+  if (pWin >= 0.6) return { key: 'favoured', label: 'Favoured', color: '#3F9D5A' };
+  if (pWin >= 0.4) return { key: 'even', label: 'Even', color: '#8A909A' };
+  if (pWin >= 0.2) return { key: 'hard', label: 'Hard', color: '#D98324' };
+  return { key: 'veryhard', label: 'Very hard', color: '#C0453B' };
+}
+
+// Field-overview breakdown for one fencer at one competition: each pool/DE bout
+// tagged with its difficulty (pre-bout win probability) and outcome, plus the
+// expected pool victories (sum of win probabilities), actual, and the diff.
+// `myBouts` is that fencer's bouts at the competition; withdrawals are skipped.
+export function fieldOverview(myBouts, key, fencers) {
+  const make = (b) => {
+    const meA = b.keyA === key;
+    const pWin = winProbability(
+      meA ? b.ratingABefore : b.ratingBBefore,
+      meA ? b.rdABefore : b.rdBBefore,
+      meA ? b.ratingBBefore : b.ratingABefore,
+      meA ? b.rdBBefore : b.rdABefore,
+    );
+    const oppKey = meA ? b.keyB : b.keyA;
+    return {
+      id: b.id, oppKey, oppName: fencers?.[oppKey]?.name || oppKey,
+      type: b.type, deRound: b.deRound,
+      won: b.winnerKey === key,
+      scoreFor: meA ? b.scoreA : b.scoreB,
+      scoreAgainst: meA ? b.scoreB : b.scoreA,
+      pWin, tier: difficultyTier(pWin),
+    };
+  };
+  const live = myBouts.filter((b) => !b.withdrawal);
+  const pool = live.filter((b) => b.type !== 'de').map(make).sort((a, b) => b.pWin - a.pWin);
+  const de = live.filter((b) => b.type === 'de').map(make).sort((a, b) => b.pWin - a.pWin);
+  const exp = pool.reduce((s, x) => s + x.pWin, 0);
+  const act = pool.filter((x) => x.won).length;
+  return { pool, de, exp, act, diff: act - exp };
 }
 
 function mulberry32(a) {

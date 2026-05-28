@@ -3,7 +3,9 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceL
 import { ArrowLeft, Flag } from 'lucide-react';
 import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 import { boutFingerprint, submitEdit } from '../data/edits.js';
+import { fieldOverview } from '../data/pipeline.js';
 import EditPanel from './EditPanel.jsx';
+import DifficultyStrip from './DifficultyStrip.jsx';
 
 export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings, enrichment, isOwnProfile, session, flaggedBouts, onEditApplied }) {
   const f = fencers[fencerKey];
@@ -194,6 +196,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                 const losses = g.bouts.filter(b => b.winnerKey && b.winnerKey !== fencerKey).length;
                 const poolDelta = g.poolBefore !== null ? g.poolAfter - g.poolBefore : null;
                 const deDelta = g.deBefore !== null ? g.deAfter - g.deBefore : null;
+                const fo = fieldOverview(g.bouts, fencerKey, fencers);
                 return (
                   <div key={g.key}>
                     <div
@@ -233,6 +236,30 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                         ) : <span style={{ color: 'var(--ink-faint)' }}>—</span>}
                       </div>
                     </div>
+                    {(fo.pool.length > 0 || fo.de.length > 0) && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 14px 8px 28px', borderBottom: '1px solid var(--rule-soft)', flexWrap: 'wrap' }}>
+                        {fo.pool.length > 0 && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                            <span className="fl-smallcaps" style={{ fontSize: '0.58rem', color: 'var(--ink-faint)' }}>Pool</span>
+                            <DifficultyStrip bouts={fo.pool} />
+                          </span>
+                        )}
+                        {fo.de.length > 0 && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                            <span className="fl-smallcaps" style={{ fontSize: '0.58rem', color: 'var(--ox)' }}>DE</span>
+                            <DifficultyStrip bouts={fo.de} />
+                          </span>
+                        )}
+                        {fo.pool.length > 0 && (
+                          <span className="fl-mono" style={{ fontSize: '0.76rem', color: 'var(--ink-soft)', marginLeft: 'auto' }}>
+                            pool exp {fo.exp.toFixed(1)} · won {fo.act} ·{' '}
+                            <span style={{ fontWeight: 600, color: fo.diff > 0.05 ? '#3F9D5A' : fo.diff < -0.05 ? '#C0453B' : 'var(--ink-soft)' }}>
+                              {fo.diff > 0 ? '+' : ''}{fo.diff.toFixed(1)}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    )}
                     {g.bouts.map(b => {
                       const isA = b.keyA === fencerKey;
                       const myScore = isA ? b.scoreA : b.scoreB;

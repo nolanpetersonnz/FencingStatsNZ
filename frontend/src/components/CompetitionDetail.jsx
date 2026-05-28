@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtDelta, fmtDate } from '../utils/formatters.js';
-import { strengthTier, deFinish } from '../data/pipeline.js';
+import { strengthTier, deFinish, fieldOverview } from '../data/pipeline.js';
+import DifficultyStrip from './DifficultyStrip.jsx';
 
 export default function CompetitionDetail({ compId, competitions, fencers, bouts, onBack, onSelectFencer, onSelectClub }) {
   const c = competitions.find(x => x.id === compId);
@@ -32,10 +33,17 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         poolBefore: pool.before, poolAfter: pool.after, poolDelta,
         deBefore: de.before, deAfter: de.after, deDelta,
         totalDelta, finish: deFinish(deBouts, k),
+        field: fieldOverview(myBouts, k, fencers),
         hasAnyDelta: poolDelta !== null || deDelta !== null,
       };
     });
   }, [c, fencers]);
+
+  // Field overview rows: most-over-expectation pool performance first.
+  const fieldRows = useMemo(
+    () => [...fencerStats].sort((a, b) => b.field.diff - a.field.diff),
+    [fencerStats],
+  );
 
   const [sortMode, setSortMode] = useState('results');
   const rows = useMemo(() => {
@@ -176,6 +184,40 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
                 </div>
               </>
             )}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 4, gap: 16, flexWrap: 'wrap' }}>
+        <div className="fl-smallcaps">Field overview</div>
+        <div className="fl-smallcaps" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', fontSize: '0.6rem' }}>
+          {[['Easy', '#2F6FB3'], ['Favoured', '#3F9D5A'], ['Even', '#8A909A'], ['Hard', '#D98324'], ['Very hard', '#C0453B']].map(([l, col]) => (
+            <span key={l} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ width: 9, height: 9, borderRadius: 2, background: col, display: 'inline-block' }} />{l}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
+        Each box is a bout, coloured by how hard the opponent was (pre-bout win probability) — <strong>V</strong> won, <strong>D</strong> lost. EXP is expected pool wins from those odds; DIFF is actual minus expected. Hover a box for the score.
+      </div>
+      <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '34px minmax(96px, 1.1fr) 2.2fr 1.7fr 48px 38px 52px', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-smallcaps">
+          <div>#</div><div>Fencer</div><div>Pool</div><div>DE</div>
+          <div style={{ textAlign: 'right' }}>Exp</div><div style={{ textAlign: 'right' }}>Act</div><div style={{ textAlign: 'right' }}>Diff</div>
+        </div>
+        {fieldRows.map((s, i) => (
+          <div key={s.key} className="fl-link fl-row-hover" onClick={() => onSelectFencer(s.key)}
+            style={{ display: 'grid', gridTemplateColumns: '34px minmax(96px, 1.1fr) 2.2fr 1.7fr 48px 38px 52px', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--rule-soft)' }}>
+            <div className="fl-mono" style={{ color: 'var(--ink-faint)', fontSize: '0.9rem' }}>{(i + 1).toString().padStart(2, '0')}</div>
+            <div className="fl-display" style={{ fontWeight: 600, fontSize: '0.98rem', paddingRight: 8 }}>{s.f?.name || s.key}</div>
+            <div><DifficultyStrip bouts={s.field.pool} /></div>
+            <div><DifficultyStrip bouts={s.field.de} /></div>
+            <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.9rem', color: 'var(--ink-soft)' }}>{s.field.exp.toFixed(1)}</div>
+            <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.9rem' }}>{s.field.act}</div>
+            <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.9rem', fontWeight: 600, color: s.field.diff > 0.05 ? '#3F9D5A' : s.field.diff < -0.05 ? '#C0453B' : 'var(--ink-soft)' }}>
+              {s.field.diff > 0 ? '+' : ''}{s.field.diff.toFixed(1)}
+            </div>
           </div>
         ))}
       </div>

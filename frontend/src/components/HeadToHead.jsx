@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { toG2, gFn } from '../engine/glicko2.js';
+import { winProbability } from '../engine/glicko2.js';
 import { fmtRating, fmtDateShort } from '../utils/formatters.js';
 import FencerPicker from './FencerPicker.jsx';
 
@@ -26,10 +26,7 @@ export default function HeadToHead({ fencers, bouts, weapon: globalWeapon, gende
     const wA = a.byWeapon[weapon], wB = b.byWeapon[weapon];
     const pred = (sa, sb) => {
       if (sa.bouts === 0 || sb.bouts === 0) return null;
-      const { mu: muA, phi: phiA } = toG2(sa.rating, sa.rd);
-      const { mu: muB, phi: phiB } = toG2(sb.rating, sb.rd);
-      const combinedPhi = Math.sqrt(phiA * phiA + phiB * phiB);
-      const probA = 1 / (1 + Math.exp(-gFn(combinedPhi) * (muA - muB)));
+      const probA = winProbability(sa.rating, sa.rd, sb.rating, sb.rd);
       return { probA, probB: 1 - probA };
     };
     return {
