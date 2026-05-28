@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.14] - 2026-05-28
+### Added
+- Expected pool wins + a bout-difficulty "Field overview" on competition detail and fencer profiles. Each pool/DE bout is a **V/D box coloured by how hard the opponent was** — the pre-bout win probability bucketed blue (Easy, ≥80%) → green (Favoured) → grey (Even) → orange (Hard) → red (Very hard, <20%). Each fencer's **expected pool wins** (Σ win-probability), **actual**, and the **difference** are shown, so you can see who over- or under-performed their draw. New tested helpers `winProbability` (`glicko2.js`), `difficultyTier` and `fieldOverview` (`pipeline.js`); bout records now carry pre-event RD (`rdABefore`/`rdBBefore`) so difficulty is judged at the time of the event, not today
+### Changed
+- Head-to-Head's predicted outcome now uses the shared `winProbability` helper — same formula, single source of truth
+### Notes
+- The win-probability model is **calibrated** against the dataset: predicted favourites win at close to the predicted rate (67% accuracy overall, 73% for established fencers with rating history; Brier 0.18–0.20 and log-loss 0.54–0.59, both better than the 0.25 / 0.69 coin-flip baselines). The calibration bins track the diagonal — a predicted 70–80% favourite wins ~76–80%, a 90%+ favourite wins 97%. A pre-draw predictor (expected wins *before* an event runs) would need the pool sheet up front and remains a follow-on
+
 ## [0.1.13] - 2026-05-28
 ### Added
 - "Results" view on the Competition detail Performance table, now the **default** ordering (toggle back to "Elo change" anytime). Official placings aren't in the FeNZ data, so placement is reconstructed from the DE bracket (new tested helper `deFinish` in `pipeline.js`) and shown as a place: `1` (won the DE), `2` (lost the final), then `3rd tied` (fencing awards two bronzes and runs no 3rd-place bout, so both losing semi-finalists are 3rd with no 4th), then the round's place band for the deeper rounds — `5–8` (lost a quarter), `9–16`, `17–32`, …; pool-only fencers get the below-the-cut range (DE entrants + 1 … field size). Each row shows its placement and W–L record. Addresses the FEEDBACK Round 3 request to "see who won, not just elo gain"

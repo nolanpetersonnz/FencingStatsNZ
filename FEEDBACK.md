@@ -83,11 +83,11 @@ Posted the beta to the NZ fencing community Facebook group; collected responses 
 - Resolution: the Competition detail Performance table defaults to a "Results" view (toggle to "Elo change"). It shows each fencer's placement — 1, 2, then 3rd tied (two bronzes, no 4th), then place bands 5–8, 9–16, 17–32, … for the deeper rounds, plus a below-the-cut range for pool-only fencers — alongside the W–L record. Official placings aren't in the FeNZ data, so placement is reconstructed from the DE bracket.
 - Status: addressed in [0.1.13].
 
-### Expected pool wins (askFRED-style) — **noted**
+### Expected pool wins (askFRED-style) — **addressed in [0.1.14]**
 - Source: friend (DM, on behalf of Joel) — "Joel really wants what ask Fred has in the US which is expected pool wins. So you can compare your pool results with what you're expected to get."
-- This would be a meaningful addition: before a competition, predict each fencer's expected wins in their pool based on opponents' ratings, then compare to actual performance. Useful both as a pre-event tool and a post-event diagnostic ("did you outperform or underperform expectation?").
-- Direction: doable within the existing rating engine — pool predictions are just pairwise probability calculations across the pool. UI is the harder part.
-- Status: noted, not v1 priority but a strong v1.x feature.
+- Resolution: a "Field overview" on competition detail and fencer profiles. Each pool/DE bout is a V/D box coloured by opponent difficulty (the pre-bout win probability), with expected pool wins (Σ win-probability), actual, and the difference — so you can see exactly who over- or under-performed their draw. Before building it, the win-probability model was calibration-checked across the whole dataset (predict each bout from pre-competition ratings): favourites win ~67% overall / 73% established, well-calibrated, Brier 0.18–0.20 vs 0.25 coin-flip — i.e. the predictions are sound.
+- Still open: a *pre-draw* predictor (expected wins before an event runs) needs the pool sheet entered up front — a separate, larger piece.
+- Status: addressed in [0.1.14] (post-event view); pre-draw predictor still open.
 
 ### Best matchup / worst matchup widget — **noted**
 - Source: friend (DM) — "Maybe low-key have like a best matchup and a worst matchup based of historical results. That could be kinda fun."
