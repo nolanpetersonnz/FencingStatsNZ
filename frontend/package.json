@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "copy:data": "node scripts/copy-data.mjs",
+    "test": "node --test",
     "dev": "npm run copy:data && vite",
     "build": "npm run copy:data && vite build",
     "preview": "vite preview"

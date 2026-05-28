@@ -67,10 +67,16 @@ CSV_HEADER = [
     "date", "competition", "weapon", "bout_type",
     "fencer_a", "club_a", "fencer_b", "club_b",
     "score_a", "score_b", "de_round",
-    "gender", "fencer_a_uid", "fencer_b_uid",
+    "gender", "fencer_a_uid", "fencer_b_uid", "flag",
 ]
 
 DE_ROUND_LABELS = {64: "T64", 32: "T32", 16: "T16", 8: "QF", 4: "SF", 2: "Final"}
+
+# Non-standard DE result codes (FeNZ tableau `code` field). A fencer carrying
+# one of these did not lose on the strip: A = abandon, MED = medical, DNF = did
+# not finish, E/EXC = excluded. The bout is recorded as a loss for that fencer
+# but must not move either rating, so we tag it for the frontend pipeline.
+WD_CODES = {"A", "MED", "DNF", "E", "EXC"}
 
 
 # ============================================================
@@ -231,6 +237,7 @@ class Bout:
     score_a: int
     score_b: int
     de_round: str = ""
+    flag: str = ""          # "" | "wd_a" | "wd_b" | "wd" (withdrawal / no-result)
 
     def csv_row(self):
         return [
@@ -240,6 +247,7 @@ class Bout:
             self.gender,
             self.a_uid if self.a_uid else "",
             self.b_uid if self.b_uid else "",
+            self.flag,
         ]
 
 
@@ -539,12 +547,19 @@ def ingest_competition(payload: dict, canon, verbose: bool = False) -> list[Bout
                     continue
                 seen_de.add(de_key)
 
+                # Withdrawal / no-result detection from the per-fencer result
+                # code. The withdrawing fencer keeps the loss but neither rating
+                # moves (handled downstream in the frontend pipeline).
+                a_wd = str(a_raw.get("code") or "").upper() in WD_CODES
+                b_wd = str(b_raw.get("code") or "").upper() in WD_CODES
+                flag = "wd" if (a_wd and b_wd) else "wd_a" if a_wd else "wd_b" if b_wd else ""
+
                 all_bouts.append(Bout(
                     date=cmp_date, competition=ev_comp_name,
                     weapon=weapon, gender=gender, bout_type="de",
                     a_name=a_name, a_club=a_club, a_uid=a_uid,
                     b_name=b_name, b_club=b_club, b_uid=b_uid,
-                    score_a=s_a, score_b=s_b, de_round=round_label,
+                    score_a=s_a, score_b=s_b, de_round=round_label, flag=flag,
                 ))
                 de_count += 1
 

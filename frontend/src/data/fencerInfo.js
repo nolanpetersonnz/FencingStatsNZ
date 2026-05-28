@@ -27,19 +27,27 @@ export async function loadFencerInfo() {
 // When two info records claim the same name_key (e.g. two different
 // "Joel Ball-La Hood" with different DOBs), prefer the one with more
 // signal — license hashes, then a DOB, then number of clubs known.
+//
+// Ownership override: a record whose own `display_name` IS this key is its
+// canonical owner and outranks any record that merely lists the key as an
+// alias. Shared/mis-entered licence numbers in the source XML can fold a
+// stray alias of one family member into a sibling's record (e.g. Kate
+// Gourley's record carrying "daniel gourley"); without this, the club-count
+// tiebreaker could let the sibling win the key and surface the wrong DOB.
 export function buildEnrichmentIndex(info) {
   if (!Array.isArray(info)) return {};
-  const score = (r) =>
+  const signal = (r) =>
     (r.licence_hashes?.length ? 100 : 0) +
     (r.dob_year ? 10 : 0) +
     (r.clubs?.length || 0);
+  const score = (r, key) => signal(r) + (nameKey(r.display_name) === key ? 1000 : 0);
   const idx = {};
   for (const rec of info) {
     for (const k of rec.name_keys || []) {
       const key = nameKey(k);
       if (!key) continue;
       const existing = idx[key];
-      if (!existing || score(rec) > score(existing)) idx[key] = rec;
+      if (!existing || score(rec, key) > score(existing, key)) idx[key] = rec;
     }
   }
   return idx;
@@ -48,7 +56,7 @@ export function buildEnrichmentIndex(info) {
 // Pepper bundled in at build time. Vite exposes import.meta.env.VITE_*
 // to client code. If absent, hashing still works but isn't peppered —
 // the ingest script will have emitted unsalted hashes in that case too.
-const PEPPER = import.meta.env.VITE_LICENCE_PEPPER || '';
+const PEPPER = import.meta.env?.VITE_LICENCE_PEPPER || '';
 
 // Tolerate copy-paste cruft from member cards ("FNZ #20499", "20377'",
 // lowercase "sp7893420"). KEEP IN SYNC with normalise_licence() in
