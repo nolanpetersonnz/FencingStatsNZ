@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { fmtRating, fmtDelta, fmtDate } from '../utils/formatters.js';
-import { strengthTier, deFinish, fieldOverview } from '../data/pipeline.js';
+import { fmtRating, fmtDelta, fmtDate, fmtSweepOdds } from '../utils/formatters.js';
+import { strengthTier, deFinish, fieldOverview, buildTableau, lineDifficulty } from '../data/pipeline.js';
 import DifficultyStrip from './DifficultyStrip.jsx';
+import DeTableau from './DeTableau.jsx';
 
 export default function CompetitionDetail({ compId, competitions, fencers, bouts, onBack, onSelectFencer, onSelectClub }) {
   const c = competitions.find(x => x.id === compId);
@@ -34,6 +35,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         deBefore: de.before, deAfter: de.after, deDelta,
         totalDelta, finish: deFinish(deBouts, k),
         field: fieldOverview(myBouts, k, fencers),
+        line: lineDifficulty(deBouts, k, fencers),
         hasAnyDelta: poolDelta !== null || deDelta !== null,
       };
     });
@@ -45,7 +47,28 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
     [fencerStats],
   );
 
+  // The reconstructed DE bracket, and the DE entrants ranked by how strong a
+  // gauntlet their line drew them.
+  const tableau = useMemo(
+    () => (c ? buildTableau(c.bouts.filter((b) => b.type === 'de'), fencers) : null),
+    [c, fencers],
+  );
+  // Hardest line = toughest gauntlet, by the average rating of the opponents
+  // drawn. Top 3. Sweep odds rides along as a separate figure, not the sort key.
+  const hardestLines = useMemo(
+    () => fencerStats.filter((s) => s.line).sort((a, b) => b.line.avgOpp - a.line.avgOpp).slice(0, 3),
+    [fencerStats],
+  );
+  // fencerKey → line difficulty, so the tableau can show a fencer's line stats
+  // and light their hardest path.
+  const lineByKey = useMemo(() => {
+    const m = {};
+    for (const s of fencerStats) if (s.line) m[s.key] = s.line;
+    return m;
+  }, [fencerStats]);
+
   const [sortMode, setSortMode] = useState('results');
+  const [tab, setTab] = useState('results');
   const rows = useMemo(() => {
     const list = [...fencerStats];
     if (sortMode === 'results') {
@@ -76,6 +99,9 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
   const poolOnlyLabel = deEntrants === 0
     ? '—'
     : (deEntrants + 1 >= fieldSize ? `${fieldSize}` : `${deEntrants + 1}–${fieldSize}`);
+
+  // Tableau gets its own sub-tab; fall back to Results if this comp has no DE.
+  const activeTab = tab === 'tableau' && !tableau ? 'results' : tab;
 
   return (
     <div className="fl-fade-in">
@@ -113,6 +139,14 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         ))}
       </div>
 
+      <div style={{ display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap' }}>
+        {[['results', 'Results'], ...(tableau ? [['tableau', 'Tableau']] : []), ['bouts', 'Bouts']].map(([v, label]) => (
+          <button key={v} className={`fl-pill ${activeTab === v ? 'active' : ''}`} onClick={() => setTab(v)}>{label}</button>
+        ))}
+      </div>
+
+      {activeTab === 'results' && (
+      <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 4, gap: 16, flexWrap: 'wrap' }}>
         <div className="fl-smallcaps">Performance</div>
         <div className="fl-smallcaps" style={{ display: 'flex', gap: 16 }}>
@@ -221,7 +255,51 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
           </div>
         ))}
       </div>
+      </>
+      )}
 
+      {activeTab === 'tableau' && tableau && (
+        <>
+          <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Tableau</div>
+          <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 14 }}>
+            The direct-elimination bracket, rebuilt by following the winners forward. The data has round labels but no seeds, so the shape is right while the exact line order is inferred. The connecting lines are coloured by how hard each win was, and the winner of each bout is in bold.
+          </div>
+          <div style={{ marginBottom: 32 }}>
+            <DeTableau tableau={tableau} onSelectFencer={onSelectFencer} lineByKey={lineByKey} />
+          </div>
+
+          {hardestLines.length > 0 && (
+            <>
+              <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Toughest lines</div>
+              <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
+                The hardest lines at this event, ranked by average opponent rating (the toughest draw faced). Sweep odds is a separate read: the chance, from the ratings before each bout, that the fencer would have beaten everyone on that path.
+              </div>
+              <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '34px 1fr 78px 84px 80px', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-smallcaps">
+                  <div>#</div><div>Fencer</div>
+                  <div style={{ textAlign: 'right' }}>Finish</div>
+                  <div style={{ textAlign: 'right' }}>Avg opp <span style={{ color: 'var(--ox)' }}>↓</span></div>
+                  <div style={{ textAlign: 'right' }}>Sweep odds</div>
+                </div>
+                {hardestLines.map((s, i) => (
+                  <div key={s.key} className="fl-link fl-row-hover" onClick={() => onSelectFencer(s.key)}
+                    style={{ display: 'grid', gridTemplateColumns: '34px 1fr 78px 84px 80px', alignItems: 'center', padding: '11px 14px', borderBottom: '1px solid var(--rule-soft)' }}>
+                    <div className="fl-mono" style={{ color: 'var(--ink-faint)', fontSize: '0.9rem' }}>{(i + 1).toString().padStart(2, '0')}</div>
+                    <div className="fl-display" style={{ fontWeight: 600, fontSize: '0.98rem', paddingRight: 8 }}>{s.f?.name || s.key}</div>
+                    <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.85rem', color: s.finish?.rank === 1 ? 'var(--ox)' : 'var(--ink)' }}>{s.finish ? s.finish.label : '—'}</div>
+                    <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.85rem' }} title={`peak opponent ${Math.round(s.line.peakOpp)}`}>{Math.round(s.line.avgOpp)}</div>
+                    <div className="fl-mono" style={{ textAlign: 'right', fontSize: '0.85rem', color: 'var(--ink-soft)' }}>
+                      {fmtSweepOdds(s.line.runProbability)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+      {activeTab === 'bouts' && (<>
       <div className="fl-smallcaps" style={{ marginBottom: 12 }}>All bouts</div>
       <div style={{ borderTop: '1px solid var(--ink)' }}>
         {c.bouts.map(b => {
@@ -240,6 +318,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
           );
         })}
       </div>
+      </>)}
     </div>
   );
 }

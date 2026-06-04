@@ -5,8 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
   parseCSV, processBouts, parseAgeCategory, withdrawalSide, deFinish,
-  difficultyTier, fieldOverview,
+  difficultyTier, fieldOverview, predictiveAccuracy, buildTableau,
+  lineDifficulty, matchups, makeDemoBouts,
 } from '../src/data/pipeline.js';
+import { decayRD } from '../src/engine/glicko2.js';
 import { DEFAULT_SETTINGS } from '../src/constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -142,6 +144,115 @@ test('a fencer\'s club follows their most recent bout, not the first', () => {
   assert.equal(fencers['mover m'].club, 'Gamma Club');
 });
 
+// ---- Inactivity decay (experimental, off by default) ------------------------
+test('decayRD inflates with idle time, caps at initial RD, no-ops when off', () => {
+  const init = 200;
+  assert.equal(decayRD(80, 2, 0, init), 80);        // c = 0 → untouched
+  assert.equal(decayRD(80, 0, 0.3, init), 80);      // no elapsed time → untouched
+  assert.ok(decayRD(80, 2, 0.3, init) > 80);        // idle two years widens
+  assert.ok(decayRD(80, 50, 0.3, init) <= init);    // never exceeds a fresh fencer
+});
+
+test('inactivity decay widens a returning fencer\'s pre-bout RD only when on', () => {
+  // Same fencer competes in 2024, then again two years later. The gap should
+  // inflate their pre-bout RD when decay is on, and do nothing when it's off.
+  const mk = (date, comp, opp, sa, sb) => ({
+    date, competition: comp, weapon: 'epee', bout_type: 'de', de_round: 'Final', gender: 'Mens',
+    fencer_a: 'Gap G', club_a: 'C', fencer_b: opp, club_b: 'C', score_a: String(sa), score_b: String(sb),
+  });
+  const raw = [mk('2024-01-01', 'Cup A 2024', 'Foe One', 15, 10), mk('2026-01-01', 'Cup B 2026', 'Foe Two', 15, 9)];
+  const rdBefore2026 = (res) => {
+    const b = res.bouts.find((x) => x.date === '2026-01-01');
+    return b.keyA === 'gap g' ? b.rdABefore : b.rdBBefore;
+  };
+  const off = rdBefore2026(processBouts(raw, { ...S, inactivityDecayC: 0 }));
+  const on = rdBefore2026(processBouts(raw, { ...S, inactivityDecayC: 0.3 }));
+  assert.ok(off < S.initialRD, 'no inflation when decay off — RD stays where the 2024 bout left it');
+  assert.ok(on > off, 'idle gap inflates RD when decay on');
+  assert.ok(on <= S.initialRD, 'inflation capped at the initial RD');
+});
+
+// ---- Predictive-accuracy backtest -------------------------------------------
+test('predictiveAccuracy scores the model out-of-sample and bins calibrate', () => {
+  const { bouts } = processBouts(makeDemoBouts(), S);
+  const acc = predictiveAccuracy(bouts, { initialRD: S.initialRD });
+  assert.ok(acc.n > 0);
+  assert.ok(acc.accuracy >= 0 && acc.accuracy <= 1);
+  assert.ok(acc.brier >= 0 && acc.brier <= 1);
+  // Demo bouts are generated from a fixed skill model, so favourites should win
+  // more often than not and the model should beat a coin flip.
+  assert.ok(acc.accuracy > 0.5, 'favourites win the majority on skill-driven demo data');
+  assert.ok(acc.brier < acc.baselineBrier, 'Brier beats the 0.25 coin-flip baseline');
+  const binTotal = acc.buckets.reduce((s, b) => s + b.n, 0);
+  assert.equal(binTotal, acc.n, 'every scored bout lands in exactly one calibration bin');
+});
+
+// ---- Tableau reconstruction + line difficulty -------------------------------
+test('buildTableau chains winners into a bracket and crowns the champion', () => {
+  const mkDe = (round, fa, fb, sa, sb) => ({
+    date: '2025-01-01', competition: 'Knockout 2025', weapon: 'epee', bout_type: 'de', de_round: round,
+    gender: 'Mens', fencer_a: fa, club_a: 'C', fencer_b: fb, club_b: 'C', score_a: String(sa), score_b: String(sb),
+  });
+  const raw = [
+    mkDe('SF', 'Ana A', 'Bee B', 15, 10),
+    mkDe('SF', 'Cy C', 'Dee D', 15, 12),
+    mkDe('Final', 'Ana A', 'Cy C', 15, 8),
+  ];
+  const { bouts, fencers } = processBouts(raw, S);
+  const t = buildTableau(bouts.filter((b) => b.type === 'de'), fencers);
+  assert.equal(t.rounds.length, 2);
+  assert.deepEqual(t.rounds.map((r) => r.label), ['Semis', 'Final']);
+  assert.equal(t.rounds[0].matches.length, 2);
+  assert.equal(t.rounds[1].matches.length, 1);
+  assert.equal(t.champion.key, 'ana a');
+
+  // Layout: two columns, semis stacked at rows 0 and 1, final centred at 0.5.
+  assert.equal(t.cols, 2);
+  assert.equal(t.rows, 2);
+  assert.deepEqual(t.rounds[0].matches.map((m) => m.row), [0, 1]);
+  const final = t.rounds[1].matches[0];
+  assert.equal(final.row, 0.5);
+  assert.ok(final.winnerPWin > 0 && final.winnerPWin <= 1);
+  // The final's feeders are the two semis.
+  const semiIds = t.rounds[0].matches.map((m) => m.id);
+  assert.ok(semiIds.includes(final.topChildId) && semiIds.includes(final.bottomChildId));
+
+  // Ana's line: beat Bee then Cy. Run probability is the product of two wins.
+  const ld = lineDifficulty(bouts.filter((b) => (b.keyA === 'ana a' || b.keyB === 'ana a') && b.type === 'de'), 'ana a', fencers);
+  assert.equal(ld.steps.length, 2);
+  assert.ok(ld.steps.every((s) => s.won));
+  assert.ok(ld.runProbability > 0 && ld.runProbability < 1);
+  assert.ok(Number.isFinite(ld.avgOpp) && Number.isFinite(ld.peakOpp));
+  assert.equal(lineDifficulty([], 'ana a', fencers), null); // pool-only fencer
+
+  // Run chance is the odds of sweeping the whole path, so a fencer who lost
+  // still gets one: it includes the bout they lost as a win they'd have needed.
+  const cy = lineDifficulty(bouts.filter((b) => (b.keyA === 'cy c' || b.keyB === 'cy c') && b.type === 'de'), 'cy c', fencers);
+  assert.equal(cy.steps.length, 2);            // won the semi, lost the final
+  assert.ok(!cy.steps.every((s) => s.won));
+  assert.ok(cy.runProbability > 0 && cy.runProbability < 1, 'a fencer who lost still gets a sweep chance');
+});
+
+// ---- Bogey / favourable matchups --------------------------------------------
+test('matchups splits opponents by actual minus expected wins', () => {
+  // Ana beats Bo all four meetings; Ana over-performs (favourable), Bo under-
+  // performs (bogey). Each direction is the other's mirror.
+  const mk = (date, comp, sa, sb) => ({
+    date, competition: comp, weapon: 'epee', bout_type: 'pool', de_round: '', gender: 'Mens',
+    fencer_a: 'Ana A', club_a: 'C', fencer_b: 'Bo B', club_b: 'C', score_a: String(sa), score_b: String(sb),
+  });
+  const raw = [mk('2025-01-01', 'C1', 5, 3), mk('2025-02-01', 'C2', 5, 2), mk('2025-03-01', 'C3', 5, 4), mk('2025-04-01', 'C4', 5, 1)];
+  const { bouts, fencers } = processBouts(raw, S);
+  const aM = matchups('ana a', 'epee', bouts, fencers, { minMeetings: 3 });
+  const bM = matchups('bo b', 'epee', bouts, fencers, { minMeetings: 3 });
+  assert.equal(aM.all.length, 1);
+  assert.equal(aM.all[0].meetings, 4);
+  assert.equal(aM.best.length, 1);
+  assert.equal(aM.best[0].oppKey, 'bo b');
+  assert.equal(bM.worst.length, 1);
+  assert.equal(bM.worst[0].oppKey, 'ana a');
+});
+
 // ---- Real dataset smoke test ------------------------------------------------
 test('committed bouts.csv processes cleanly with withdrawal flags', () => {
   const raw = parseCSV(readFileSync(resolve(__dirname, '../../ingest/bouts.csv'), 'utf8'));
@@ -168,4 +279,21 @@ test('committed bouts.csv processes cleanly with withdrawal flags', () => {
     assert.equal(b.deltaA, 0);
     assert.equal(b.deltaB, 0);
   }
+});
+
+test('predictiveAccuracy on the real dataset reproduces the cited calibration', () => {
+  const raw = parseCSV(readFileSync(resolve(__dirname, '../../ingest/bouts.csv'), 'utf8'));
+  const { bouts } = processBouts(raw, S);
+  const all = predictiveAccuracy(bouts, { initialRD: S.initialRD });
+  const est = predictiveAccuracy(bouts, { initialRD: S.initialRD, establishedOnly: true });
+  // The project documents ~67% accuracy overall, ~73% for established fencers,
+  // Brier 0.18–0.20. Loose ranges here mainly guard the favourite-orientation
+  // (a flipped sign would crater accuracy below 0.5).
+  assert.ok(all.accuracy > 0.6 && all.accuracy < 0.75, `overall accuracy ${all.accuracy}`);
+  assert.ok(est.accuracy >= all.accuracy - 1e-9, 'established-only is at least as accurate');
+  assert.ok(all.brier > 0.15 && all.brier < 0.22, `Brier ${all.brier}`);
+  // Observed win rate should broadly rise across the predicted bins (allowing
+  // noise in any bin with real volume).
+  const obs = all.buckets.filter((b) => b.n > 30).map((b) => b.observed);
+  for (let i = 1; i < obs.length; i++) assert.ok(obs[i] >= obs[i - 1] - 0.12, 'calibration broadly monotone');
 });

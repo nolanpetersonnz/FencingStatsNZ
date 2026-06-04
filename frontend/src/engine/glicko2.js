@@ -17,6 +17,20 @@ export function winProbability(ratingA, rdA, ratingB, rdB) {
   return 1 / (1 + Math.exp(-gFn(combinedPhi) * (muA - muB)));
 }
 
+// Time-decay of certainty for an idle fencer. Between rating periods the
+// deviation grows as phi' = sqrt(phi^2 + c^2 * dtYears), with c in the internal
+// (mu/phi) scale — the Glicko-2 inactivity step, generalised from "per period"
+// to elapsed time so two idle years widen more than two idle months. Capped at
+// the initial RD: an inactive veteran should read as no less certain than a
+// brand-new fencer, never more. c = 0 (the default) returns RD untouched, which
+// keeps the whole pipeline behaviour-preserving when decay is off.
+export function decayRD(rd, dtYears, c, initialRD) {
+  if (!c || !(dtYears > 0)) return rd;
+  const phi = rd / SCALE;
+  const grown = Math.sqrt(phi * phi + c * c * dtYears) * SCALE;
+  return Math.min(grown, initialRD);
+}
+
 export function newVolatility(sigma, delta, phi, v, tau) {
   const a = Math.log(sigma * sigma);
   const f = (x) => {

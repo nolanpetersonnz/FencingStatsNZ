@@ -1,4 +1,4 @@
-import { updateRating, winProbability } from '../engine/glicko2.js';
+import { updateRating, winProbability, decayRD } from '../engine/glicko2.js';
 
 export const nameKey = (n) => (n || '').trim().toLowerCase().replace(/\s+/g, ' ');
 
@@ -224,6 +224,16 @@ export function normDate(s, fmt = 'dmy') {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
+// Fractional years between two YYYY-MM-DD dates, for the inactivity decay.
+// Returns 0 when either date is missing or out of order, so a fencer's first
+// appearance never inflates.
+function yearsBetween(from, to) {
+  if (!from || !to) return 0;
+  const a = Date.parse(from), b = Date.parse(to);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b <= a) return 0;
+  return (b - a) / (365.25 * 24 * 3600 * 1000);
+}
+
 export function parseCSVLine(line) {
   const out = [];
   let cur = '', q = false;
@@ -300,6 +310,10 @@ export function processBouts(rawBouts, settings) {
   const freshStream = () => ({
     rating: settings.initialRating, rd: settings.initialRD, volatility: settings.initialVolatility,
     peak: settings.initialRating, history: [], bouts: 0, wins: 0, losses: 0, ties: 0,
+    // Last date this stream got rating-bearing evidence, for the inactivity
+    // decay. A withdrawal doesn't reset it — the clock measures how stale our
+    // evidence is, and a withdrawal carries none.
+    lastDate: null,
   });
 
   const ensure = (name, club, weapon) => {
@@ -383,6 +397,17 @@ export function processBouts(rawBouts, settings) {
       const snapPool = {};
       const snapDe = {};
 
+      // Pre-period snapshot of a stream. The RD is inflated for time idle since
+      // the stream last saw evidence (no-op when inactivityDecayC is 0), and the
+      // inflated value is what both this fencer's own update and their
+      // opponents' updates see — everyone enters the period at the same widened
+      // uncertainty.
+      const snapState = (s) => ({
+        rating: s.rating,
+        rd: decayRD(s.rd, yearsBetween(s.lastDate, date), settings.inactivityDecayC, settings.initialRD),
+        volatility: s.volatility,
+      });
+
       for (const b of periodBouts) {
         const kA = nameKey(b.fencer_a), kB = nameKey(b.fencer_b);
         if (!kA || !kB) continue;
@@ -392,10 +417,10 @@ export function processBouts(rawBouts, settings) {
         const sBPool = getStream(fB, weapon, ageStream, 'pool');
         const sADe = getStream(fA, weapon, ageStream, 'de');
         const sBDe = getStream(fB, weapon, ageStream, 'de');
-        if (!snapPool[kA]) snapPool[kA] = { rating: sAPool.rating, rd: sAPool.rd, volatility: sAPool.volatility };
-        if (!snapPool[kB]) snapPool[kB] = { rating: sBPool.rating, rd: sBPool.rd, volatility: sBPool.volatility };
-        if (!snapDe[kA])   snapDe[kA]   = { rating: sADe.rating,   rd: sADe.rd,   volatility: sADe.volatility };
-        if (!snapDe[kB])   snapDe[kB]   = { rating: sBDe.rating,   rd: sBDe.rd,   volatility: sBDe.volatility };
+        if (!snapPool[kA]) snapPool[kA] = snapState(sAPool);
+        if (!snapPool[kB]) snapPool[kB] = snapState(sBPool);
+        if (!snapDe[kA])   snapDe[kA]   = snapState(sADe);
+        if (!snapDe[kB])   snapDe[kB]   = snapState(sBDe);
       }
 
       const perFencerPool = {};
@@ -426,6 +451,7 @@ export function processBouts(rawBouts, settings) {
           wep.rd = after.rd;
           wep.volatility = after.volatility;
           wep.peak = Math.max(wep.peak, after.rating);
+          wep.lastDate = date;
           for (const ob of perFencer[k]) {
             wep.bouts += 1;
             if (ob.score === 1) wep.wins += 1;
@@ -660,6 +686,235 @@ export function fieldOverview(myBouts, key, fencers) {
   const exp = pool.reduce((s, x) => s + x.pWin, 0);
   const act = pool.filter((x) => x.won).length;
   return { pool, de, exp, act, diff: act - exp };
+}
+
+// Backtest the win-probability model against every rated result. Each bout's
+// prediction uses the ratings as they stood BEFORE that competition (the
+// `*Before` fields), so it's out-of-sample at the event level — the model is
+// never scored on a result it has already seen. Withdrawals (no result) and
+// ties (no favourite to be right or wrong about) are skipped. Options: `stream`
+// ('pool' | 'de' | null for both); `establishedOnly` to keep only bouts where
+// both fencers were already off their provisional RD (i.e. had history);
+// `initialRD`, the RD that still counts as "no history" (caller passes the
+// active setting; 200 is only a fallback). Returns the headline numbers and a
+// calibration table — predicted favourite-win rate vs the observed rate.
+export function predictiveAccuracy(bouts, options = {}) {
+  const { stream = null, establishedOnly = false, initialRD = 200 } = options;
+  // Bins on the favourite's predicted probability. They span 50–100% because we
+  // orient every bout to its predicted favourite (a 30% call for A is a 70% call
+  // for B); a calibrated model tracks the diagonal — predicted ≈ observed.
+  const edges = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0001];
+  const bins = edges.slice(0, -1).map((lo, i) => ({ lo, hi: edges[i + 1], n: 0, favWins: 0, predicted: 0 }));
+  const eps = 1e-15;
+  let n = 0, correct = 0, brier = 0, logLoss = 0;
+  for (const b of bouts) {
+    if (b.withdrawal || !b.winnerKey) continue;
+    if (stream && b.type !== stream) continue;
+    if (establishedOnly && (b.rdABefore >= initialRD || b.rdBBefore >= initialRD)) continue;
+    const pA = winProbability(b.ratingABefore, b.rdABefore, b.ratingBBefore, b.rdBBefore);
+    const outcomeA = b.winnerKey === b.keyA ? 1 : 0;
+    brier += (pA - outcomeA) ** 2;
+    const pClamped = Math.min(1 - eps, Math.max(eps, pA));
+    logLoss += -(outcomeA * Math.log(pClamped) + (1 - outcomeA) * Math.log(1 - pClamped));
+    const pFav = pA >= 0.5 ? pA : 1 - pA;
+    const favKey = pA >= 0.5 ? b.keyA : b.keyB;
+    const favWon = b.winnerKey === favKey;
+    if (favWon) correct++;
+    for (const bin of bins) {
+      if (pFav >= bin.lo && pFav < bin.hi) { bin.n++; bin.predicted += pFav; if (favWon) bin.favWins++; break; }
+    }
+    n++;
+  }
+  return {
+    n,
+    accuracy: n ? correct / n : null,
+    brier: n ? brier / n : null,
+    logLoss: n ? logLoss / n : null,
+    baselineBrier: 0.25,        // always predicting 50/50
+    baselineLogLoss: Math.LN2,  // −ln(0.5), the log-loss of a coin flip
+    buckets: bins.map((bin) => ({
+      lo: bin.lo, hi: Math.min(bin.hi, 1), n: bin.n,
+      predicted: bin.n ? bin.predicted / bin.n : null,
+      observed: bin.n ? bin.favWins / bin.n : null,
+    })),
+  };
+}
+
+// Reconstruct a single-elimination bracket from its DE bouts. The FeNZ data
+// gives each bout a round label (T32/QF/SF/Final → a bracket size via
+// deRoundSize) and a winner, but no seed or line number, so we recover the tree
+// by chaining winners: the winner of a size-S bout reappears in the size-(S/2)
+// bout one round on, which makes the earlier bout a feeder of the later one.
+// Absolute seeding can't be recovered, only who-fed-whom. Each match carries a
+// column (round) and a row (vertical slot — its feeder pair's midpoint) so a
+// caller can lay it out with connectors, the feeder ids, and the winner's
+// pre-bout win probability so the path leaving the match can be coloured by how
+// hard that win was. Returns { rounds, champion, cols, rows }, rounds
+// earliest-first, or null if there are no usable DE bouts.
+export function buildTableau(deBouts, fencers) {
+  const live = (deBouts || []).filter((b) => b.type === 'de' && Number.isFinite(deRoundSize(b.deRound)));
+  if (live.length === 0) return null;
+
+  const byKey = {}; // size → { fencerKey: the bout they played at that size }
+  const sizes = new Set();
+  for (const b of live) {
+    const size = deRoundSize(b.deRound);
+    sizes.add(size);
+    (byKey[size] ||= {});
+    byKey[size][b.keyA] = b;
+    byKey[size][b.keyB] = b;
+  }
+  const roundSizes = [...sizes].sort((a, b) => b - a); // 16, 8, 4, 2 … earliest → final
+  const colOf = (size) => roundSizes.indexOf(size);
+  const rootSize = roundSizes[roundSizes.length - 1]; // smallest table = the final
+  const rootBouts = live.filter((b) => deRoundSize(b.deRound) === rootSize);
+
+  const name = (k) => fencers?.[k]?.name || k;
+  const side = (b, key) => ({
+    key, name: name(key),
+    score: b.keyA === key ? b.scoreA : b.scoreB,
+    won: b.winnerKey === key,
+  });
+  // Winner's pre-bout win probability — how hard that win was, for path colour.
+  const winnerPWin = (b) => {
+    if (!b.winnerKey) return null;
+    const winA = b.winnerKey === b.keyA;
+    return winProbability(
+      winA ? b.ratingABefore : b.ratingBBefore,
+      winA ? b.rdABefore : b.rdBBefore,
+      winA ? b.ratingBBefore : b.ratingABefore,
+      winA ? b.rdBBefore : b.rdABefore,
+    );
+  };
+
+  const nodes = new Map();
+  for (const b of live) {
+    const size = deRoundSize(b.deRound);
+    const childRound = byKey[size * 2] || {};
+    nodes.set(b.id, {
+      id: b.id, deRound: b.deRound, winnerKey: b.winnerKey, withdrawal: b.withdrawal,
+      top: side(b, b.keyA), bottom: side(b, b.keyB), winnerPWin: winnerPWin(b),
+      col: colOf(size),
+      topChildId: childRound[b.keyA] ? childRound[b.keyA].id : null,
+      bottomChildId: childRound[b.keyB] ? childRound[b.keyB].id : null,
+      row: 0,
+    });
+  }
+
+  // Vertical layout: an entry match (no feeders) takes the next free row; any
+  // later match sits at the mean of its feeders' rows, so it centres on the pair
+  // that led into it. Top feeder before bottom keeps the bracket the right way up.
+  let leaf = 0;
+  const placed = new Set();
+  const assignRow = (id) => {
+    const m = nodes.get(id);
+    if (!m || placed.has(id)) return m ? m.row : 0;
+    placed.add(id);
+    const kids = [m.topChildId, m.bottomChildId].filter((c) => c != null && nodes.has(c));
+    if (kids.length === 0) { m.row = leaf++; return m.row; }
+    const rows = kids.map(assignRow);
+    m.row = rows.reduce((s, r) => s + r, 0) / rows.length;
+    return m.row;
+  };
+  for (const rb of rootBouts) assignRow(rb.id);
+  for (const b of live) if (!placed.has(b.id)) assignRow(b.id); // unreachable (malformed) bouts
+
+  let maxRow = 0;
+  for (const m of nodes.values()) if (m.row > maxRow) maxRow = m.row;
+
+  const labelFor = (size) =>
+    size === 2 ? 'Final' : size === 4 ? 'Semis' : size === 8 ? 'Quarters' : `Table of ${size}`;
+  const rounds = roundSizes.map((size) => ({
+    size, label: labelFor(size),
+    matches: live.filter((b) => deRoundSize(b.deRound) === size).map((b) => nodes.get(b.id)).sort((a, b) => a.row - b.row),
+  }));
+
+  const finalBout = rootBouts.length === 1 ? rootBouts[0] : null;
+  const champion = finalBout && finalBout.winnerKey
+    ? { key: finalBout.winnerKey, name: name(finalBout.winnerKey), pWin: winnerPWin(finalBout) }
+    : null;
+  return { rounds, champion, cols: roundSizes.length, rows: maxRow + 1 };
+}
+
+// Difficulty of one fencer's run through the bracket, their "line". Two reads
+// that answer different questions. The run probability multiplies their pre-bout
+// win probability for every bout on the path, won or lost, so it is the chance
+// that, given who they drew, they would have won the lot and swept the line. A
+// fencer who lost still gets one: it counts the bout they lost as another win
+// they would have needed. The gauntlet strength is the mean and peak opponent
+// rating faced. A lower run probability or higher opponent ratings mean a harder
+// line. Returns null for a pool-only fencer.
+export function lineDifficulty(myDeBouts, key, fencers) {
+  const live = (myDeBouts || []).filter((b) => b.type === 'de' && !b.withdrawal);
+  if (live.length === 0) return null;
+  const ordered = [...live].sort((a, b) => deRoundSize(b.deRound) - deRoundSize(a.deRound)); // biggest table first
+  let prob = 1, sum = 0, peak = -Infinity;
+  const steps = ordered.map((b) => {
+    const isA = b.keyA === key;
+    const pWin = winProbability(
+      isA ? b.ratingABefore : b.ratingBBefore,
+      isA ? b.rdABefore : b.rdBBefore,
+      isA ? b.ratingBBefore : b.ratingABefore,
+      isA ? b.rdBBefore : b.rdABefore,
+    );
+    const oppKey = isA ? b.keyB : b.keyA;
+    const oppRating = isA ? b.ratingBBefore : b.ratingABefore;
+    const won = b.winnerKey === key;
+    prob *= pWin; // the odds of winning this bout, whether or not they actually did
+    sum += oppRating;
+    peak = Math.max(peak, oppRating);
+    return { id: b.id, deRound: b.deRound, oppKey, oppName: fencers?.[oppKey]?.name || oppKey, oppRating, pWin, won };
+  });
+  return {
+    steps,
+    runProbability: prob, // chance they would have won every bout on the path they drew
+    avgOpp: sum / steps.length,
+    peakOpp: peak,
+  };
+}
+
+// Best and worst matchups for a fencer in one weapon. For every opponent met at
+// least `minMeetings` times, compare how often they actually won to how often
+// the model expected them to (mean pre-bout win probability over the meetings).
+// A large positive gap is a best matchup — won more than the ratings predict; a
+// large negative gap is a worst matchup, the bogey-opponent / bad-style case a
+// single rating can't see. Withdrawals and ties are skipped.
+export function matchups(fencerKey, weapon, bouts, fencers, options = {}) {
+  // Three meetings is the floor for treating a gap as signal rather than one
+  // lucky night; unvalidated, and tunable.
+  const { minMeetings = 3 } = options;
+  const byOpp = {};
+  for (const b of bouts) {
+    if (b.weapon !== weapon || b.withdrawal || !b.winnerKey) continue;
+    if (b.keyA !== fencerKey && b.keyB !== fencerKey) continue;
+    const isA = b.keyA === fencerKey;
+    const oppKey = isA ? b.keyB : b.keyA;
+    const pWin = winProbability(
+      isA ? b.ratingABefore : b.ratingBBefore,
+      isA ? b.rdABefore : b.rdBBefore,
+      isA ? b.ratingBBefore : b.ratingABefore,
+      isA ? b.rdBBefore : b.rdABefore,
+    );
+    const o = (byOpp[oppKey] ||= { oppKey, meetings: 0, wins: 0, expected: 0 });
+    o.meetings += 1;
+    o.expected += pWin;
+    if (b.winnerKey === fencerKey) o.wins += 1;
+  }
+  const all = Object.values(byOpp)
+    .filter((o) => o.meetings >= minMeetings)
+    .map((o) => ({
+      oppKey: o.oppKey, oppName: fencers?.[o.oppKey]?.name || o.oppKey,
+      meetings: o.meetings, wins: o.wins, losses: o.meetings - o.wins,
+      winRate: o.wins / o.meetings,
+      expectedRate: o.expected / o.meetings,
+      edge: o.wins / o.meetings - o.expected / o.meetings, // actual − expected
+    }))
+    .sort((a, b) => a.edge - b.edge);
+  return {
+    worst: all.filter((o) => o.edge < 0).slice(0, 3),         // most under-performed first
+    best: all.filter((o) => o.edge > 0).slice(-3).reverse(),  // most over-performed first
+    all,
+  };
 }
 
 function mulberry32(a) {

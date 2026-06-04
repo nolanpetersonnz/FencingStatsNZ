@@ -6,6 +6,14 @@ export const DEFAULT_SETTINGS = {
   upsetThreshold: 75,
   upsetMultiplier: 1.25,
   displayK: 1,
+  // Experimental time-decay. A fencer's certainty erodes while they sit out, so
+  // their RD grows with elapsed time between competitions (phi' = sqrt(phi^2 +
+  // c^2 * years_idle), the standard Glicko-2 inactivity step). 0 disables it
+  // entirely and is the default — the live leaderboard only decays if an admin
+  // turns this on. A starting value to try is ~0.2 (unvalidated: not yet checked
+  // against held-out predictive accuracy, which is the test that would justify
+  // a specific number).
+  inactivityDecayC: 0,
 };
 
 export const CSV_HEADER = 'date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_b,de_round';

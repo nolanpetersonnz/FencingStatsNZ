@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { fmtRD, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
+import { fmtRD, fmtRating, fmtConservativeRating, conservativeRating, fmtInterval } from '../utils/formatters.js';
 
 export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategory, settings, enrichment, onSelectFencer, onSelectClub }) {
   const [minBouts, setMinBouts] = useState(1);
@@ -182,7 +182,8 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
                 </span>
               ) : ''}
             </div>
-            <div style={{ textAlign: 'right', opacity: pool.bouts > 0 ? 1 : 0.35 }}>
+            <div style={{ textAlign: 'right', opacity: pool.bouts > 0 ? 1 : 0.35 }}
+              title={pool.bouts > 0 ? `Likely range ${fmtInterval(pool.rating, pool.rd, k)}  ·  raw ${fmtRating(pool.rating)} ${fmtRD(pool.rd)}` : undefined}>
               <div className="fl-mono" style={{ fontSize: sort === 'pool' ? '1.2rem' : '1.05rem', fontWeight: sort === 'pool' ? 600 : 500 }}>
                 {pool.bouts > 0 ? fmtConservativeRating(pool.rating, pool.rd, k) : '—'}
               </div>
@@ -190,7 +191,8 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
                 {pool.bouts > 0 ? `${fmtRD(pool.rd)} · ${pool.bouts}b` : ''}
               </div>
             </div>
-            <div style={{ textAlign: 'right', opacity: de.bouts > 0 ? 1 : 0.35 }}>
+            <div style={{ textAlign: 'right', opacity: de.bouts > 0 ? 1 : 0.35 }}
+              title={de.bouts > 0 ? `Likely range ${fmtInterval(de.rating, de.rd, k)}  ·  raw ${fmtRating(de.rating)} ${fmtRD(de.rd)}` : undefined}>
               <div className="fl-mono" style={{ fontSize: sort === 'de' ? '1.2rem' : '1.05rem', fontWeight: sort === 'de' ? 600 : 500 }}>
                 {de.bouts > 0 ? fmtConservativeRating(de.rating, de.rd, k) : '—'}
               </div>
