@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ArrowLeft, Flag } from 'lucide-react';
-import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
+import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating, fmtInterval } from '../utils/formatters.js';
 import { boutFingerprint, submitEdit } from '../data/edits.js';
-import { fieldOverview } from '../data/pipeline.js';
+import { fieldOverview, matchups } from '../data/pipeline.js';
 import EditPanel from './EditPanel.jsx';
 import DifficultyStrip from './DifficultyStrip.jsx';
 
@@ -43,6 +43,13 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
       return { idx: i + 1, date: d, pool: lastPool, de: lastDe };
     });
   }, [w, k]);
+
+  // Best / worst matchups in the displayed weapon: actual record vs what the
+  // ratings predicted across repeat meetings.
+  const matchupData = useMemo(
+    () => matchups(fencerKey, weapon, bouts, fencers, { minMeetings: 3 }),
+    [fencerKey, weapon, bouts, fencers],
+  );
 
   if (!f) return <div style={{ padding: 60, textAlign: 'center' }} className="fl-italic">Fencer not found.</div>;
 
@@ -112,9 +119,10 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                 <div className="fl-mono" style={{ fontSize: '2.6rem', fontWeight: 700, lineHeight: 1, color: s.accent }}>
                   {s.stream.bouts > 0 ? fmtConservativeRating(s.stream.rating, s.stream.rd, k) : '—'}
                 </div>
-                <div className="fl-mono" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginTop: 6 }}>
+                <div className="fl-mono" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginTop: 6 }}
+                  title="Likely rating range — the headline number is its conservative (lower) end. Narrows as more bouts come in.">
                   {s.stream.bouts > 0
-                    ? `${fmtRD(s.stream.rd)}  ·  raw ${fmtRating(s.stream.rating)}  ·  peak ${fmtRating(peakConservative(s.stream) ?? s.stream.peak)}`
+                    ? `range ${fmtInterval(s.stream.rating, s.stream.rd, k)}  ·  raw ${fmtRating(s.stream.rating)} ${fmtRD(s.stream.rd)}  ·  peak ${fmtRating(peakConservative(s.stream) ?? s.stream.peak)}`
                     : 'no bouts'}
                 </div>
                 <div className="fl-mono" style={{ fontSize: '0.92rem', marginTop: 14 }}>
@@ -156,6 +164,37 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                     <Line type="monotone" dataKey="de" stroke="var(--ox)" strokeWidth={2} dot={{ fill: 'var(--ox)', r: 2 }} activeDot={{ r: 5 }} connectNulls name="DE" />
                   </LineChart>
                 </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {(matchupData.best.length > 0 || matchupData.worst.length > 0) && (
+            <div style={{ marginBottom: 36 }}>
+              <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Matchups</div>
+              <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
+                Opponents met three or more times in {weapon === 'epee' ? 'épée' : weapon}, ranked by how the real record compares with what the ratings predicted. The number is win-rate points above (best) or below (worst) expectation.
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
+                {[
+                  { label: 'Best matchups', list: matchupData.best, color: '#3F9D5A' },
+                  { label: 'Worst matchups', list: matchupData.worst, color: '#C0453B' },
+                ].map((col, ci) => (
+                  <div key={col.label} style={{ padding: '18px', borderRight: ci === 0 ? '1px solid var(--rule)' : 'none' }}>
+                    <div className="fl-smallcaps" style={{ fontSize: '0.62rem', color: col.color, marginBottom: 10 }}>{col.label}</div>
+                    {col.list.length === 0 ? (
+                      <div className="fl-italic" style={{ fontSize: '0.85rem', color: 'var(--ink-faint)' }}>None on record.</div>
+                    ) : col.list.map((o) => (
+                      <div key={o.oppKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, padding: '6px 0' }}>
+                        <span className="fl-link fl-display" style={{ fontWeight: 600, fontSize: '0.98rem' }} onClick={() => onSelectFencer(o.oppKey)}>{o.oppName}</span>
+                        <span className="fl-mono" style={{ fontSize: '0.76rem', color: 'var(--ink-soft)', whiteSpace: 'nowrap' }}
+                          title={`Won ${Math.round(o.winRate * 100)}% of ${o.meetings}; the ratings expected ${Math.round(o.expectedRate * 100)}%.`}>
+                          {o.wins}–{o.losses} · <span style={{ color: col.color, fontWeight: 600 }}>{o.edge > 0 ? '+' : ''}{Math.round(o.edge * 100)}</span>
+                          <span style={{ color: 'var(--ink-faint)' }}> vs exp</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
             </div>
           )}

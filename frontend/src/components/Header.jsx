@@ -113,6 +113,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
             <div className={`fl-tab ${view === 'competitions' ? 'active' : ''}`} onClick={() => setView('competitions')}>Competitions</div>
             <div className={`fl-tab ${view === 'clubs' ? 'active' : ''}`} onClick={() => setView('clubs')}>Clubs</div>
             <div className={`fl-tab ${view === 'h2h' ? 'active' : ''}`} onClick={() => setView('h2h')}>Head-to-Head</div>
+            <div className={`fl-tab ${view === 'method' ? 'active' : ''}`} onClick={() => setView('method')}>Method</div>
           </nav>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             {[['M', 'Mens'], ['W', 'Womens']].map(([g, label]) => (

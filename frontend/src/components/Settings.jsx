@@ -26,6 +26,7 @@ export default function Settings({ settings, setSettings, onRecompute }) {
           { k: 'upsetThreshold', l: 'Upset threshold', help: 'Rating gap (in points) for a result to count as an upset (default 75).' },
           { k: 'upsetMultiplier', l: 'Upset multiplier', help: 'Magnitude scaling applied when an upset occurs (default 1.25).', step: 0.05 },
           { k: 'displayK', l: 'Conservative display k', help: 'Displayed rating = rating − k × RD. Higher k punishes uncertainty more. Set to 0 to show raw rating (default 1).', step: 0.1 },
+          { k: 'inactivityDecayC', l: 'Inactivity decay (experimental)', help: 'Time-decay: RD grows by √(c² × years idle) between competitions, so a long-inactive fencer becomes less certain and (conservatively displayed) drifts down. 0 is off and the default; ~0.2 is a gentle starting point. Unvalidated.', step: 0.05 },
         ].map((row, i, arr) => (
           <div key={row.k} style={{ display: 'grid', gridTemplateColumns: '1fr 140px', alignItems: 'center', padding: '16px 4px', borderBottom: i < arr.length - 1 ? '1px solid var(--rule-soft)' : 'none' }}>
             <div>

@@ -14,6 +14,7 @@ import CompetitionDetail from './components/CompetitionDetail.jsx';
 import Clubs from './components/Clubs.jsx';
 import ClubDetail from './components/ClubDetail.jsx';
 import HeadToHead from './components/HeadToHead.jsx';
+import Method from './components/Method.jsx';
 import Admin from './components/Admin.jsx';
 
 export default function App() {
@@ -307,6 +308,8 @@ export default function App() {
           <Clubs fencers={fencers} gender={gender} weapon={weapon} onSelectClub={goClub} />
         ) : view === 'h2h' ? (
           <HeadToHead fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
+        ) : view === 'method' ? (
+          <Method bouts={bouts} settings={settings} />
         ) : view === 'fencer' && selectedFencer ? (
           <FencerProfile
             fencerKey={selectedFencer}

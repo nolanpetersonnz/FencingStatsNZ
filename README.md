@@ -24,6 +24,10 @@ FencingStatsNZ is an attempt at something better: a system that weights wins by 
 - **Clubs ledger** — clubs ranked by aggregate member ratings, with per-club detail pages.
 - **Age-category rankings** — the Ledger can be filtered to Cadet, Junior, Veteran, or All to see how fencers stack up within their selection pool. Cadet/Junior eligibility uses DOB year when known and falls back to event-tag inference otherwise.
 - **Canonical dataset out of the box** — every visitor loads the same up-to-date dataset on first open (served from `public/data`), with CSV import still available for personal experiments.
+- **Rating ranges** — every rating carries a likely range from its uncertainty; the headline number is the conservative low end, so a settled fencer outranks a high-variance one until the uncertain rating is earned.
+- **Best and worst matchups** — a fencer's profile flags the opponents they beat more, or less, often than the ratings predict, surfacing the style matchups a single number hides.
+- **Direct-elimination tableaus** — each event's bracket is rebuilt from the bouts and drawn, with the lines coloured by how hard each win was and a Toughest lines table ranking the hardest draws by average opponent rating.
+- **Predictive-accuracy dashboard** — a Method tab backtests the win-probability model out of sample (calibration, accuracy, Brier, log-loss) alongside a plain-language FAQ.
 
 ---
 
@@ -31,10 +35,12 @@ FencingStatsNZ is an attempt at something better: a system that weights wins by 
 
 The current implementation uses [Glicko-2](http://www.glicko.net/glicko.html) as a starting point. It handles infrequent competition schedules reasonably well, which matters for a country with NZ's calendar — and accounts for opponent strength, which the current top-five system completely ignores.
 
-Two additions sit on top of the base algorithm:
+A few things sit on top of the base algorithm:
 
 - **Upset multiplier** — when the lower-rated fencer wins, the rating swing is amplified slightly (configurable, default 1.25×). This rewards genuine upsets more than the standard formula would.
 - **Chronological rating periods** — all bouts from the same competition are processed together as one rating period before any ratings update, so earlier bouts in the day don't influence how later bouts are scored.
+- **Conservative ratings** — the displayed rating is the cautious end of its range (`rating − RD`), so a limited-evidence rating doesn't flatter; the full range shows on the profile and on hover.
+- **Experimental time-decay** — optionally, a fencer's uncertainty grows with time out of competition, so a long-idle rating widens and drifts down until they next fence. Off by default, tunable in the admin panel.
 
 Glicko-2 is not necessarily the *right* algorithm for fencing. It was chosen as a reasonable placeholder, not a final decision. The plan is to experiment, gather feedback from fencers, and iterate. The algorithm's parameters are tunable from the admin panel (`/#admin`, token-gated). If you have opinions, email me or open an issue.
 
@@ -97,6 +103,18 @@ Not at this time. The project is developed independently and uses FeNZ's public 
 
 **Why am I ranked lower than I expected?**
 A few possibilities. You might have high RD (limited recent activity), in which case the system is being conservative about your rating. You might have been losing to lower-rated opponents recently, which hits ratings harder than equivalent wins help. You might be strong in DE but not pools (or vice versa). Check both ratings on your profile. Or the system might genuinely have it wrong, in which case I'd love to know. Open an issue with specifics.
+
+**What's the range next to my rating?**
+It's how unsure the system is about your number. New or inactive fencers have a wide range; the more you fence, the narrower it gets. The headline figure is the conservative low end of that range, which is why it climbs toward your raw rating as you compete more.
+
+**What are best and worst matchups?**
+Among opponents you've met at least three times, the system compares how often you actually beat them with how often it expected you to. Win more than expected and they're a best matchup; win less and they're a worst (bogey) matchup, the kind of style problem a single rating can't see.
+
+**How is the bracket drawn, and what is "sweep odds"?**
+Direct-elimination results are rebuilt into a bracket by following the winners forward (the source data has rounds but no seeds, so the shape is right while the exact line order is inferred). Each line is coloured by how hard the win was. Sweep odds is the chance, from the ratings before each bout, that a fencer would have beaten every opponent on their path.
+
+**How accurate are the predictions?**
+See the Method tab on the site. Every bout is scored from the ratings as they stood before that competition, so the numbers are out of sample. Favourites win about 67% of the time overall, the model is calibrated (a 70% call wins about 70% of the time), and it beats a coin flip on both Brier score and log-loss.
 
 **How do I report a bug or weird-looking rating?**
 Email [nolanpeterson.nz@gmail.com](mailto:nolanpeterson.nz@gmail.com) or open an issue on the GitHub repo. Include: who, what tournament, what looked wrong, what you'd expect instead. Most bugs surface this way — your "this looks wrong" report is more useful than you think. Signed-in fencers can also click "Dispute" on any of their own bouts directly from their profile.

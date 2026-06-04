@@ -69,14 +69,14 @@ An implication: when two competitions happen on the same day, for example, A jun
 
 Each weapon now has separate rating streams per age category - Cadet, Junior, Senior, Veteran. Within each category, bouts at higher-tier events count toward lower-tier ratings, but not the reverse. Specifically: Senior bouts feed Senior + Junior + Cadet streams. Junior bouts feed Junior + Cadet. Cadet bouts feed only Cadet. Veteran is isolated.
 
-This is in-line with FENZ's system logic, the idea being that seniors can't fence in junior events, while juniors can. A junior gaining extra senior ranking points for doing well at an event without seniors seemed unfair to me.
+This is in-line with FeNZ's system logic, the idea being that seniors can't fence in junior events, while juniors can. A junior gaining extra senior ranking points for doing well at an event without seniors seemed unfair to me.
 
 
 Downward inclusion because matches selectors' intuitions about which results inform which decisions. When picking the NZ junior team, you'd consider a fencer's Senior performances; when picking the NZ senior team, you wouldn't weight their Junior performances heavily. It also doesn't make sense for a Junior or Cadet's performances in these gated competitions to be able to influence rankings where not everyone on the leaderboard had the opportunity to fence.
 
 This caused a follow-up bug. The Junior leaderboard initially included every senior who'd ever fenced a senior event, because the Junior stream legitimately received their Senior bouts. The fix was to separate which streams receive Elo updates from a bout, and which leaderboard a fencer appears in. The solution was to require at least one bout in an explicitly Junior-tagged event within the current dataset year. So a fencer appears in the Junior leaderboard only if they've actually fenced as a Junior recently, even though their Junior stream may have been updated by Senior bouts.  
 
-I then revisited this upon recieving fencer information from FENZ that included fencer's dates of birth. I was able to use that to infer which fencers belong in which age categories.
+I then revisited this upon recieving fencer information from FeNZ that included fencer's dates of birth. I was able to use that to infer which fencers belong in which age categories.
 
 A later pass turned up two more wrinkles in the same area. "Secondary Schools" events matched none of the age keywords and were silently classed as Senior, feeding school-age results into the open chain; they're now classed as Cadet, the conservative choice for a years-9–13 field, so the results never count upward. And the DOB enrichment had a subtler failure: because the registry merges records by licence number, a sibling's mis-entered licence in the source data folded one family member's name alias into another's record, so a handful of fencers (Daniel Gourley among them) was assigned sibling's birth year and dropped out of their real age category. The lookup now insists a record win its *own* name before any alias it merely happens to carry. A second variant followed: a single fencer split into two records by a typo'd birth year (Chantelle May as both 2004 and an impossible 2018, which slipped her into Juniors). Rather than guess by club count, the lookup demotes a DOB that's implausible for the fencer's competitive record: younger than eight at the time of an official ranking they hold, narrowly enough that real namesakes (two different James McKenzies, born 1977 and 1997) keep both their years.
 
@@ -84,7 +84,7 @@ A later pass turned up two more wrinkles in the same area. "Secondary Schools" e
 
 ## Withdrawals, abandons, and other non-results
 
-Not every line in a bracket is a fenced result. A fencer can withdraw injured (medical), abandon, fail to finish, or be excluded (a black card). The FeNZ tableau encodes these with a per-fencer result code — `MED`, `A`, `DNF`, `E`/`EXC`, sitting alongside the normal `V` (victory) and `D` (defeat). Early on the ingest only read the score, so a withdrawal that carried points, or one recorded as 0–0, was indistinguishable from a real bout, it moved both ratings, and in the 0–0 case it registered as two losses. A beta reporter caught it: "it's struggling a bit with medical withdrawals, it says he lost as well."
+Not every line in a bracket is a fenced result. A fencer can withdraw injured (medical), abandon, fail to finish, or be excluded (a black card). The FeNZ tableau encodes these with a per-fencer result code (`MED`, `A`, `DNF`, `E`/`EXC`) sitting alongside the normal `V` (victory) and `D` (defeat). Early on the ingest only read the score, so a withdrawal that carried points, or one recorded as 0–0, was indistinguishable from a real bout, it moved both ratings, and in the 0–0 case it registered as two losses. A beta reporter caught it: "it's struggling a bit with medical withdrawals, it says he lost as well."
 
 The question was what a withdrawal *should* do. Skipping the bout entirely would erase it from the withdrawer's record, which felt wrong: they did lose the match, and the bracket shows it. Treating it as a normal loss is what caused the complaint, because a medical withdrawal says nothing about either fencer's skill on the day. The decision: record it as a loss for the fencer who withdrew and a win for their opponent, so the result stays visible, but contribute nothing to either rating. My logic is that a withdrawal is a fact about the tournament, not evidence about skill. I am still debating this though... arguably an injured fencer still 'lost', and this may allow people to game the system, by medically withdrawing rather than losing matches. I think it's a consideration I will have to make down the line, if this starts happening.
 
@@ -102,6 +102,39 @@ That gave me the confidence to surface it as a "Field overview": each bout drawn
 
 ---
 
+## Decaying old results
+
+The mechanism is shipped but switched off. There's an inactivity decay in place that widens a fencer's uncertainty the longer they go without competing, but it's off by default and I haven't tuned it yet. What I haven't committed to is decaying individual bouts by age, and that's the part I'm still uncertain about: what decay should mean and where to draw the lines. I do believe more recent bouts are more relevant, especially in a sport like fencing where a fencer's skill can change dramatically over a short period. It's a decision I want outside opinions on before I turn anything on.
+
+
+---
+
+## Showing uncertainty: a range, not just a number
+
+The issue was that some fencers had very little data, so people with only a handful of bouts were being boosted to the top of the rankings despite high uncertainty. I decided to display the low end of that uncertainty as the headline number, to keep the fencers who have actually demonstrated consistent results at the top. It's a design decision I'm still not completely certain about, and one I intend to document better for users.
+
+
+
+---
+
+## Best and worst matchups: record versus expectation
+
+I chose to define a worst matchup as a fencer who has beaten you more often than expected, over at least three meetings. The reasoning is that while you might be better on paper, they've shown a higher chance of beating you than the numbers predict, which points to a stylistic mismatch. For example, two of my own worst matchups, Cooper Gouge and Alex Holton, are both right-handed French-grip fencers, which suggests I may struggle against that archetype and would benefit from training against more fencers like them. The best matchups are the same idea inverted: opponents you beat more often than the ratings expect, where you tend to have their number even when they're close to you on paper. 
+
+---
+
+## Reconstructing and reading the DE tableau
+
+Building out the difficulty of a DE path was a requested feature, and the reasoning fit my goal for the project: I want rankings to be more consistent and objective. A fencer with a relatively easy DE path will, by luck, earn more ranking points in the FeNZ system than someone who beat objectively better fencers and was knocked out by the eventual winner. I could infer the topology of the tableau from the FeNZ data, since it records the matchups and the round each occurred in, but I don't have the pool results that originally seeded the bracket. I chose to rank by the highest average-rating path, because a strong fencer beating strong fencers still performed the best, more so than a weaker fencer beating average ones, and I didn't want to strip that performance of its value. Even so, I thought it would be interesting to also show who had the best chance of sweeping their draw.
+
+---
+
+## Putting the model's accuracy on the site
+
+I surfaced the calibration backtest publicly because I want the platform's value to be visible: that it can be a genuine tool with real predictive value, and that users can draw their own conclusions about where it might help them (or not).
+
+---
+
 ## Things I'm still uncertain about
 
 A few decisions are sitting on the to-revisit pile:
@@ -110,7 +143,7 @@ The upset multiplier: I added a 1.25× multiplier to rating swings when the lowe
 
 Club strength tiers: the current implementation uses median pool rating, which provides unintuitive results in early feedback. Small clubs with one or two strong members are ranked above larger clubs whose distribution naturally regressed toward the mean. There's a fix in place (median-of-active with a minimum-member threshold) but the deeper question is whether "club strength" is even the right metric, or whether the club section should be reframed entirely around "where should I fence?", a question about location, training environment, times, and affiliation rather than rating.
 
-Provisional vs. displayed ratings: fencers with very few bouts have high RD, and Glicko-2's math can make their ratings spike to look unreasonably high. I've experimented with displaying `rating - RD` instead of the raw rating (a "conservative estimate" that pulls down high-uncertainty ratings), but the tradeoff is that users don't recognise the number they see as their "actual" rating. Currently the system shows raw rating with a minimum-bouts filter on the leaderboard. I'm not sure that's right.
+Provisional vs. displayed ratings: fencers with very few bouts have high RD, and Glicko-2's math can make their ratings spike to look unreasonably high. The system now shows the conservative `rating - RD` as the headline (see "Showing uncertainty" above), with a minimum-bouts filter on the leaderboard, which keeps thin-data fencers off the top. I'm still not certain that beats showing the raw rating behind the filter, since people don't always recognise the conservative number as their "actual" rating.
 
 What I should do with withdrawals: losses or ties? Reduced rating weight?
 
