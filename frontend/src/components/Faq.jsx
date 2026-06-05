@@ -50,8 +50,8 @@ const FAQ = [
         a: 'The data records each DE bout\'s round and result but not the seed numbers, so the bracket is rebuilt by following the winners forward. Who beat whom is correct. The exact top-to-bottom order of the lines is inferred and may not match the original sheet.',
       },
       {
-        q: 'What do line difficulty and sweep odds mean?',
-        a: 'Your line is your path through the bracket, and two numbers describe it. Average opponent rating is the toughness of the draw, and it is what ranks the hardest lines. Sweep odds is a separate figure: the chance, from the ratings before each bout, that you would have beaten every opponent on that path.',
+        q: 'What do line average and sweep odds mean?',
+        a: 'Your line is your path through the bracket, and two numbers describe it, both measured across your whole path to the title — the opponents you fenced plus the ones you would have met in the rounds past where you went out had you kept winning. Line average is the mean opponent rating along that path, the toughness of the draw, and it is what ranks the hardest lines. Sweep odds is a separate figure: your chance, from the ratings before each bout, of beating every one of them and taking the title.',
       },
       {
         q: 'Where do competition placings come from?',

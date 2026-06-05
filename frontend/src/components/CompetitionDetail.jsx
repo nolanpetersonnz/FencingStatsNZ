@@ -10,6 +10,9 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
 
   const fencerStats = useMemo(() => {
     if (!c) return [];
+    // The whole field's DE bouts: lineDifficulty traces each fencer's full path
+    // to the title, which needs the bracket beyond their own elimination.
+    const allDeBouts = c.bouts.filter(b => b.type === 'de');
     return c.fencerKeys.map(k => {
       const f = fencers[k];
       const myBouts = c.bouts.filter(b => b.keyA === k || b.keyB === k);
@@ -35,7 +38,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         deBefore: de.before, deAfter: de.after, deDelta,
         totalDelta, finish: deFinish(deBouts, k),
         field: fieldOverview(myBouts, k, fencers),
-        line: lineDifficulty(deBouts, k, fencers),
+        line: lineDifficulty(allDeBouts, k, fencers),
         hasAnyDelta: poolDelta !== null || deDelta !== null,
       };
     });
@@ -53,8 +56,10 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
     () => (c ? buildTableau(c.bouts.filter((b) => b.type === 'de'), fencers) : null),
     [c, fencers],
   );
-  // Hardest line = toughest gauntlet, by the average rating of the opponents
-  // drawn. Top 3. Sweep odds rides along as a separate figure, not the sort key.
+  // Hardest line = toughest draw, by the line average: the mean rating across a
+  // fencer's whole path to the title — the opponents they fenced plus the ones
+  // they would have met past their elimination had they kept winning. Top 3.
+  // Sweep odds (their odds of winning that whole path) rides along, not the sort key.
   const hardestLines = useMemo(
     () => fencerStats.filter((s) => s.line).sort((a, b) => b.line.avgOpp - a.line.avgOpp).slice(0, 3),
     [fencerStats],
@@ -272,13 +277,13 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
             <>
               <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Toughest lines</div>
               <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
-                The hardest lines at this event, ranked by average opponent rating (the toughest draw faced). Sweep odds is a separate read: the chance, from the ratings before each bout, that the fencer would have beaten everyone on that path.
+                The hardest lines at this event, ranked by line average — the mean opponent rating across each fencer's whole path to the title, the opponents they fenced plus the ones waiting in the rounds past where they went out, had they kept winning. Sweep odds is a separate read: their chance, from the ratings before each bout, of winning that whole path and taking the title.
               </div>
               <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '34px 1fr 78px 84px 80px', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-smallcaps">
                   <div>#</div><div>Fencer</div>
                   <div style={{ textAlign: 'right' }}>Finish</div>
-                  <div style={{ textAlign: 'right' }}>Avg opp <span style={{ color: 'var(--ox)' }}>↓</span></div>
+                  <div style={{ textAlign: 'right' }}>Line avg <span style={{ color: 'var(--ox)' }}>↓</span></div>
                   <div style={{ textAlign: 'right' }}>Sweep odds</div>
                 </div>
                 {hardestLines.map((s, i) => (

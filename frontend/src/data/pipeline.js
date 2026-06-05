@@ -836,19 +836,50 @@ export function buildTableau(deBouts, fencers) {
   return { rounds, champion, cols: roundSizes.length, rows: maxRow + 1 };
 }
 
-// Difficulty of one fencer's run through the bracket, their "line". Two reads
-// that answer different questions. The run probability multiplies their pre-bout
-// win probability for every bout on the path, won or lost, so it is the chance
-// that, given who they drew, they would have won the lot and swept the line. A
-// fencer who lost still gets one: it counts the bout they lost as another win
-// they would have needed. The gauntlet strength is the mean and peak opponent
-// rating faced. A lower run probability or higher opponent ratings mean a harder
-// line. Returns null for a pool-only fencer.
-export function lineDifficulty(myDeBouts, key, fencers) {
-  const live = (myDeBouts || []).filter((b) => b.type === 'de' && !b.withdrawal);
-  if (live.length === 0) return null;
-  const ordered = [...live].sort((a, b) => deRoundSize(b.deRound) - deRoundSize(a.deRound)); // biggest table first
-  let prob = 1, sum = 0, peak = -Infinity;
+// Difficulty of one fencer's run through the bracket, their "line". Takes the
+// WHOLE field's DE bouts for the competition (not just this fencer's), because
+// both reads now span their entire path to the title — every opponent
+// they would have had to beat to win the event, counting the rounds past where
+// they actually went out, not only the bouts they fenced.
+//
+// Two reads that answer different questions:
+//   • avgOpp / peakOpp — the mean and peak opponent rating over the FULL title
+//     path: their real opponents up to elimination, then the actual occupant of
+//     each later-round slot they would have met had they kept winning. This is
+//     the toughness-of-draw figure the Toughest lines table ranks on. A champion
+//     or finalist already played their whole line, so for them the full path is
+//     just their real run and these numbers are unchanged.
+//   • runProbability — sweep odds, the product of their per-bout win probability
+//     across that SAME full path, so it is the chance they would have run the
+//     whole table from their entry and won the title. A fencer who lost still
+//     gets one: the bout they lost, and every round beyond it, counts as a win
+//     they'd have needed. The real bouts are priced from their actual pre-bout
+//     ratings; the would-be later rounds have no rating recorded for this fencer
+//     (they were already out), so those are priced from the rating they carried
+//     into their last actual bout — their strength at the round they went out,
+//     held fixed for the rounds past it. That carry-forward is an approximation
+//     (it neither banks the wins they'd have gained nor re-rates anyone),
+//     surfaced here rather than buried.
+//
+// The full path is traced by chaining winners forward: from the fencer's entry
+// bout, the winner of each bout reappears in the next round, a table half the
+// size (FeNZ brackets halve cleanly — the same powers-of-two assumption
+// buildTableau leans on), and the opponent at each step is whoever else is in
+// that bout. Tracing follows the actual winner's slot, so once the fencer is
+// knocked out we ride their conqueror's results down to the final — the people
+// they would have met next. Each opponent's rating is their pre-bout rating in
+// the bout where they held that slot. The walk stops at the final, or wherever
+// the data runs out (an incomplete bracket truncates the path, it doesn't
+// guess). Returns null for a pool-only fencer.
+export function lineDifficulty(deBouts, key, fencers) {
+  const live = (deBouts || []).filter((b) => b.type === 'de' && Number.isFinite(deRoundSize(b.deRound)));
+  const mine = live.filter((b) => (b.keyA === key || b.keyB === key) && !b.withdrawal);
+  if (mine.length === 0) return null;
+
+  // The real run, biggest table first: each bout the fencer actually fenced,
+  // with their pre-bout win probability and outcome. This records what happened;
+  // the sweep odds below are taken over the full path, not just these bouts.
+  const ordered = [...mine].sort((a, b) => deRoundSize(b.deRound) - deRoundSize(a.deRound));
   const steps = ordered.map((b) => {
     const isA = b.keyA === key;
     const pWin = winProbability(
@@ -858,18 +889,68 @@ export function lineDifficulty(myDeBouts, key, fencers) {
       isA ? b.rdBBefore : b.rdABefore,
     );
     const oppKey = isA ? b.keyB : b.keyA;
-    const oppRating = isA ? b.ratingBBefore : b.ratingABefore;
-    const won = b.winnerKey === key;
-    prob *= pWin; // the odds of winning this bout, whether or not they actually did
-    sum += oppRating;
-    peak = Math.max(peak, oppRating);
-    return { id: b.id, deRound: b.deRound, oppKey, oppName: fencers?.[oppKey]?.name || oppKey, oppRating, pWin, won };
+    return {
+      id: b.id, deRound: b.deRound, oppKey, oppName: fencers?.[oppKey]?.name || oppKey,
+      oppRating: isA ? b.ratingBBefore : b.ratingABefore, pWin, won: b.winnerKey === key,
+    };
   });
+
+  // size → { fencerKey: the bout they held at that size }. Built from the whole
+  // field so the walk can follow the bracket past this fencer's elimination.
+  const bySize = {};
+  for (const b of live) {
+    const size = deRoundSize(b.deRound);
+    (bySize[size] ||= {})[b.keyA] = b;
+    bySize[size][b.keyB] = b;
+  }
+
+  // Walk from the fencer's entry (their biggest table) down to the final. At
+  // each bout the opponent is the other side; the actual winner determines which
+  // bout we step into next, so after the fencer loses we trail their conqueror —
+  // the line they would have walked had they kept winning. Each step's win
+  // probability is priced from the fencer's own pre-bout rating while they are
+  // still in the bracket, then from the rating they carried into their last
+  // actual bout for the rounds past their exit (see the header note on this).
+  const entry = mine.reduce((a, b) => (deRoundSize(b.deRound) > deRoundSize(a.deRound) ? b : a));
+  const path = [];
+  let prob = 1;
+  let carried = null;      // fencer's rating+RD at their last actual bout, frozen past their exit
+  let cur = entry;
+  let holder = key;        // who occupies our line's slot in `cur` (us, until knocked out)
+  const seen = new Set();  // guard against malformed data looping the walk
+  while (cur && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    const fenced = holder === key; // false once we're tracing the rounds they never reached
+    const oppKey = cur.keyA === holder ? cur.keyB : cur.keyA;
+    const oppRating = cur.keyA === oppKey ? cur.ratingABefore : cur.ratingBBefore;
+    const oppRd = cur.keyA === oppKey ? cur.rdABefore : cur.rdBBefore;
+    if (fenced) {
+      // The fencer is in this bout, so price it from the rating they carried in;
+      // keep the latest, so once they are out it holds their deepest-round strength.
+      const isA = cur.keyA === key;
+      carried = { rating: isA ? cur.ratingABefore : cur.ratingBBefore, rd: isA ? cur.rdABefore : cur.rdBBefore };
+    }
+    const pWin = winProbability(carried.rating, carried.rd, oppRating, oppRd);
+    prob *= pWin;
+    path.push({
+      deRound: cur.deRound, size: deRoundSize(cur.deRound),
+      oppKey, oppName: fencers?.[oppKey]?.name || oppKey, oppRating, pWin, fenced,
+    });
+    if (!cur.winnerKey) break; // an unresolved bout ends the line here
+    const next = bySize[deRoundSize(cur.deRound) / 2]?.[cur.winnerKey];
+    if (!next) break;          // reached the final, or the bracket data stops
+    holder = cur.winnerKey;
+    cur = next;
+  }
+
+  const sum = path.reduce((s, p) => s + p.oppRating, 0);
+  const peak = path.reduce((m, p) => Math.max(m, p.oppRating), -Infinity);
   return {
     steps,
-    runProbability: prob, // chance they would have won every bout on the path they drew
-    avgOpp: sum / steps.length,
-    peakOpp: peak,
+    path,                       // the full title path, real opponents then would-be ones
+    runProbability: prob,       // sweep odds across the whole path — odds of taking the title from here
+    avgOpp: sum / path.length,  // mean opponent rating across the whole title path (the "line average")
+    peakOpp: peak,              // the hardest single opponent on that path
   };
 }
 

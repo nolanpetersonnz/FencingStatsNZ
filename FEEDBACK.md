@@ -102,11 +102,14 @@ Posted the beta to the NZ fencing community Facebook group; collected responses 
 - Direction: experiment with weighted aggregates (root-mean-square is a reasonable candidate; the log2(entries) × average elo formula incorporates field size in a principled way). Worth running both against known-strong tournaments (NZ Nationals, NI Champs) and known-weaker tournaments to see which produces tier rankings that match expert intuition.
 - Status: open. Related to the existing club-strength tier issue from Round 2.
 
-### DE tableau line difficulty grading — **noted**
+### DE tableau line difficulty grading — **addressed in [0.1.15]**
+
 - Source: friend (DM) — "What I really want Nolan is a de tableau with lines getting graded by difficulty. Like ranking which lines are the hardest which are the easiest etc."
 - Would require building a tableau-visualisation feature where each "line" (path through the bracket) is colour-coded or scored by aggregate opponent strength.
-- Direction: substantial feature, deferred. Interesting because it ties to a real concern Brendan raised about seeding distortions producing perverse pool/bracket pairings.
-- Status: noted, deferred.
+- Direction: substantial feature. Interesting because it ties to a real concern Brendan raised about seeding distortions producing perverse pool/bracket pairings.
+- Status: shipped in [0.1.15]. 
+ - Refined to whole-path scoring. Lines are scored by average rating throughout the path.
+
 
 ### Club affiliation tracking — **addressed in [0.1.13]**
 - Source: Brendan Lindsay (email)

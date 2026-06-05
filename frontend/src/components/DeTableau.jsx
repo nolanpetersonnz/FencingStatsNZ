@@ -102,7 +102,7 @@ export default function DeTableau({ tableau, onSelectFencer, lineByKey = {} }) {
           {capLine ? (
             <>
               Tracing <span className="fl-display" style={{ fontWeight: 700 }}>{capName}</span>
-              {' · '}avg opp {Math.round(capLine.avgOpp)} · sweep odds {fmtSweepOdds(capLine.runProbability)}
+              {' · '}line avg {Math.round(capLine.avgOpp)} · sweep odds {fmtSweepOdds(capLine.runProbability)}
             </>
           ) : (
             <span style={{ color: 'var(--ink-faint)' }}>Hover a fencer to trace their line.</span>

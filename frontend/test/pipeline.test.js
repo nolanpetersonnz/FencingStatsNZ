@@ -217,20 +217,58 @@ test('buildTableau chains winners into a bracket and crowns the champion', () =>
   const semiIds = t.rounds[0].matches.map((m) => m.id);
   assert.ok(semiIds.includes(final.topChildId) && semiIds.includes(final.bottomChildId));
 
-  // Ana's line: beat Bee then Cy. Run probability is the product of two wins.
-  const ld = lineDifficulty(bouts.filter((b) => (b.keyA === 'ana a' || b.keyB === 'ana a') && b.type === 'de'), 'ana a', fencers);
+  // Line difficulty reads the whole field's DE bouts so it can trace a fencer's
+  // full path to the title, not only the bouts they fenced. Both reads — the
+  // line average and the sweep odds — span that whole path.
+  const deAll = bouts.filter((b) => b.type === 'de');
+  const prod = (xs) => xs.reduce((p, x) => p * x, 1);
+
+  // Ana won it all: as champion her full line IS her real run (beat Bee, Cy), so
+  // every figure matches the product over the bouts she actually fenced.
+  const ld = lineDifficulty(deAll, 'ana a', fencers);
   assert.equal(ld.steps.length, 2);
   assert.ok(ld.steps.every((s) => s.won));
+  assert.equal(ld.path.length, 2, 'champion fenced her whole line');
+  assert.deepEqual(ld.path.map((p) => p.oppKey), ['bee b', 'cy c']);
+  assert.ok(ld.path.every((p) => p.fenced), 'every step on a champion path was actually fenced');
   assert.ok(ld.runProbability > 0 && ld.runProbability < 1);
+  assert.ok(Math.abs(ld.runProbability - prod(ld.path.map((p) => p.pWin))) < 1e-12, 'sweep odds is the product over the path');
+  assert.ok(Math.abs(ld.runProbability - prod(ld.steps.map((s) => s.pWin))) < 1e-9, 'and equals the real run for a champion');
   assert.ok(Number.isFinite(ld.avgOpp) && Number.isFinite(ld.peakOpp));
   assert.equal(lineDifficulty([], 'ana a', fencers), null); // pool-only fencer
 
-  // Run chance is the odds of sweeping the whole path, so a fencer who lost
-  // still gets one: it includes the bout they lost as a win they'd have needed.
-  const cy = lineDifficulty(bouts.filter((b) => (b.keyA === 'cy c' || b.keyB === 'cy c') && b.type === 'de'), 'cy c', fencers);
+  // Cy reached the final, so their whole line is also just their real run. A
+  // fencer who lost still gets a sweep chance — the final they lost counts as a
+  // bout they'd have needed to win.
+  const cy = lineDifficulty(deAll, 'cy c', fencers);
   assert.equal(cy.steps.length, 2);            // won the semi, lost the final
   assert.ok(!cy.steps.every((s) => s.won));
+  assert.equal(cy.path.length, 2, 'a finalist also fenced their whole line');
   assert.ok(cy.runProbability > 0 && cy.runProbability < 1, 'a fencer who lost still gets a sweep chance');
+  assert.ok(Math.abs(cy.runProbability - prod(cy.steps.map((s) => s.pWin))) < 1e-9, 'finalist sweep equals their real run');
+
+  // Bee lost the semi to Ana, so she fenced one bout — but her line extends
+  // through the final she never reached: had she beaten Ana she'd have met Cy,
+  // the other semi's winner. Both reads now span both opponents: the line
+  // average covers a fencer she never met, and the sweep odds multiply the
+  // would-be final in, so they fall below her single real bout alone.
+  const bee = lineDifficulty(deAll, 'bee b', fencers);
+  assert.equal(bee.steps.length, 1, 'Bee fenced only the semi');
+  assert.deepEqual(bee.path.map((p) => p.oppKey), ['ana a', 'cy c']);
+  assert.deepEqual(bee.path.map((p) => p.fenced), [true, false]);
+  assert.ok(!bee.steps.some((s) => s.oppKey === 'cy c'), 'Bee never fenced Cy');
+  assert.ok(bee.path.some((p) => p.oppKey === 'cy c' && !p.fenced), 'but Cy is on her would-be path');
+  assert.equal(bee.avgOpp, (bee.path[0].oppRating + bee.path[1].oppRating) / 2, 'line avg spans the full path');
+  assert.equal(bee.peakOpp, Math.max(bee.path[0].oppRating, bee.path[1].oppRating));
+  assert.ok(bee.path.every((p) => p.pWin > 0 && p.pWin <= 1), 'every step is priced, including the would-be final');
+  assert.ok(Math.abs(bee.runProbability - bee.path[0].pWin * bee.path[1].pWin) < 1e-12, 'sweep multiplies the would-be final in');
+  assert.ok(bee.runProbability < bee.steps[0].pWin, 'extending past her exit lowers the sweep');
+
+  // Dee lost the other semi: had they won they'd have met Ana in the final, so
+  // their would-be path trails the conqueror (Cy) into the final against Ana.
+  const dee = lineDifficulty(deAll, 'dee d', fencers);
+  assert.deepEqual(dee.path.map((p) => p.oppKey), ['cy c', 'ana a'], 'Dee would have met the other finalist');
+  assert.deepEqual(dee.path.map((p) => p.fenced), [true, false]);
 });
 
 // ---- Bogey / favourable matchups --------------------------------------------
