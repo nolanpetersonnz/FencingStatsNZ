@@ -125,7 +125,9 @@ I chose to define a worst matchup as a fencer who has beaten you more often than
 
 ## Reconstructing and reading the DE tableau
 
-Building out the difficulty of a DE path was a requested feature, and the reasoning fit my goal for the project: I want rankings to be more consistent and objective. A fencer with a relatively easy DE path will, by luck, earn more ranking points in the FeNZ system than someone who beat objectively better fencers and was knocked out by the eventual winner. I could infer the topology of the tableau from the FeNZ data, since it records the matchups and the round each occurred in, but I don't have the pool results that originally seeded the bracket. I chose to rank by the highest average-rating path, because a strong fencer beating strong fencers still performed the best, more so than a weaker fencer beating average ones, and I didn't want to strip that performance of its value. Even so, I thought it would be interesting to also show who had the best chance of sweeping their draw.
+Building out the difficulty of a DE path was a requested feature, and the reasoning fit my goal for the project: I want rankings to be more consistent and objective. A fencer with a relatively easy DE path will, by luck, earn more ranking points in the FeNZ system than someone who beat objectively better fencers and was knocked out by the eventual winner. I could infer the topology of the tableau from the FeNZ data, since it records the matchups and the round each occurred in, but I don't have the pool results that originally seeded the bracket. 
+
+I chose to rank by the highest average-rating path, because a strong fencer beating strong fencers still performed the best, more so than a weaker fencer beating average ones, and I didn't want to strip that performance of its value. In addition to this, I thought it would be interesting to also show who had the best chance of sweeping their draw. 
 
 ---
 
