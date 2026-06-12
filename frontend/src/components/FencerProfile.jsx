@@ -120,7 +120,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                   {s.stream.bouts > 0 ? fmtConservativeRating(s.stream.rating, s.stream.rd, k) : '—'}
                 </div>
                 <div className="fl-mono" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginTop: 6 }}
-                  title="Likely rating range — the headline number is its conservative (lower) end. Narrows as more bouts come in.">
+                  title="Likely rating range. The headline number is its conservative (lower) end. Narrows as more bouts come in.">
                   {s.stream.bouts > 0
                     ? `range ${fmtInterval(s.stream.rating, s.stream.rd, k)}  ·  raw ${fmtRating(s.stream.rating)} ${fmtRD(s.stream.rd)}  ·  peak ${fmtRating(peakConservative(s.stream) ?? s.stream.peak)}`
                     : 'no bouts'}

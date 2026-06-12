@@ -135,7 +135,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
                   onChange={e => setAgeCategory(e.target.value)}
                   className="fl-pill"
                   style={{ fontFamily: 'inherit', cursor: 'pointer' }}
-                  title="Age category — Junior counts senior+junior bouts, Cadet counts cadet+junior+senior, Veteran is isolated"
+                  title="Age category: Junior counts senior+junior bouts, Cadet counts cadet+junior+senior, Veteran is isolated"
                 >
                   {AGE_OPTIONS.map(([v, label]) => <option key={v} value={v}>{label}</option>)}
                 </select>
