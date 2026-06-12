@@ -78,7 +78,7 @@ export default function LoginModal({ onClose, onLogin, fencerInfo }) {
           Enter the FNZ or FIE licence number on your fencer card. Numeric
           codes (e.g. <span className="fl-mono">20391</span>) and SP-prefixed
           codes (e.g. <span className="fl-mono">SP7893420</span>) are both
-          accepted. We hash it locally and compare against the registry —
+          accepted. We hash it locally and compare against the registry;
           your number is never transmitted in plain text.
         </p>
 

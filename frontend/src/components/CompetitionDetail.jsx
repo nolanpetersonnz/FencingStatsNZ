@@ -166,7 +166,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
       <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
         {sortMode === 'elo'
           ? 'Ordered by total Elo change at this competition (pool + DE), highest first.'
-          : 'Ordered by finish — champion first, then by the deepest DE round reached. Placement is reconstructed from the bracket; official placings aren’t in the data.'}
+          : 'Ordered by finish: champion first, then by the deepest DE round reached. Placement is reconstructed from the bracket; official placings aren’t in the data.'}
       </div>
       <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
         {rows.map((s, i) => (
@@ -238,7 +238,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
         </div>
       </div>
       <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
-        Each box is a bout, coloured by how hard the opponent was (pre-bout win probability) — <strong>V</strong> won, <strong>D</strong> lost. EXP is expected pool wins from those odds; DIFF is actual minus expected. Hover a box for the score.
+        Each box is a bout, coloured by how hard the opponent was (pre-bout win probability): <strong>V</strong> won, <strong>D</strong> lost. EXP is expected pool wins from those odds; DIFF is actual minus expected. Hover a box for the score.
       </div>
       <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '34px minmax(96px, 1.1fr) 2.2fr 1.7fr 48px 38px 52px', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-smallcaps">
@@ -277,7 +277,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
             <>
               <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Toughest lines</div>
               <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
-                The hardest lines at this event, ranked by line average — the mean opponent rating across each fencer's whole path to the title, the opponents they fenced plus the ones waiting in the rounds past where they went out, had they kept winning. Sweep odds is a separate read: their chance, from the ratings before each bout, of winning that whole path and taking the title.
+                The hardest lines at this event, ranked by line average: the mean opponent rating across each fencer's whole path to the title, the opponents they fenced plus the ones waiting in the rounds past where they went out, had they kept winning. Sweep odds is a separate read: their chance, from the ratings before each bout, of winning that whole path and taking the title.
               </div>
               <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '34px 1fr 78px 84px 80px', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-smallcaps">

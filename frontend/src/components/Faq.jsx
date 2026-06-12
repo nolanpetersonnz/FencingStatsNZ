@@ -51,7 +51,7 @@ const FAQ = [
       },
       {
         q: 'What do line average and sweep odds mean?',
-        a: 'Your line is your path through the bracket, and two numbers describe it, both measured across your whole path to the title — the opponents you fenced plus the ones you would have met in the rounds past where you went out had you kept winning. Line average is the mean opponent rating along that path, the toughness of the draw, and it is what ranks the hardest lines. Sweep odds is a separate figure: your chance, from the ratings before each bout, of beating every one of them and taking the title.',
+        a: 'Your line is your path through the bracket, and two numbers describe it, both measured across your whole path to the title: the opponents you fenced plus the ones you would have met in the rounds past where you went out had you kept winning. Line average is the mean opponent rating along that path, the toughness of the draw, and it is what ranks the hardest lines. Sweep odds is a separate figure: your chance, from the ratings before each bout, of beating every one of them and taking the title.',
       },
       {
         q: 'Where do competition placings come from?',

@@ -29,20 +29,20 @@ export async function loadFencerInfo() {
 // signal — license hashes, then a DOB, then number of clubs known.
 //
 // Two collision modes are handled:
-//   1. Cross-person alias (Gourley): a shared/mis-entered licence in the source
-//      XML folds one fencer's name alias into a sibling's record (e.g. Kate
-//      Gourley's record carrying "daniel gourley"). The ownership bonus — a
-//      record whose own `display_name` IS this key — makes the canonical owner
-//      outrank any record that merely lists the key as an alias.
-//   2. Same person, typo DOB (Chantelle May): the (loose-name, dob_year)
-//      registry merge splits one fencer into two records when a data-entry typo
-//      gives one a bad DOB — Chantelle May appears as both 2004 and an
-//      impossible 2018, the latter from a bad source row, which put a senior
-//      foil fencer into the Junior/Cadet leaderboards. We demote any DOB that
-//      is activity-implausible (younger than MIN_PLAUSIBLE_AGE at the time of
+//   1. Cross-person alias: a shared/mis-entered licence in the source XML
+//      folds one fencer's name alias into a sibling's record, so the sibling's
+//      record carries the other's name as a stray alias. The ownership bonus
+//      (a record whose own `display_name` IS this key) makes the canonical
+//      owner outrank any record that merely lists the key as an alias.
+//   2. Same person, typo DOB: the (loose-name, dob_year) registry merge splits
+//      one fencer into two records when a data-entry typo gives one a bad DOB.
+//      One senior fencer appeared with both her real birth year and an
+//      impossible one from a bad source row, which put her into the
+//      Junior/Cadet leaderboards. We demote any DOB that is
+//      activity-implausible (younger than MIN_PLAUSIBLE_AGE at the time of
 //      an official ranking the record holds). This is deliberately narrow: it
-//      fixes clear errors without disturbing real namesakes — e.g. the two
-//      James McKenzies (a 1977 veteran and a 1997 senior) both stay plausible.
+//      fixes clear errors without disturbing real namesakes, e.g. two fencers
+//      who share a name but were born twenty years apart both stay plausible.
 const MIN_PLAUSIBLE_AGE = 8;
 export function buildEnrichmentIndex(info) {
   if (!Array.isArray(info)) return {};

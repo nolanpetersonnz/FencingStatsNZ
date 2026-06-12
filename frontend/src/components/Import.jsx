@@ -55,7 +55,7 @@ export default function Import({ onImport, onLoadDemo, hasData, onClear, rawBout
       <div style={{ marginTop: 28, padding: '24px', border: '1px solid var(--rule)', background: 'var(--paper-deep)' }}>
         <div className="fl-smallcaps" style={{ marginBottom: 8 }}>The CSV format</div>
         <p style={{ marginTop: 0, color: 'var(--ink-soft)', lineHeight: 1.6 }}>
-          Each row is a single bout. Pool bouts and DE bouts share one table — distinguish with the <code style={{ fontFamily: 'JetBrains Mono', fontSize: '0.85em', background: 'var(--paper-shade)', padding: '1px 5px' }}>bout_type</code> column. Weapon names accept <span className="fl-italic">foil</span>, <span className="fl-italic">epee</span> (or épée), <span className="fl-italic">sabre</span>.
+          Each row is a single bout. Pool bouts and DE bouts share one table; distinguish with the <code style={{ fontFamily: 'JetBrains Mono', fontSize: '0.85em', background: 'var(--paper-shade)', padding: '1px 5px' }}>bout_type</code> column. Weapon names accept <span className="fl-italic">foil</span>, <span className="fl-italic">epee</span> (or épée), <span className="fl-italic">sabre</span>.
         </p>
         <pre className="fl-mono" style={{ background: 'var(--paper)', padding: 12, fontSize: '0.78rem', overflowX: 'auto', border: '1px solid var(--rule-soft)', margin: '12px 0' }}>{CSV_HEADER}</pre>
         <button className="fl-btn ghost" onClick={downloadTemplate} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
