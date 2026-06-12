@@ -1,4 +1,4 @@
-# Phase 4 setup — fencer profile edits
+# Phase 4 setup - fencer profile edits
 
 The login + edit features run on Vercel Functions backed by Upstash Redis. Reading the public site doesn't touch the backend; the API only matters when a signed-in fencer submits an edit or you visit `/#admin`.
 
@@ -6,13 +6,13 @@ The login + edit features run on Vercel Functions backed by Upstash Redis. Readi
 
 1. In Vercel, open your `fencingstatsnz` project.
 2. Go to **Storage → Marketplace Database Providers → Upstash**.
-3. Add a Redis database (free tier is fine — 10k commands/day). Pick the region closest to your Vercel deploy region.
+3. Add a Redis database (free tier is fine, 10k commands/day). Pick the region closest to your Vercel deploy region.
 4. When prompted, **connect the database to the project**. Vercel auto-populates env vars with a `KV_*` prefix:
    - `KV_REST_API_URL`
    - `KV_REST_API_TOKEN`
    - (plus `KV_REST_API_READ_ONLY_TOKEN` and `KV_URL` which we don't use)
 
-The code in `frontend/api/_lib.js` reads both naming conventions (`KV_REST_API_*` and `UPSTASH_REDIS_REST_*`), so the defaults Vercel provides work out of the box — no renaming required. If you install Upstash directly (not via Vercel marketplace), use the `UPSTASH_REDIS_REST_*` names instead.
+The code in `frontend/api/_lib.js` reads both naming conventions (`KV_REST_API_*` and `UPSTASH_REDIS_REST_*`), so the defaults Vercel provides work out of the box, no renaming required. If you install Upstash directly (not via Vercel marketplace), use the `UPSTASH_REDIS_REST_*` names instead.
 
 ## 2. Set the admin token
 
