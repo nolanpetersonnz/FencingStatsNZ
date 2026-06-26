@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { adminList, adminAct, adminSetClubMeta, adminAssignFencer, adminMergeFencers } from '../data/edits.js';
+import { adminList, adminAct, adminSetClubMeta, adminAssignFencer, adminMergeFencers,
+  adminRefreshStatus, adminRefreshData, adminRefreshRevert, adminRefreshAccept } from '../data/edits.js';
 import Import from './Import.jsx';
 import Settings from './Settings.jsx';
 
@@ -57,7 +58,7 @@ export default function Admin({
   const [hasToken, setHasToken] = useState(() => !!localStorage.getItem('fl_admin_token'));
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState('pending'); // pending | applied | all
-  const [section, setSection] = useState('edits'); // edits | clubs | merges | import | tuning
+  const [section, setSection] = useState('edits'); // edits | clubs | merges | import | refresh | tuning
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState(null);
 
@@ -109,6 +110,7 @@ export default function Admin({
               : section === 'clubs' ? 'Clubs'
               : section === 'merges' ? 'Profile merges'
               : section === 'import' ? 'Data ingest'
+              : section === 'refresh' ? 'Refresh from FeNZ'
               : section === 'tuning' ? 'Tuning'
               : ''}
           </h2>
@@ -118,6 +120,7 @@ export default function Admin({
           <button onClick={() => setSection('clubs')} className={`fl-pill ${section === 'clubs' ? 'active' : ''}`}>Clubs</button>
           <button onClick={() => setSection('merges')} className={`fl-pill ${section === 'merges' ? 'active' : ''}`}>Merges</button>
           <button onClick={() => setSection('import')} className={`fl-pill ${section === 'import' ? 'active' : ''}`}>Import</button>
+          <button onClick={() => setSection('refresh')} className={`fl-pill ${section === 'refresh' ? 'active' : ''}`}>Refresh</button>
           <button onClick={() => setSection('tuning')} className={`fl-pill ${section === 'tuning' ? 'active' : ''}`}>Tuning</button>
           <span style={{ width: 1, height: 18, background: 'var(--rule)', margin: '0 4px' }} />
           {section === 'edits' && ['pending', 'applied', 'all'].map((f) => (
@@ -156,6 +159,10 @@ export default function Admin({
           onClear={onClear}
           rawBouts={rawBouts}
         />
+      )}
+
+      {section === 'refresh' && (
+        <RefreshPanel setErr={setErr} />
       )}
 
       {section === 'tuning' && (
@@ -491,6 +498,191 @@ function MergesPanel({ fencers, overrides, onChange, setErr }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// "Refresh from FeNZ" — fire the ingest pipeline (GitHub Actions), watch the
+// run, and review the resulting data commits. The data is committed to git by
+// the workflow and auto-deploys; this panel is the trigger plus a rollback
+// lever, not a pre-publish gate.
+const fmtWhen = (iso) => (iso ? new Date(iso).toLocaleString() : '');
+
+function RefreshPanel({ setErr }) {
+  const [state, setState] = useState(null);  // GET /api/refresh payload
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);   // a POST in flight
+  const [note, setNote] = useState('');      // transient status line
+
+  const load = async () => {
+    try {
+      setState(await adminRefreshStatus());
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  // Poll only while a run is in flight, so the admin sees it land without a
+  // manual reload. 12s keeps well under the GitHub API rate limit and is
+  // plenty responsive for a pipeline measured in minutes.
+  useEffect(() => {
+    if (!state?.running) return;
+    const id = setInterval(load, 12000);
+    return () => clearInterval(id);
+  }, [state?.running]);
+
+  const triggerRefresh = async () => {
+    setBusy(true); setNote(''); setErr(null);
+    try {
+      await adminRefreshData();
+      setNote('Refresh started. It runs in GitHub Actions and lands in a few minutes.');
+      await load();
+    } catch (e) {
+      if (e.status === 409) setNote('A refresh is already running.');
+      else setErr(e.message + (e.detail ? ` (${e.detail})` : ''));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const revert = async (entry) => {
+    if (!confirm(`Roll back this change?\n\n${entry.subject}\n\nThis restores the previous bouts.csv and redeploys. You can run a fresh refresh afterwards.`)) return;
+    setBusy(true); setErr(null); setNote('');
+    try {
+      await adminRefreshRevert(entry.sha);
+      setNote('Rollback started. The previous results will be restored in a few minutes.');
+      await load();
+    } catch (e) {
+      setErr(e.message + (e.detail ? ` (${e.detail})` : ''));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const accept = async (entry) => {
+    setBusy(true); setErr(null);
+    try {
+      await adminRefreshAccept(entry.sha);
+      await load();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="fl-italic" style={{ padding: 24, color: 'var(--ink-soft)' }}>Loading refresh status...</div>;
+  }
+
+  if (state && state.configured === false) {
+    return (
+      <div className="fl-fade-in" style={{ maxWidth: 720 }}>
+        <p style={{ color: 'var(--ink-soft)', lineHeight: 1.6 }}>
+          The refresh pipeline isn't wired up yet. Set <code style={{ fontFamily: 'JetBrains Mono', fontSize: '0.85em', background: 'var(--paper-shade)', padding: '1px 5px' }}>GH_DISPATCH_TOKEN</code> (a fine-grained GitHub token for{' '}
+          <span className="fl-mono">{state.repo}</span> with Contents read/write and Actions read) in your Vercel
+          environment variables, then reload. See SETUP.md, Phase 5.
+        </p>
+      </div>
+    );
+  }
+
+  const running = !!state?.running;
+  const lastRun = state?.latest_run || null;
+  const entries = state?.entries || [];
+
+  return (
+    <div className="fl-fade-in" style={{ maxWidth: 920 }}>
+      <p style={{ marginTop: 0, color: 'var(--ink-soft)', lineHeight: 1.6, maxWidth: 680 }}>
+        Pull the latest results from the FeNZ API. This regenerates the dataset in GitHub Actions,
+        validates it against the test suite, and commits it, which redeploys the live site in a few
+        minutes. Each run is logged below; you can roll one back if it looks wrong.
+      </p>
+
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', margin: '18px 0 6px' }}>
+        <button className="fl-btn" onClick={triggerRefresh} disabled={busy || running}>
+          {running ? 'Refresh running...' : 'Refresh from FeNZ'}
+        </button>
+        <button className="fl-pill" onClick={load} disabled={busy}>Reload status</button>
+        {running && lastRun?.html_url && (
+          <a href={lastRun.html_url} target="_blank" rel="noreferrer" className="fl-pill" style={{ textDecoration: 'none' }}>
+            View run ↗
+          </a>
+        )}
+        {!running && lastRun && (
+          <span className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.85rem' }}>
+            Last run: {lastRun.conclusion || lastRun.status}{lastRun.created_at ? ` · ${fmtWhen(lastRun.created_at)}` : ''}
+            {lastRun.html_url && <> · <a href={lastRun.html_url} target="_blank" rel="noreferrer" style={{ color: 'var(--ink-soft)' }}>log ↗</a></>}
+          </span>
+        )}
+      </div>
+
+      {note && (
+        <div className="fl-italic" style={{ color: 'var(--ox-deep)', fontSize: '0.9rem', marginBottom: 8 }}>{note}</div>
+      )}
+      {state?.error && (
+        <div className="fl-italic" style={{ color: 'var(--red-light)', fontSize: '0.85rem', marginBottom: 8 }}>
+          Could not read the log: {state.error}
+        </div>
+      )}
+
+      <div className="fl-smallcaps" style={{ fontSize: '0.72rem', margin: '22px 0 8px' }}>
+        Recent data changes ({entries.length})
+      </div>
+      <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
+        {entries.length === 0 && (
+          <div className="fl-italic" style={{ padding: 32, textAlign: 'center', color: 'var(--ink-soft)' }}>
+            No data commits found yet.
+          </div>
+        )}
+        {entries.map((e) => (
+          <RefreshRow key={e.sha} entry={e} busy={busy} onAccept={accept} onRevert={revert} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RefreshRow({ entry, busy, onAccept, onRevert }) {
+  const [open, setOpen] = useState(false);
+  const kindColor = entry.kind === 'revert' ? 'var(--red-light)'
+    : entry.kind === 'refresh' ? 'var(--ox)' : 'var(--ink-soft)';
+  const needsReview = entry.kind === 'refresh' && !entry.reviewed;
+  return (
+    <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule-soft)' }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
+        <span className="fl-smallcaps" style={{ fontSize: '0.7rem', color: kindColor }}>{entry.kind}</span>
+        {needsReview && (
+          <span className="fl-smallcaps" style={{ fontSize: '0.62rem', padding: '1px 6px', border: '1px solid var(--ox)', color: 'var(--ox)' }}>needs review</span>
+        )}
+        {entry.kind === 'refresh' && entry.reviewed && (
+          <span className="fl-smallcaps" style={{ fontSize: '0.62rem', color: 'var(--moss)' }}>reviewed</span>
+        )}
+        <span style={{ fontWeight: 600 }}>{entry.subject}</span>
+        <span className="fl-mono" style={{ fontSize: '0.8rem', color: 'var(--ink-faint)' }}>{entry.short}</span>
+        <span className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.8rem' }}>{fmtWhen(entry.date)}</span>
+      </div>
+      <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        {entry.body && (
+          <button onClick={() => setOpen((o) => !o)} className="fl-pill">{open ? 'Hide' : 'Details'}</button>
+        )}
+        {needsReview && (
+          <button disabled={busy} onClick={() => onAccept(entry)} className="fl-pill">Accept</button>
+        )}
+        <button disabled={busy} onClick={() => onRevert(entry)} className="fl-pill">
+          {entry.kind === 'revert' ? 'Roll back' : 'Revert'}
+        </button>
+        {entry.html_url && (
+          <a href={entry.html_url} target="_blank" rel="noreferrer" className="fl-pill" style={{ textDecoration: 'none' }}>Commit ↗</a>
+        )}
+      </div>
+      {open && entry.body && (
+        <pre className="fl-mono" style={{ marginTop: 10, whiteSpace: 'pre-wrap', fontSize: '0.78rem', color: 'var(--ink-soft)', background: 'var(--paper-deep)', padding: 12, border: '1px solid var(--rule-soft)', overflowX: 'auto' }}>{entry.body}</pre>
+      )}
     </div>
   );
 }

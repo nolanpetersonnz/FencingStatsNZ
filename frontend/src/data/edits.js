@@ -117,3 +117,33 @@ export async function adminAssignFencer({ fencerKey, clubName }) {
   if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
   return body;
 }
+
+// Refresh-from-FeNZ controls (api/refresh.js). GET returns the workflow run
+// status plus the recent ingest/bouts.csv commit log; POST fires a refresh,
+// rolls one back, or marks one reviewed. Errors carry .status so the UI can
+// tell "already running" (409) from a real failure.
+export async function adminRefreshStatus() {
+  const res = await fetch('/api/refresh', { headers: adminHeaders(), cache: 'no-cache' });
+  if (!res.ok) throw new Error(`refresh status failed: ${res.status}`);
+  return await res.json();
+}
+
+async function adminRefreshPost(payload) {
+  const res = await fetch('/api/refresh', {
+    method: 'POST',
+    headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const e = new Error(body.error || `HTTP ${res.status}`);
+    e.status = res.status;
+    e.detail = body.detail;
+    throw e;
+  }
+  return body;
+}
+
+export const adminRefreshData = () => adminRefreshPost({ action: 'refresh' });
+export const adminRefreshRevert = (sha) => adminRefreshPost({ action: 'revert', sha });
+export const adminRefreshAccept = (sha) => adminRefreshPost({ action: 'accept', sha });

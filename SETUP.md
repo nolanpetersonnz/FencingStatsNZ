@@ -55,3 +55,60 @@ Live edits (name/club) are revertible from the admin page. Reverting clears the 
 ## Admin page
 
 Visit `https://<yoursite>/#admin`. First load asks for the token; it persists in localStorage. Filter by `pending` / `applied` / `all`. Approve, reject, or revert from the row.
+
+---
+
+# Phase 5 setup - refresh results from FeNZ
+
+The **Refresh** tab in `/#admin` adds a "Refresh from FeNZ" button that re-runs the Python ingest, regenerates `ingest/bouts.csv`, and commits it to `main`, which redeploys the live site. The work happens in the `refresh-data` GitHub Actions workflow (already in the repo); the button only triggers it and reads back the result. Reading the public site never touches any of this.
+
+This is optional. With no token configured, the Refresh tab simply explains that it isn't wired up, and you can keep updating the dataset by hand (`python ingest/fenz_ingest.py ... ` then commit, as in the README).
+
+## 1. Create a GitHub token
+
+Generate a fine-grained personal access token (GitHub → **Settings → Developer settings → Fine-grained tokens → Generate new token**):
+
+- **Repository access:** only this repository (`nolanpetersonnz/FencingStatsNZ`).
+- **Permissions:**
+  - **Contents: Read and write** (lets the button trigger the workflow via `repository_dispatch`, and read the data commit log).
+  - **Actions: Read-only** (lets the panel show whether a run is in progress).
+  - Metadata: Read-only (added automatically).
+
+The workflow's own push back to `main` uses the built-in `GITHUB_TOKEN`, so the token above is only for the trigger and the status reads.
+
+## 2. Set the env vars
+
+In Vercel: **Settings → Environment Variables**:
+
+- Key: `GH_DISPATCH_TOKEN`, Value: the token from step 1. Environments: Production (add Preview/Development if you test there).
+- Optional: `GH_REPO` = `owner/name`. Defaults to `nolanpetersonnz/FencingStatsNZ`; set it only if you fork or rename.
+
+Redeploy so the function picks up the new env.
+
+## 3. Use it
+
+Open `/#admin` → **Refresh**:
+
+- **Refresh from FeNZ** kicks off a run. It pulls the latest competitions, regenerates the dataset, runs the test suite, and commits. The new data is live a few minutes later, after the commit redeploys. The panel polls and shows the run status while it works.
+- **Recent data changes** lists the commits to `ingest/bouts.csv` (the audit log is just git history). Each refresh shows what changed (bout delta and the new competitions).
+  - **Accept** acknowledges a refresh (clears its "needs review" marker). Bookkeeping only.
+  - **Revert** rolls a change back: it restores the `bouts.csv` from before that commit and redeploys. Use it on the most recent refresh if something looks wrong.
+
+You can also run the workflow by hand from the repository's **Actions → refresh-data → Run workflow**, with optional `scan_from` / `scan_to` overrides.
+
+## What the refresh actions do
+
+| Action | Trigger | Effect | Live when? |
+|---|---|---|---|
+| Refresh | Refresh tab button | Regenerates `bouts.csv` from the FeNZ API, commits to `main` | After redeploy (minutes) |
+| Accept | Per-row in the log | Marks that refresh reviewed (Upstash `refresh_reviewed` set) | Immediately |
+| Revert | Per-row in the log | Restores the pre-refresh `bouts.csv`, commits to `main` | After redeploy (minutes) |
+
+## Safety and the scan window
+
+A full rebuild reads competitions in a cmpId range (`--scan SCAN_FROM SCAN_TO`, default `1100`..`100000`, filtered to `--since 2024-01-01`), set in the workflow's `env:` block. The scan auto-stops about 30 blank ids past the newest competition, so the high ceiling is free.
+
+Two guards keep a bad run from shipping:
+
+- **Shrink-guard:** if the regenerated file lost more than 10% of its rows (a scan range set too high silently drops early competitions), the workflow aborts before overwriting. If you see `new file has N rows vs M committed`, lower `SCAN_FROM`.
+- **Tests:** `npm test` runs against the regenerated dataset before the commit, so a malformed `bouts.csv` fails the run instead of deploying.

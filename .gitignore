@@ -16,4 +16,9 @@ ingest/cache/
 *.pyc
 *.pyo
 
+# Refresh workflow scratch (regenerated CSV + commit-message/summary temp files)
+ingest/bouts.csv.new
+.refresh-msg.txt
+.refresh-summary.json
+
 .claude/
