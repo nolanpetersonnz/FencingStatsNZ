@@ -110,6 +110,23 @@ jobs:
           npm ci
           npm test
 
+      # If validation fails, the refreshed CSV is rejected (never committed) but
+      # only exists on this runner. These two steps run only on failure so the
+      # rejected data is inspectable: the diagnostic names any withdrawal row
+      # that didn't survive processBouts, and the artifact saves the full CSV
+      # for offline analysis with the same script.
+      - name: Diagnose rejected dataset
+        if: failure()
+        working-directory: frontend
+        run: node scripts/diagnose-withdrawals.mjs
+
+      - name: Upload rejected dataset
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rejected-bouts-csv
+          path: ingest/bouts.csv
+
       - name: Commit and push if changed
         run: |
           set -euo pipefail
