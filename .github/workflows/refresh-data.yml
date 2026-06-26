@@ -1,0 +1,162 @@
+name: refresh-data
+
+# Pulls fresh results from the FeNZ API and commits a regenerated
+# ingest/bouts.csv to main, which redeploys the live site through Vercel's
+# git integration. Triggered three ways:
+#   - repository_dispatch {refresh-data} : the "/#admin → Refresh from FeNZ"
+#     button (via api/refresh.js)
+#   - repository_dispatch {revert-data}  : the admin "Revert" button — restores
+#     the bouts.csv that preceded a given refresh commit
+#   - workflow_dispatch                  : run a refresh by hand from the
+#     Actions tab, with optional scan-window overrides
+#
+# The push back to main uses the built-in GITHUB_TOKEN. That push does not
+# re-trigger the `tests` workflow (Actions suppress self-triggered runs), but
+# it does fire Vercel's deploy webhook, and we run the test suite inside this
+# job before committing, so the data is still validated before it ships.
+
+on:
+  repository_dispatch:
+    types: [refresh-data, revert-data]
+  workflow_dispatch:
+    inputs:
+      scan_from:
+        description: Lowest cmpId to scan (blank = default)
+        required: false
+      scan_to:
+        description: Highest cmpId to scan (blank = default)
+        required: false
+
+permissions:
+  contents: write
+
+# One data-mutating run at a time. A queued run waits rather than cancelling,
+# so a refresh and a revert can't race to push competing bouts.csv versions.
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.action == 'refresh-data' }}
+    runs-on: ubuntu-latest
+    env:
+      # FeNZ cmpId scan window. The dataset's first event (2024-02-24) sits well
+      # below the README's 1280-or-so 2025 example, so 1100 leaves margin; the
+      # scan auto-stops ~30 blank ids past the newest real comp, so a high
+      # ceiling costs nothing. A blank workflow_dispatch input falls back here.
+      # If a refresh ever aborts on the shrink-guard, lower SCAN_FROM.
+      SCAN_FROM: ${{ github.event.inputs.scan_from || '1100' }}
+      SCAN_TO: ${{ github.event.inputs.scan_to || '100000' }}
+      # Anything on or after this date is kept; older comps in the scan range
+      # are filtered out. Matches the shipped dataset's window.
+      SINCE: '2024-01-01'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install ingest deps
+        run: pip install requests rapidfuzz
+
+      - name: Validate scan window
+        run: |
+          set -euo pipefail
+          # Inputs are write-access-gated, but validate anyway so a bad value
+          # fails loudly here instead of producing a garbage scan.
+          for v in "$SCAN_FROM" "$SCAN_TO"; do
+            case "$v" in
+              ''|*[!0-9]*) echo "scan bounds must be integers, got '$v'" >&2; exit 1 ;;
+            esac
+          done
+          if [ "$SCAN_FROM" -ge "$SCAN_TO" ]; then
+            echo "SCAN_FROM ($SCAN_FROM) must be < SCAN_TO ($SCAN_TO)" >&2; exit 1
+          fi
+
+      - name: Ingest from FeNZ
+        run: |
+          set -euo pipefail
+          python ingest/fenz_ingest.py \
+            --scan "$SCAN_FROM" "$SCAN_TO" \
+            --since "$SINCE" \
+            --cache ingest/cache \
+            --out ingest/bouts.csv.new -v
+
+      - name: Diff and shrink-guard
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          # Non-zero exit (a drop past --min-ratio) stops the job here, before
+          # the new file is promoted, so a bad scan range can't overwrite good
+          # data.
+          python ingest/diff_bouts.py ingest/bouts.csv ingest/bouts.csv.new \
+            --min-ratio 0.9 \
+            --emit-message .refresh-msg.txt \
+            --run-url "$RUN_URL"
+
+      - name: Promote regenerated CSV
+        run: mv ingest/bouts.csv.new ingest/bouts.csv
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Validate dataset with the test suite
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test
+
+      - name: Commit and push if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- ingest/bouts.csv; then
+            echo "No change in bouts.csv; nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ingest/bouts.csv
+          git commit -F .refresh-msg.txt
+          git push
+
+  revert:
+    if: ${{ github.event.action == 'revert-data' }}
+    runs-on: ubuntu-latest
+    steps:
+      # Full history so we can read the file as it was before the refresh.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore the pre-refresh bouts.csv
+        env:
+          # Bind to env (never interpolate event data straight into the script)
+          # and validate it's a bare hex sha before handing it to git.
+          SHA: ${{ github.event.client_payload.sha }}
+        run: |
+          set -euo pipefail
+          case "$SHA" in
+            *[!0-9a-fA-F]* | '') echo "invalid sha: '$SHA'" >&2; exit 1 ;;
+          esac
+          # Restore the file as it stood at the refresh commit's parent, i.e.
+          # undo exactly that refresh without rewriting any later history.
+          git checkout "${SHA}^" -- ingest/bouts.csv
+
+      - name: Commit and push the revert if anything changed
+        env:
+          SHA: ${{ github.event.client_payload.sha }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- ingest/bouts.csv; then
+            echo "bouts.csv already matches the pre-refresh state; nothing to revert."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ingest/bouts.csv
+          git commit -m "data: revert refresh ${SHA:0:7} (restore previous results)"
+          git push
