@@ -1,8 +1,8 @@
 import React from 'react';
 
-// DRAFT FAQ COPY — wording is a placeholder for the owner to rewrite. The
-// layout below is generic; edit the strings in FAQ, not the markup. Grouped so
-// related questions sit together; add or remove freely.
+// Site FAQ. Edit the strings in FAQ, not the markup. Grouped so related
+// questions sit together; add or remove freely. Keep the wording in step with
+// the README FAQ, which covers the same ground for the repo audience.
 const FAQ = [
   {
     section: 'Ratings',
@@ -102,9 +102,6 @@ const FAQ = [
 export default function Faq() {
   return (
     <div>
-      <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginBottom: 28, fontSize: '0.95rem' }}>
-        These answers are a working draft.
-      </div>
       {FAQ.map((group) => (
         <div key={group.section} style={{ marginBottom: 36 }}>
           <div className="fl-smallcaps" style={{ marginBottom: 14, paddingBottom: 8, borderBottom: '1px solid var(--ink)' }}>{group.section}</div>
