@@ -12,7 +12,9 @@ import { redis, rateLimiter, fencerForHash, fencerKeyOf, nameKey, readJsonBody, 
 const LIVE_KINDS = new Set(['display_name', 'current_club']);
 const QUEUED_KINDS = new Set(['merge', 'dispute']);
 
-function validatePayload(kind, payload) {
+// Exported so the test suite can exercise the limits without a Redis
+// connection. The handler below stays the only production caller.
+export function validatePayload(kind, payload) {
   if (kind === 'display_name') {
     const n = String(payload?.display_name || '').trim();
     if (!n || n.length > 80) return 'name must be 1-80 characters';
@@ -36,6 +38,22 @@ function validatePayload(kind, payload) {
     return null;
   }
   return 'unknown kind';
+}
+
+// Prefer the client-supplied fencer_key (it's the one that actually
+// matches the bout-derived fencers map), but verify it lines up with
+// one of this fencer's known aliases, otherwise we'd let a signed-in
+// person submit edits under someone else's identity. Exported for the
+// test suite; pure so it needs no Redis.
+export function resolveFencerKey(fencer, requestedKey) {
+  const aliases = new Set((fencer.name_keys || []).map((k) => nameKey(k)));
+  let fkey = null;
+  if (requestedKey && typeof requestedKey === 'string') {
+    const candidate = nameKey(requestedKey);
+    if (aliases.has(candidate)) fkey = candidate;
+  }
+  if (!fkey) fkey = fencerKeyOf(fencer);
+  return fkey;
 }
 
 export default async function handler(req, res) {
@@ -71,17 +89,7 @@ export default async function handler(req, res) {
     res.status(401).json({ error: 'unknown licence' });
     return;
   }
-  // Prefer the client-supplied fencer_key (it's the one that actually
-  // matches the bout-derived fencers map), but verify it lines up with
-  // one of this fencer's known aliases — otherwise we'd let a signed-in
-  // person submit edits under someone else's identity.
-  const aliases = new Set((fencer.name_keys || []).map((k) => nameKey(k)));
-  let fkey = null;
-  if (fencer_key && typeof fencer_key === 'string') {
-    const candidate = nameKey(fencer_key);
-    if (aliases.has(candidate)) fkey = candidate;
-  }
-  if (!fkey) fkey = fencerKeyOf(fencer);
+  const fkey = resolveFencerKey(fencer, fencer_key);
   if (!fkey) {
     res.status(500).json({ error: 'fencer has no canonical key' });
     return;

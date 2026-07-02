@@ -32,8 +32,10 @@ async function updateOverridesAfterRevert(db, edit) {
 }
 
 async function applyMerge(db, edit) {
-  // Persist merges in a separate doc the client can layer on. Doesn't
-  // mutate ratings — merge handling on the read path is a follow-up.
+  // Persist merges in a separate doc rather than mutating stored
+  // ratings: the client layers this doc onto raw bouts at load time,
+  // before rating processing (see mergedRawBouts in App.jsx), so the
+  // merge takes effect everywhere without a data rebuild.
   const cur = (await db.get('merges')) || {};
   const parsed = typeof cur === 'string' ? JSON.parse(cur) : cur;
   parsed[edit.fencer_key] = {
@@ -41,6 +43,44 @@ async function applyMerge(db, edit) {
     edit_id: edit.id,
   };
   await db.set('merges', JSON.stringify(parsed));
+}
+
+// Admin-direct merge: rewrite all future reads of `source_key` to
+// `target_key`. Pass target_key === '' (or omit) to undo a merge.
+// `target_name` is stored so the client can render the merged fencer
+// under their canonical display name without a lookup. Validation and
+// mutation are split out as pure functions so they can be unit tested
+// without a Redis connection; the handler is their only production
+// caller.
+export function validateMergeRequest(payload) {
+  const source = String(payload?.source_key || '').trim().toLowerCase();
+  const target = String(payload?.target_key || '').trim().toLowerCase();
+  const targetName = String(payload?.target_name || '').trim();
+  if (!source) return { error: 'source_key required' };
+  if (target && source === target) return { error: 'source and target must differ' };
+  return { source, target, targetName, error: null };
+}
+
+export function applyMergeFencers(parsed, source, target, targetName, editId) {
+  if (!target) {
+    delete parsed[source];
+    return parsed;
+  }
+  // Reject chains: if target itself is already merged into someone
+  // else, point source at the ultimate target instead. The seen set
+  // guards against a pre-existing cycle in the doc looping forever.
+  let finalTarget = target;
+  const seen = new Set([source]);
+  while (parsed[finalTarget]?.merge_into && !seen.has(finalTarget)) {
+    seen.add(finalTarget);
+    finalTarget = parsed[finalTarget].merge_into;
+  }
+  parsed[source] = {
+    merge_into: finalTarget,
+    merge_into_name: targetName || null,
+    edit_id: editId,
+  };
+  return parsed;
 }
 
 export default async function handler(req, res) {
@@ -91,40 +131,14 @@ export default async function handler(req, res) {
   }
 
   if (action === 'merge_fencers') {
-    // Admin-direct merge: rewrite all future reads of `source_key` to
-    // `target_key`. Pass target_key === '' (or omit) to undo a merge.
-    // `target_name` is stored so the client can render the merged
-    // fencer under their canonical display name without a lookup.
-    const source = String(payload?.source_key || '').trim().toLowerCase();
-    const target = String(payload?.target_key || '').trim().toLowerCase();
-    const targetName = String(payload?.target_name || '').trim();
-    if (!source) {
-      res.status(400).json({ error: 'source_key required' });
-      return;
-    }
-    if (target && source === target) {
-      res.status(400).json({ error: 'source and target must differ' });
+    const v = validateMergeRequest(payload);
+    if (v.error) {
+      res.status(400).json({ error: v.error });
       return;
     }
     const cur = (await db.get('merges')) || {};
     const parsed = typeof cur === 'string' ? JSON.parse(cur) : cur;
-    if (!target) {
-      delete parsed[source];
-    } else {
-      // Reject chains: if target itself is already merged into someone
-      // else, point source at the ultimate target instead.
-      let finalTarget = target;
-      const seen = new Set([source]);
-      while (parsed[finalTarget]?.merge_into && !seen.has(finalTarget)) {
-        seen.add(finalTarget);
-        finalTarget = parsed[finalTarget].merge_into;
-      }
-      parsed[source] = {
-        merge_into: finalTarget,
-        merge_into_name: targetName || null,
-        edit_id: `admin-${Date.now()}`,
-      };
-    }
+    applyMergeFencers(parsed, v.source, v.target, v.targetName, `admin-${Date.now()}`);
     await db.set('merges', JSON.stringify(parsed));
     res.status(200).json({ ok: true, merges: parsed });
     return;
