@@ -54,7 +54,7 @@ Glicko-2 is not necessarily the *right* algorithm for fencing. It was chosen as 
 
 FencingTimeLive recently blocked CSV exports from their results pages. To work around this, the ingest script (`ingest/fenz_ingest.py`) pulls directly from the FeNZ public API - the same data FeNZ uses to publish results on their own site. A side effect is that this gives FeNZ an incentive to keep their results up to date, since the data is only as good as what they enter.
 
-The shipped dataset currently spans 2024–2026 (2024-02-17 → 2026-05-10) and contains ~17k bouts. DE brackets in the FeNZ cache occasionally place fencer rows at the wrong slot, which would produce phantom bouts and drop real ones; the ingest now verifies adjacent pairs by score consistency, falls back to score-matching across the round, and reconstructs blank-name slots from final standings. Medical withdrawals, abandons, and exclusions are detected from the FeNZ result codes and recorded as a loss for the fencer who withdrew without moving either rating - an injury retirement shouldn't read as a skill result. If you spot a bout that looks wrong, open an issue with the competition and round.
+The shipped dataset starts at 2024-02-17 and tracks the FeNZ calendar through the one-button refresh; at the time of writing it holds ~18k bouts through June 2026 (the commit history of `ingest/bouts.csv` is the up-to-date record). DE brackets in the FeNZ cache occasionally place fencer rows at the wrong slot, which would produce phantom bouts and drop real ones; the ingest now verifies adjacent pairs by score consistency, falls back to score-matching across the round, and reconstructs blank-name slots from final standings. Medical withdrawals, abandons, and exclusions are detected from the FeNZ result codes and recorded as a loss for the fencer who withdrew without moving either rating - an injury retirement shouldn't read as a skill result. If you spot a bout that looks wrong, open an issue with the competition and round.
 
 ---
 
@@ -135,6 +135,12 @@ See DESIGN.md for the detailed reasoning. In short: Glicko-2 handles infrequent 
 
 **What about my privacy?**
 The system displays the same information that's already publicly available on results.fencing.org.nz - fencer names, club affiliations, competition results. I don't display contact info, or anything private. If you appear in the dataset and would like to be removed, contact me and we'll work it out, though note that "remove from a public rating system" is difficult because your bouts affect other fencers' ratings - I'd anonymise rather than delete.
+
+---
+
+## Use of AI
+
+This project is built with AI coding tools (Claude Code) in the loop. I use it the way I use a compiler or a test runner: as a tool. The problem framing, the rating-system design, data quality investigations, and the design choices I've documented are mine. No matter who types the code, it goes through the same process: the test suite, the calibration backtest, and the beta community I'm lucky enough to have.
 
 ---
 
