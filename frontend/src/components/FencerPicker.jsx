@@ -61,6 +61,7 @@ export default function FencerPicker({ fencers, weapon, gender, selected, onSele
         <>
           <input
             className="fl-input"
+            aria-label={placeholder || 'Select fencer'}
             placeholder={placeholder}
             value={q}
             onChange={e => { setQ(e.target.value); setOpen(true); }}
