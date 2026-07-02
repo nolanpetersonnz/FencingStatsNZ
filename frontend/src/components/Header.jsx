@@ -84,6 +84,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
               <Search size={16} color="var(--ink-soft)" />
               <input
                 className="fl-input"
+                aria-label="Search fencers and clubs"
                 placeholder={hasData ? 'Search fencers, clubs…' : 'No data yet'}
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setOpen(true); }}
@@ -136,6 +137,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
                   value={ageCategory || 'all'}
                   onChange={e => setAgeCategory(e.target.value)}
                   className="fl-pill"
+                  aria-label="Age category"
                   style={{ fontFamily: 'inherit', cursor: 'pointer' }}
                   title="Age category: Junior counts senior+junior bouts, Cadet counts cadet+junior+senior, Veteran is isolated"
                 >
