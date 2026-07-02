@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  parseCSV, processBouts, parseAgeCategory, withdrawalSide, deFinish,
+  parseCSV, processBouts, parseAgeCategory, withdrawalSide, dedupeBouts, deFinish,
   difficultyTier, fieldOverview, predictiveAccuracy, buildTableau,
   lineDifficulty, matchups, makeDemoBouts,
 } from '../src/data/pipeline.js';
@@ -79,6 +79,33 @@ test('a withdrawal is a loss for the withdrawer but moves no rating', () => {
   assert.equal(bouts[0].deltaB, 0);
   assert.equal(bouts[0].winnerKey, 'alice a');
   assert.equal(bouts[0].withdrawal, 'b');
+});
+
+// ---- Mixed-event dedup vs withdrawal flags -----------------------------------
+// FeNZ sometimes lists one physical event twice ("X - Mens" and "X - Womens").
+// Dedup collapses the copies; a withdrawal in that event must survive as
+// exactly one withdrawal bout no matter which copy carries the flag.
+const mixedPair = (flagMens, flagWomens) => [
+  mkBout({ competition: 'Cup 2025 - Mens', gender: 'Mens', score_a: '0', score_b: '0', ...(flagMens ? { flag: flagMens } : {}) }),
+  mkBout({ competition: 'Cup 2025 - Womens', gender: 'Womens', score_a: '0', score_b: '0', ...(flagWomens ? { flag: flagWomens } : {}) }),
+];
+
+test('mixed-event dedup collapses two flagged copies into one withdrawal', () => {
+  const { bouts } = processBouts(mixedPair('wd_b', 'wd_b'), S);
+  assert.equal(bouts.length, 1);
+  assert.equal(bouts[0].withdrawal, 'b');
+  assert.equal(bouts[0].deltaA, 0);
+  assert.equal(bouts[0].deltaB, 0);
+});
+
+test('mixed-event dedup keeps a withdrawal flag carried only by the later copy', () => {
+  // The unflagged copy comes first. Without flag merging, dedup would keep it
+  // and the 0-0 row would be rated as a real result.
+  const { fencers, bouts } = processBouts(mixedPair(null, 'wd_b'), S);
+  assert.equal(bouts.length, 1);
+  assert.equal(bouts[0].withdrawal, 'b');
+  assert.equal(fencers['alice a'].byWeapon.epee.de.rating, S.initialRating);
+  assert.equal(fencers['bob b'].byWeapon.epee.de.rating, S.initialRating);
 });
 
 // ---- DE finish derivation (Phase 1 Results view) ----------------------------
@@ -310,9 +337,13 @@ test('committed bouts.csv processes cleanly with withdrawal flags', () => {
     }
   }
 
-  // Every withdrawal bout in the output has zero rating movement.
+  // Every withdrawal bout in the output has zero rating movement. Mixed-event
+  // dedup can legitimately collapse two flagged copies of the same physical
+  // bout into one, so the expected count comes from the deduped rows, not the
+  // raw flagged rows.
+  const expectedWd = dedupeBouts(raw).filter(b => withdrawalSide(b)).length;
   const wdBouts = bouts.filter(b => b.withdrawal);
-  assert.equal(wdBouts.length, flagged.length, 'all flagged bouts emitted as withdrawals');
+  assert.equal(wdBouts.length, expectedWd, 'all flagged bouts emitted as withdrawals');
   for (const b of wdBouts) {
     assert.equal(b.deltaA, 0);
     assert.equal(b.deltaB, 0);

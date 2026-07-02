@@ -259,20 +259,22 @@ export function parseCSV(text) {
   });
 }
 
-export function processBouts(rawBouts, settings) {
-  const dateFmt = detectDateFormat(rawBouts.map(b => b.date));
-  rawBouts = rawBouts.map(b => b.date ? { ...b, date: normDate(b.date, dateFmt) } : b);
-
-  // Dedupe mixed events. When the same physical event was ingested once as
-  // "X - Mens" and once as "X - Womens" with identical bout rows, every match
-  // would otherwise be processed twice and Elo gains/losses would double.
-  // Strategy: detect such (date, weapon, base) tuples, rewrite both variants
-  // to a single canonical name (the base, with no gender suffix), clear the
-  // per-row gender label (it's noise from the scraper, not the fencer's actual
-  // gender), then drop duplicate rows by canonical bout hash.
+// Dedupe mixed events. When the same physical event was ingested once as
+// "X - Mens" and once as "X - Womens" with identical bout rows, every match
+// would otherwise be processed twice and Elo gains/losses would double.
+// Strategy: detect such (date, weapon, base) tuples, rewrite both variants
+// to a single canonical name (the base, with no gender suffix), clear the
+// per-row gender label (it's noise from the scraper, not the fencer's actual
+// gender), then drop duplicate rows by canonical bout hash.
+//
+// Flag-aware: when a dropped duplicate carries a withdrawal flag the kept copy
+// lacks, the flag is merged onto the kept row. Whether a withdrawal survives
+// must not depend on which copy the scraper happened to emit first.
+// Exported so the dataset smoke test and diagnose-withdrawals.mjs can compute
+// the expected withdrawal count with the exact same logic.
+export function dedupeBouts(rawBouts) {
   const mixedKeys = detectMixedEvents(rawBouts);
-  const seen = new Set();
-  const prepped = [];
+  const kept = new Map(); // dedupKey -> the row we kept (insertion-ordered)
   for (const b of rawBouts) {
     const weapon = normWeapon(b.weapon);
     const { base, variant } = parseCompVariant(b.competition);
@@ -281,11 +283,21 @@ export function processBouts(rawBouts, settings) {
     const competition = isMixed ? base : (b.competition || '').trim();
     const gender = isMixed ? '' : (b.gender || '');
     const dedupKey = `${b.date}|${weapon}|${competition.toLowerCase()}|${boutHash(b, weapon)}`;
-    if (seen.has(dedupKey)) continue;
-    seen.add(dedupKey);
-    prepped.push({ ...b, competition, gender });
+    const prev = kept.get(dedupKey);
+    if (prev) {
+      if (!withdrawalSide(prev) && withdrawalSide(b)) prev.flag = b.flag;
+      continue;
+    }
+    kept.set(dedupKey, { ...b, competition, gender });
   }
-  rawBouts = prepped;
+  return [...kept.values()];
+}
+
+export function processBouts(rawBouts, settings) {
+  const dateFmt = detectDateFormat(rawBouts.map(b => b.date));
+  rawBouts = rawBouts.map(b => b.date ? { ...b, date: normDate(b.date, dateFmt) } : b);
+
+  rawBouts = dedupeBouts(rawBouts);
 
   const fencers = {};
   const bouts = [];
