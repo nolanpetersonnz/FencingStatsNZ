@@ -3,14 +3,16 @@
 A running log of feedback from users on the deployed site. Newest first.
 Status: **open** (not yet addressed), **addressed** (shipped, link to version), **wontfix** (decided against), **deferred** (planned, not now).
 
+Sourcing: comments made publicly (the FeNZ community Facebook group) are quoted as posted, with names. Feedback that arrived through private channels (email, DM) is attributed by first name or initials only.
+
 ---
 
 ## Round 3 - public beta on FeNZ Facebook + DMs
 
 Posted the beta to the NZ fencing community Facebook group and collected responses across FB comments, DMs, and direct emails. Entries below are grouped by theme rather than by individual reporter, since several themes were raised by more than one person.
 
-### Decay-weighted ratings / aging old results - **open, leaning toward implementing**
-- Sources: Andy Liu (FB, in extended comment thread), Brendan Lindsay (email follow-up)
+### Decay-weighted ratings / aging old results - **open, leaning towards implementing**
+- Sources: Andy Liu (FB, in extended comment thread), Brendan L. (email follow-up)
 - Andy: "exponential decay that strongly weights the most recent 9 months, and the remainder past 18 months will all non-quarterfinal-or-higher national results decaying to a minimum floor outside of this window, and quarterfinal-or-higher also decaying but to a higher floor."
 - Andy's proposed split: "80% of the effect of matches coming from matches in the last 9 months, 15% of the effect of matches coming from matches in the last 18 months or historical quarterfinals-or-higher matches, 5% of the effect of matches coming from results older than 18 months."
 - Brendan (separate email): "Andy Liu's comments about aging results is something I believe needs to be done... The current rankings are simply too volatile."
@@ -20,25 +22,25 @@ Posted the beta to the NZ fencing community Facebook group and collected respons
 ### Older / pre-2018 competition data - **open**
 - Source: Nathan McKnight (FB): "Any plans to add in older comps for anyone who's a little washed up?"
 - I replied with two options: (A) let users decide how far back the tracker goes, or (B) show all of a fencer's history on their profile but only feed recent data into the main ratings.
-- Probably (B). The rating math benefits from limiting to recent data (and the decay model above would supersede a hard cutoff anyway), but historical results on profiles are valuable context. Pre-2018 data may not exist in the FeNZ public API in usable form anyway, so this is also a data-availability question.
+- Probably (B). The rating maths benefits from limiting to recent data (and the decay model above would supersede a hard cutoff anyway), but historical results on profiles are valuable context. Pre-2018 data may not exist in the FeNZ public API in usable form anyway, so this is also a data-availability question.
 - Status: open, dependent on data availability and the decay-model decision.
 
 ### Developmental bands / qualitative grades - **noted, deferred**
 - Source: Andy Liu (FB, long comment)
 - Andy proposed a qualitative classification on top of the numerical rating: Newcomer / Intermediate / Advanced / Champion, based on observable skill markers (e.g. "can't be outfenced 15-0 or 5-0 in poules unless physically injured or impaired" for Intermediate; "carries through from start of day to end of day, makes consistent top 8 at most national competitions" for Champion).
-- Useful framing, but it's a different artifact from a rating system. It's closer to a coaching/development tool: the numerical rating measures performance, the bands would measure skill stage.
+- Useful framing, but it's a different artefact from a rating system. It's closer to a coaching/development tool: the numerical rating measures performance, the bands would measure skill stage.
 - Interesting future work but not v1 scope. Possibly its own page rather than something baked into ratings.
 - Status: deferred.
 
 ### Connectivity floor for appearance in main rankings - **addressed in [0.1.13]**
-- Source: Sam Webster (email)
+- Source: Sam W. (email)
 - "What are the requirements for showing up in the main ranking page? I've not fenced a huge amount recently but I have a profile with a rating and don't show up in the main list for foil."
 - Investigation: the Min Bouts filter wasn't the cause. It defaults to 1, so anyone with a bout in the weapon passes. The real silent exclusion was **undetermined gender**: a fencer who only ever fenced mixed events has no single-gender row to vote on, so they were dropped from both the Men's and Women's leaderboards (33 rated fencers, 11 with foil bouts). (Sam himself has no bouts in the current 2024+ dataset under that name, which is a separate data-coverage matter.)
 - Resolution: gender now falls back to the FNZ registry ranking keys (`foil_W` / `epee_M`) when bout data is inconclusive, recovering 31 of the 33. The Min Bouts control also got a tooltip explaining what it does and pointing at the weapon/gender filters.
 - Status: addressed in [0.1.13]. A "provisional" indicator for very-low-bout fencers remains a possible future refinement.
 
 ### Non-FeNZ data ingestion / private competitions - **noted, deferred**
-- Source: Sam Webster (email)
+- Source: Sam W. (email)
 - "I literally just did this for our club a couple of weeks ago... I assume the idea is to enter data from FeNZ events. As a possible future option it would be interesting to explore a non-FeNZ entry system... if you had to have a login to register bouts you could track who is entering bouts and see if anyone is trying to game the system. The rating could be split into FeNZ and non-FeNZ rating."
 - This is a substantial feature: it would need user accounts, authentication, moderation, and a way to handle the trust gap between authoritative FeNZ data and self-reported bouts. The split-rating idea (FeNZ vs non-FeNZ) is a sensible architectural answer to that trust problem.
 - Not v1 scope, but a strong v2 direction that would make the system meaningfully more useful for non-competitive club fencing.
@@ -67,15 +69,15 @@ Posted the beta to the NZ fencing community Facebook group and collected respons
 ### Medical withdrawals counted as losses - **addressed in [0.1.12]**
 - Source: anonymous DM (with a screenshot of a bracket showing a fencer marked as having lost via medical withdrawal)
 - "I think it's struggling a bit with medical withdrawals. It says he lost as well."
-- Root cause: FeNZ tableau data carries a per-fencer result `code`: `V`/`D` for victory/defeat, plus `MED` (medical), `A` (abandon), `DNF`, and `E`/`EXC` (exclusion) for fencers who didn't lose on the strip. The ingest ignored the code, so a withdrawal recorded with points, or one recorded as 0-0 that paired into a tie, flowed into the rating math like a normal result. There were 16 such bouts in the dataset, each a 0-0 "tie" that nudged both ratings.
+- Root cause: FeNZ tableau data carries a per-fencer result `code`: `V`/`D` for victory/defeat, plus `MED` (medical), `A` (abandon), `DNF`, and `E`/`EXC` (exclusion) for fencers who didn't lose on the strip. The ingest ignored the code, so a withdrawal recorded with points, or one recorded as 0-0 that paired into a tie, flowed into the rating maths like a normal result. There were 16 such bouts in the dataset, each a 0-0 "tie" that nudged both ratings.
 - Resolution: the ingest now reads the code and tags the bout with a `flag` column; `processBouts` records the withdrawal as a loss for the fencer who withdrew and a win for the opponent, but moves neither rating. My call: keep the loss visible, zero the Elo. The existing rows were backfilled from the API cache.
 - Status: addressed in [0.1.12].
 
 ### Ratings too compressed / range too narrow - **open**
 - Source: Lockie (via DM relayed by a friend): "the elo is too close together and wonders if there's any way to stretch people out a bit"
 - This is a recurring perception across multiple reporters: the top of the leaderboard feels tightly packed and it's hard to tell fencers apart visually.
-- Possible causes: (a) the rating spread genuinely is narrow, because the NZ population is small and densely connected, so true skill differences cluster more than they would in a chess-sized population; (b) Glicko-2's default parameters are tuned for larger populations and may need recalibration; (c) the display itself could emphasise differences (bar charts, percentile rankings) without changing the underlying math.
-- Plan: investigate parameter tuning (tau, initial RD), and consider visual aids that exaggerate perceived differences without distorting the math.
+- Possible causes: (a) the rating spread genuinely is narrow, because the NZ population is small and densely connected, so true skill differences cluster more than they would in a chess-sized population; (b) Glicko-2's default parameters are tuned for larger populations and may need recalibration; (c) the display itself could emphasise differences (bar charts, percentile rankings) without changing the underlying maths.
+- Plan: investigate parameter tuning (tau, initial RD), and consider visual aids that exaggerate perceived differences without distorting the maths.
 - Status: open.
 
 ### Show winner in competition view, not just elo change - **addressed in [0.1.13]**
@@ -96,7 +98,7 @@ Posted the beta to the NZ fencing community Facebook group and collected respons
 - Status: addressed in [0.1.15].
 
 ### Difficulty / strength-of-field metric improvements - **open**
-- Sources: Brendan Lindsay (email, NI Champs example), friend's DM suggestion
+- Sources: Brendan L. (email, NI Champs example), friend's DM suggestion
 - Friend: "Potentially using the root mean square instead of the usual averaging would fix that because it would weight high elos more heavily" and "setting difficulty = log2(entries) × average elo so that difficulty also scales with the number of round of DEs"
 - Brendan: "How do you attempt to acknowledge that some tournaments are worth more based on the calibre of entrants?" (NI Champs vs lesser tournaments)
 - The competition strength tier is currently median pool rating. Both reporters are pointing at variants of the same critique: median doesn't capture the depth of strong fencers in a field.
@@ -110,7 +112,7 @@ Posted the beta to the NZ fencing community Facebook group and collected respons
 - Status: shipped in [0.1.15]. Later refined to whole-path scoring: lines are scored by average opponent rating across the full path to the title.
 
 ### Club affiliation tracking - **addressed in [0.1.13]**
-- Source: Brendan Lindsay (email)
+- Source: Brendan L. (email)
 - "Why do NZ Ranking & these ratings never update the fencer's details (eg correct club name)? Some fencers move club affiliation over time, but the reports (almost) always default to your initial club selection, even if that changes later."
 - Root cause: `ensure()` in the pipeline set a fencer's club only on first sight (`!fencers[k].club`), so it stuck to the earliest club seen, which is exactly the "initial club selection" Brendan describes. (An earlier note here claiming it took the most-recent affiliation was mistaken.)
 - Resolution: the pipeline now overwrites with each non-empty club as it walks bouts in date order, so the displayed club follows the fencer's most recent bout. Admin/self-edit `club_overrides` still win on top.
@@ -130,7 +132,7 @@ Source for all Round 2 entries: a family member with FeNZ involvement, 2026-05.
 
 ### Club strength tier formula favours tiny clubs - **partially addressed in [0.1.10]**
 - "The club section strength doesn't work quite perhaps the way it should, with the very small clubs being able to get the A and Australia coming out as B, and most of the substantive clubs as C."
-- Likely root cause: the aggregate club rating lets small clubs with one or two high-rated members rank above larger clubs whose distribution naturally regresses toward the mean. Australian clubs get pulled in through trans-Tasman events but have tiny member counts in our dataset.
+- Likely root cause: the aggregate club rating lets small clubs with one or two high-rated members rank above larger clubs whose distribution naturally regresses towards the mean. Australian clubs get pulled in through trans-Tasman events but have tiny member counts in our dataset.
 - Addressed in [0.1.10]:
   - The Clubs page now respects the global weapon pill, so the median is computed against the active weapon rather than a foil+épée+sabre composite. That knocked NZ Academy of Fencing (29 members, 0 épéeists) off the top of the Mens Épée list.
   - A tier letter now requires at least 3 members active in the selected weapon. Below-threshold clubs show a dash instead of A/B/C. Small clubs with one star can still appear (so members can find them), but they don't carry a misleading letter.
@@ -159,11 +161,11 @@ Source for all Round 2 entries: a family member with FeNZ involvement, 2026-05.
 ## Post-launch feedback (after first release)
 
 ### Mixed events double-count Elo - **addressed in [0.1.8]**
-- Source: multiple. The original reporter, plus Elliot Hayes (foil rankings).
+- Source: multiple. The original reporter, plus Elliot H. (foil rankings, via DM).
 - "Sometimes people are gaining double elo if the event is mixed. Look at Ryan Sadler, 2024 Russell Towns Opens he's getting elo for the men's and the women's category."
 - "Yeah I checked my foil rankings cause it was a mixed event and the elo gets double counted. So anytime there's a mixed event elo losses and gains are basically doubled."
 - Root cause: the FenZ scraper ingested each mixed event twice (once tagged "- Mens", once "- Womens") with identical bout rows. `pipeline.js` keyed periods by competition name, so the two copies sat in separate periods and every bout updated ratings twice.
-- Fix: `detectMixedEvents` + `boutHash` in `processBouts`. Duplicate rows are deduped before any rating math runs.
+- Fix: `detectMixedEvents` + `boutHash` in `processBouts`. Duplicate rows are deduped before any rating maths runs.
 
 ### Women appearing in men's leaderboard (e.g. Maddy) - **addressed in [0.1.8]**
 - Source: original reporter
@@ -201,7 +203,7 @@ Source for all Round 2 entries: a family member with FeNZ involvement, 2026-05.
 
 ## Ideas / nice-to-haves (not formally requested)
 
-- DOB-based age categorisation as an alternative or hybrid to event-name parsing. Cleaner membership, but it doesn't replace event-based Elo math (a 19-year-old fencing a Senior event is still a senior bout). Only worth the data-entry effort if FenZ exposes DOBs.
+- DOB-based age categorisation as an alternative or hybrid to event-name parsing. Cleaner membership, but it doesn't replace event-based Elo maths (a 19-year-old fencing a Senior event is still a senior bout). Only worth the data-entry effort if FenZ exposes DOBs.
 - Per-age-category ratings on FencerProfile / CompetitionDetail / ClubDetail (those currently still show the all-events rating regardless of leaderboard filter).
 - Upstream dedupe in `fenz_ingest.py` so the canonical CSV doesn't carry duplicated mixed-event rows.
 
