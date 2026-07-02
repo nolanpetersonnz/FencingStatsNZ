@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRD, fmtRating, fmtConservativeRating, conservativeRating, fmtInterval } from '../utils/formatters.js';
+import { pressable } from '../utils/a11y.js';
 
 export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategory, settings, enrichment, onSelectFencer, onSelectClub }) {
   const [minBouts, setMinBouts] = useState(1);
@@ -145,24 +146,24 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
           <div>Rank</div>
           <div>Fencer</div>
           <div className="fl-hide-mobile">Club</div>
-          <div className="fl-link" onClick={() => setSort('pool')} style={{ textAlign: 'right', color: sort === 'pool' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          <button type="button" className="fl-link" onClick={() => setSort('pool')} style={{ textAlign: 'right', color: sort === 'pool' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Pool {sort === 'pool' && <span style={{ color: 'var(--ox)' }}>↓</span>}
-          </div>
-          <div className="fl-link" onClick={() => setSort('de')} style={{ textAlign: 'right', color: sort === 'de' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          </button>
+          <button type="button" className="fl-link" onClick={() => setSort('de')} style={{ textAlign: 'right', color: sort === 'de' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             DE {sort === 'de' && <span style={{ color: 'var(--ox)' }}>↓</span>}
-          </div>
-          <div className="fl-link fl-hide-mobile" onClick={() => setSort('bouts')} style={{ textAlign: 'right', color: sort === 'bouts' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          </button>
+          <button type="button" className="fl-link fl-hide-mobile" onClick={() => setSort('bouts')} style={{ textAlign: 'right', color: sort === 'bouts' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Bouts {sort === 'bouts' && <span style={{ color: 'var(--ox)' }}>↓</span>}
-          </div>
-          <div className="fl-link fl-hide-mobile" onClick={() => setSort('winrate')} style={{ textAlign: 'right', color: sort === 'winrate' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          </button>
+          <button type="button" className="fl-link fl-hide-mobile" onClick={() => setSort('winrate')} style={{ textAlign: 'right', color: sort === 'winrate' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             W·L {sort === 'winrate' && <span style={{ color: 'var(--ox)' }}>↓</span>}
-          </div>
+          </button>
         </div>
 
         {ranked.map(({ f, pool, de, totalBouts, totalWins, totalLosses }, i) => (
           <div
             key={f.key}
-            onClick={() => onSelectFencer(f.key)}
+            {...pressable(() => onSelectFencer(f.key))}
             className="fl-row-hover fl-link"
             style={{ display: 'grid', gridTemplateColumns: gridCols, alignItems: 'center', padding: '14px 16px', borderBottom: '1px solid var(--rule-soft)' }}
           >
@@ -174,12 +175,16 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
             </div>
             <div className="fl-italic fl-hide-mobile" style={{ color: 'var(--ink-soft)', fontSize: '0.92rem' }}>
               {f.club ? (
-                <span
+                // Enter on this button must not bubble to the row's pressable
+                // handler, or one keypress would fire both navigations.
+                <button
+                  type="button"
                   className="fl-link"
                   onClick={(e) => { e.stopPropagation(); onSelectClub?.(f.club); }}
+                  onKeyDown={(e) => e.stopPropagation()}
                 >
                   {f.club}
-                </span>
+                </button>
               ) : ''}
             </div>
             <div style={{ textAlign: 'right', opacity: pool.bouts > 0 ? 1 : 0.35 }}

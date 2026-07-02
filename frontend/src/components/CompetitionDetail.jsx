@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtDelta, fmtDate, fmtSweepOdds } from '../utils/formatters.js';
+import { pressable } from '../utils/a11y.js';
 import { strengthTier, deFinish, fieldOverview, buildTableau, lineDifficulty } from '../data/pipeline.js';
 import DifficultyStrip from './DifficultyStrip.jsx';
 import DeTableau from './DeTableau.jsx';
@@ -110,9 +111,9 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
 
   return (
     <div className="fl-fade-in">
-      <div className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <button type="button" className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
         <ArrowLeft size={12} /> Back
-      </div>
+      </button>
 
       <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, flexWrap: 'wrap' }}>
         <div>
@@ -155,12 +156,12 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 4, gap: 16, flexWrap: 'wrap' }}>
         <div className="fl-smallcaps">Performance</div>
         <div className="fl-smallcaps" style={{ display: 'flex', gap: 16 }}>
-          <span className="fl-link" onClick={() => setSortMode('elo')} style={{ color: sortMode === 'elo' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          <button type="button" className="fl-link" onClick={() => setSortMode('elo')} style={{ color: sortMode === 'elo' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Elo change{sortMode === 'elo' && <span style={{ color: 'var(--ox)' }}> ↓</span>}
-          </span>
-          <span className="fl-link" onClick={() => setSortMode('results')} style={{ color: sortMode === 'results' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          </button>
+          <button type="button" className="fl-link" onClick={() => setSortMode('results')} style={{ color: sortMode === 'results' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Results{sortMode === 'results' && <span style={{ color: 'var(--ox)' }}> ↓</span>}
-          </span>
+          </button>
         </div>
       </div>
       <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)', marginBottom: 12 }}>
@@ -170,19 +171,23 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
       </div>
       <div style={{ borderTop: '1px solid var(--ink)', marginBottom: 36 }}>
         {rows.map((s, i) => (
-          <div key={s.key} className="fl-link fl-row-hover" onClick={() => onSelectFencer(s.key)}
+          <div key={s.key} className="fl-link fl-row-hover" {...pressable(() => onSelectFencer(s.key))}
             style={{ display: 'grid', gridTemplateColumns: '40px 1fr 90px 1fr 1fr', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--rule-soft)' }}>
             <div className="fl-mono" style={{ color: 'var(--ink-faint)', fontSize: '0.95rem' }}>{(i + 1).toString().padStart(2, '0')}</div>
             <div>
               <div className="fl-display" style={{ fontWeight: 600, fontSize: '1.05rem' }}>{s.f?.name || s.key}</div>
               <div className="fl-italic fl-hide-mobile" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)' }}>
                 {s.f?.club ? (
-                  <span
+                  // Enter on this button must not bubble to the row's pressable
+                  // handler, or one keypress would fire both navigations.
+                  <button
+                    type="button"
                     className="fl-link"
                     onClick={(e) => { e.stopPropagation(); onSelectClub?.(s.f.club); }}
+                    onKeyDown={(e) => e.stopPropagation()}
                   >
                     {s.f.club}
-                  </span>
+                  </button>
                 ) : ''}
               </div>
             </div>
@@ -246,7 +251,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
           <div style={{ textAlign: 'right' }}>Exp</div><div style={{ textAlign: 'right' }}>Act</div><div style={{ textAlign: 'right' }}>Diff</div>
         </div>
         {fieldRows.map((s, i) => (
-          <div key={s.key} className="fl-link fl-row-hover" onClick={() => onSelectFencer(s.key)}
+          <div key={s.key} className="fl-link fl-row-hover" {...pressable(() => onSelectFencer(s.key))}
             style={{ display: 'grid', gridTemplateColumns: '34px minmax(96px, 1.1fr) 2.2fr 1.7fr 48px 38px 52px', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--rule-soft)' }}>
             <div className="fl-mono" style={{ color: 'var(--ink-faint)', fontSize: '0.9rem' }}>{(i + 1).toString().padStart(2, '0')}</div>
             <div className="fl-display" style={{ fontWeight: 600, fontSize: '0.98rem', paddingRight: 8 }}>{s.f?.name || s.key}</div>
@@ -287,7 +292,7 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
                   <div style={{ textAlign: 'right' }}>Sweep odds</div>
                 </div>
                 {hardestLines.map((s, i) => (
-                  <div key={s.key} className="fl-link fl-row-hover" onClick={() => onSelectFencer(s.key)}
+                  <div key={s.key} className="fl-link fl-row-hover" {...pressable(() => onSelectFencer(s.key))}
                     style={{ display: 'grid', gridTemplateColumns: '34px 1fr 78px 84px 80px', alignItems: 'center', padding: '11px 14px', borderBottom: '1px solid var(--rule-soft)' }}>
                     <div className="fl-mono" style={{ color: 'var(--ink-faint)', fontSize: '0.9rem' }}>{(i + 1).toString().padStart(2, '0')}</div>
                     <div className="fl-display" style={{ fontWeight: 600, fontSize: '0.98rem', paddingRight: 8 }}>{s.f?.name || s.key}</div>
@@ -312,13 +317,13 @@ export default function CompetitionDetail({ compId, competitions, fencers, bouts
           return (
             <div key={b.id} style={{ display: 'grid', gridTemplateColumns: '70px 1fr 90px 1fr', alignItems: 'center', padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }}>
               <div className="fl-smallcaps" style={{ fontSize: '0.62rem', color: b.type === 'de' ? 'var(--ox)' : 'var(--ink-faint)' }}>{b.type === 'de' ? `DE ${b.deRound}` : 'Pool'}</div>
-              <div className="fl-link fl-display" style={{ fontWeight: b.winnerKey === b.keyA ? 700 : 400, color: b.winnerKey === b.keyA ? 'var(--ink)' : 'var(--ink-soft)', textAlign: 'right', paddingRight: 16 }} onClick={() => onSelectFencer(b.keyA)}>
+              <button type="button" className="fl-link fl-display" style={{ fontWeight: b.winnerKey === b.keyA ? 700 : 400, color: b.winnerKey === b.keyA ? 'var(--ink)' : 'var(--ink-soft)', textAlign: 'right', paddingRight: 16 }} onClick={() => onSelectFencer(b.keyA)}>
                 {fa?.name || b.keyA}
-              </div>
+              </button>
               <div className="fl-mono" style={{ textAlign: 'center', fontWeight: 600 }}>{b.scoreA}–{b.scoreB}</div>
-              <div className="fl-link fl-display" style={{ fontWeight: b.winnerKey === b.keyB ? 700 : 400, color: b.winnerKey === b.keyB ? 'var(--ink)' : 'var(--ink-soft)', paddingLeft: 16 }} onClick={() => onSelectFencer(b.keyB)}>
+              <button type="button" className="fl-link fl-display" style={{ fontWeight: b.winnerKey === b.keyB ? 700 : 400, color: b.winnerKey === b.keyB ? 'var(--ink)' : 'var(--ink-soft)', paddingLeft: 16 }} onClick={() => onSelectFencer(b.keyB)}>
                 {fb?.name || b.keyB}
-              </div>
+              </button>
             </div>
           );
         })}

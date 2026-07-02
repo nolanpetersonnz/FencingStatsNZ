@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRating, fmtDate } from '../utils/formatters.js';
 import { strengthTier } from '../data/pipeline.js';
+import { pressable } from '../utils/a11y.js';
 
 export default function Competitions({ competitions, weapon, gender, onSelectComp }) {
   const filtered = competitions.filter(c =>
@@ -62,18 +63,18 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
 
       <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: gridCols, columnGap: 20, alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--rule)' }} className="fl-smallcaps">
-          <div className="fl-link" onClick={() => toggleSort('date')} style={{ color: sort === 'date' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          <button type="button" className="fl-link" onClick={() => toggleSort('date')} style={{ color: sort === 'date' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Date {sort === 'date' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
-          </div>
+          </button>
           <div>Competition</div>
-          <div className="fl-link fl-hide-mobile" onClick={() => toggleSort('size')} style={{ textAlign: 'right', color: sort === 'size' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          <button type="button" className="fl-link fl-hide-mobile" onClick={() => toggleSort('size')} style={{ textAlign: 'right', color: sort === 'size' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Field size {sort === 'size' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
-          </div>
+          </button>
           <div className="fl-hide-mobile" style={{ textAlign: 'right' }}>Median</div>
           <div className="fl-hide-mobile" style={{ textAlign: 'right' }}>Top</div>
-          <div className="fl-link" onClick={() => toggleSort('strength')} style={{ textAlign: 'right', color: sort === 'strength' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          <button type="button" className="fl-link" onClick={() => toggleSort('strength')} style={{ textAlign: 'right', color: sort === 'strength' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Strength {sort === 'strength' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
-          </div>
+          </button>
         </div>
 
         {sorted.map(c => {
@@ -81,7 +82,7 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
           return (
             <div
               key={c.id}
-              onClick={() => onSelectComp(c.id)}
+              {...pressable(() => onSelectComp(c.id))}
               className="fl-link fl-row-hover"
               style={{ display: 'grid', gridTemplateColumns: gridCols, columnGap: 20, alignItems: 'center', padding: '18px 16px', borderBottom: '1px solid var(--rule-soft)' }}
             >

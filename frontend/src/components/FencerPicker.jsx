@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { fmtConservativeRating } from '../utils/formatters.js';
+import { pressable } from '../utils/a11y.js';
 
 export default function FencerPicker({ fencers, weapon, gender, selected, onSelect, placeholder, settings }) {
   const k = settings?.displayK ?? 1;
@@ -54,7 +55,7 @@ export default function FencerPicker({ fencers, weapon, gender, selected, onSele
           ) : (
             <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginTop: 8 }}>No bouts in this weapon.</div>
           )}
-          <div className="fl-link fl-smallcaps" style={{ marginTop: 12, color: 'var(--ox)' }} onClick={() => onSelect(null)}>Change</div>
+          <button type="button" className="fl-link fl-smallcaps" style={{ marginTop: 12, color: 'var(--ox)', display: 'block' }} onClick={() => onSelect(null)}>Change</button>
         </div>
       ) : (
         <>
@@ -73,7 +74,7 @@ export default function FencerPicker({ fencers, weapon, gender, selected, onSele
                 const primaryStream = rw.pool.bouts >= rw.de.bouts ? rw.pool : rw.de;
                 return (
                   <div key={r.key} className="fl-link fl-row-hover" style={{ padding: '8px 12px', borderBottom: '1px solid var(--rule-soft)' }}
-                    onClick={() => { onSelect(r.key); setQ(''); setOpen(false); }}>
+                    {...pressable(() => { onSelect(r.key); setQ(''); setOpen(false); })}>
                     <div className="fl-display" style={{ fontWeight: 600 }}>{r.name}</div>
                     <div className="fl-italic" style={{ fontSize: '0.78rem', color: 'var(--ink-faint)' }}>{r.club} · {fmtConservativeRating(primaryStream.rating, primaryStream.rd, k)}</div>
                   </div>

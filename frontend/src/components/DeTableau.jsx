@@ -74,6 +74,8 @@ export default function DeTableau({ tableau, onSelectFencer, lineByKey = {} }) {
   const capName = highlightKey ? (nameByKey[highlightKey] || highlightKey) : null;
   const capLine = highlightKey ? lineByKey[highlightKey] : null;
 
+  // Keyboard focus on a fencer's name mirrors the mouse hover, so tabbing
+  // through the bracket traces each line the same way hovering does.
   const Side = ({ s, m }) => {
     const won = m.winnerKey === s.key;
     const isHi = highlightKey && s.key === highlightKey;
@@ -83,13 +85,16 @@ export default function DeTableau({ tableau, onSelectFencer, lineByKey = {} }) {
         onMouseLeave={() => setHover(null)}
         style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '0 9px', cursor: 'pointer' }}
       >
-        <span
+        <button
+          type="button"
           className="fl-link fl-display"
           onClick={() => s.key && onSelectFencer?.(s.key)}
+          onFocus={() => setHover(s.key)}
+          onBlur={() => setHover(null)}
           style={{ fontWeight: won || isHi ? 700 : 400, color: won ? 'var(--ink)' : 'var(--ink-soft)', fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: isHi ? 'underline' : 'none' }}
         >
           {s.name}
-        </span>
+        </button>
         <span className="fl-mono" style={{ fontSize: '0.78rem', fontWeight: won ? 600 : 400, color: won ? 'var(--ink)' : 'var(--ink-faint)' }}>{s.score}</span>
       </div>
     );
@@ -154,7 +159,7 @@ export default function DeTableau({ tableau, onSelectFencer, lineByKey = {} }) {
               style={{ position: 'absolute', left: x(lastCol) + BOX_W + CHAMP_GAP, top: yTop(finalMatch.row), width: CHAMP_W, height: BOX_H, display: 'flex', flexDirection: 'column', justifyContent: 'center', border: `1px solid ${highlightKey === champ.key ? 'var(--ox)' : 'var(--rule)'}`, background: 'var(--paper-deep)', padding: '0 10px', opacity: highlightKey && highlightKey !== champ.key ? 0.45 : 1 }}
             >
               <div className="fl-smallcaps" style={{ fontSize: '0.5rem', color: 'var(--ox)', marginBottom: 2 }}>Champion</div>
-              <span className="fl-link fl-display" style={{ fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer' }} onClick={() => onSelectFencer?.(champ.key)}>{champ.name}</span>
+              <button type="button" className="fl-link fl-display" style={{ fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer' }} onClick={() => onSelectFencer?.(champ.key)} onFocus={() => setHover(champ.key)} onBlur={() => setHover(null)}>{champ.name}</button>
             </div>
           )}
         </div>
