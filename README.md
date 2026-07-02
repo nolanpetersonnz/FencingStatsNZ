@@ -10,9 +10,9 @@ A fencer-first results viewer and rating ledger for New Zealand fencing, built t
 
 ## The problem
 
-New Zealand's current ranking system takes each fencer's top five competition performances and sums the points. The problem is that it treats all competitions equally, a podium at the NZ Open counts the same as a podium at a small regional with a weak field. Enter enough competitions, get lucky at a few of them, and you can accumulate a ranking that doesn't reflect how you'd actually perform against the top fencers.
+New Zealand's current ranking system takes each fencer's top five competition performances and sums the points. The problem is that it treats all competitions equally, a podium at the NZ Open counts the same as a podium at a smaller national competition with a weak field. Enter enough competitions, get lucky at a few of them, and you can accumulate a ranking that doesn't reflect how you'd actually perform against the top fencers.
 
-This came to a head during a recent team selection debate. One fencer had the results on paper to justify selection and, by the official metric, deserved it, but wasn't the strongest option for the team. The result was two proposed squads: 'the fair one' and 'the best one'. Neither felt fully defensible, and FeNZ has acknowledged that the ranking system is self-admittedly poor.
+This came to a head during a recent team selection debate. One fencer had the results on paper to justify selection and, by the official metric, deserved it, but wasn't the strongest option for the team. The result was two proposed squads: 'the fair one' and 'the best one'. Neither felt fully defensible, and FeNZ itself has acknowledged the ranking system's shortcomings.
 
 FencingStatsNZ is an attempt at something better: a system that weights wins by who you beat, separates pool-round competency from direct-elimination competency, and gives fencers and selectors a more honest basis for comparison.
 
@@ -113,7 +113,7 @@ Not at this time. The project is developed independently and uses FeNZ's public 
 A few possibilities. You might have high RD (limited recent activity), in which case the system is being conservative about your rating. You might have been losing to lower-rated opponents recently, which hits ratings harder than equivalent wins help. You might be strong in DE but not pools (or vice versa). Check both ratings on your profile. Or the system might genuinely have it wrong, in which case I'd love to know. Open an issue with specifics.
 
 **What's the range next to my rating?**
-It's how unsure the system is about your number. New or inactive fencers have a wide range; the more you fence, the narrower it gets. The headline figure is the conservative low end of that range, which is why it climbs toward your raw rating as you compete more.
+It's how unsure the system is about your number. New or inactive fencers have a wide range; the more you fence, the narrower it gets. The headline figure is the conservative low end of that range, which is why it climbs towards your raw rating as you compete more.
 
 **What are best and worst matchups?**
 Among opponents you've met at least three times, the system compares how often you actually beat them with how often it expected you to. Win more than expected and they're a best matchup; win less and they're a worst (bogey) matchup, the kind of style problem a single rating can't see.
@@ -138,6 +138,6 @@ The system displays the same information that's already publicly available on re
 
 ---
 
-## License
+## Licence
 
 MIT - see [LICENSE](LICENSE).

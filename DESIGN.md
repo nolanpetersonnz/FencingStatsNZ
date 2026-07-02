@@ -6,7 +6,7 @@ A retrospective on the key choices behind FencingStatsNZ: what I decided, what I
 
 ## Why Glicko-2 (not Elo)
 
-The obvious starting point was Elo. It's the rating system most people have heard of, it's well-understood, and the math is simple enough to implement in one sitting.
+The obvious starting point was Elo. It's the rating system most people have heard of, it's well-understood, and the maths is simple enough to implement in one sitting.
 
 The problem with Elo for fencing is that it assumes a steady stream of bouts against varied opponents. Chess players, the original target, play hundreds of games a year against opponents from across a rating distribution. NZ fencers might fence anywhere between three and thirty competitions a year, each against largely the same group of people, since fencing is a relatively niche sport in New Zealand. Elo handles infrequent play badly. Your rating becomes increasingly stale, and there's nothing to tell you how stale it is.
 
@@ -30,7 +30,7 @@ Treating them as one skill obscured this. A fencer who consistently topped pools
 
 Every tournament now produces two rating updates per fencer instead of one. Each stream has less data than the unified rating did, so RDs stay higher and ratings move more slowly. For a fencer who's done many bouts, this is fine, they have enough data. For a new fencer, it means their numbers will take longer to settle in both categories.
 
-I'd revisit this if the data showed pool and DE ratings were almost perfectly correlated, which would suggest I was wrong about them being different skills and the split was just adding noise. As of v0.1.8 the correlation is real but not overwhelming (better fencers are still better), which I think validates the split. Additionally, no one has seemed to have a problem with it, based on the first two rounds of feedback.
+I'd revisit this if the data showed pool and DE ratings were almost perfectly correlated, which would suggest I was wrong about them being different skills and the split was just adding noise. As of v0.1.8 the correlation is real but not overwhelming (better fencers are still better), which I think validates the split. And nobody raised the split as a problem across the first two rounds of feedback.
 
 ---
 
@@ -42,9 +42,9 @@ NZ has some tournaments where men and women fence in the same event, called mixe
 
 My original processing code keyed rating periods by competition name. The two copies of the event had different names ("Russell Towns Open - Mens" and "Russell Towns Open - Womens"), so they were processed as two separate rating periods. Every bout updated every fencer's rating twice.
 
-I didn't catch this myself. A user did, one of my original test reporters - Elliot Hayes, who checked his own foil rankings and noticed his ratings were inflated. *"Yeah I checked my foil rankings cause it was a mixed event and the elo gets double counted. So anytime there's a mixed event elo losses and gains are basically doubled."*
+I didn't catch this myself. A user did, one of my original test reporters - Elliot H, who checked his own foil rankings and noticed his ratings were inflated. *"Yeah I checked my foil rankings cause it was a mixed event and the elo gets double counted. So anytime there's a mixed event elo losses and gains are basically doubled."*
 
-The fix was a deduplication step: `detectMixedEvents` identifies when two competition labels refer to the same bouts, and `boutHash` removes duplicates before any rating math runs. But the more interesting consequence was downstream: women were appearing in the men's leaderboard. Gender was being assigned based on the first event-label the fencer was seen in; alphabetical sorting meant "Mens" came first, and so women in mixed events got stuck as men. The fix there was majority-voting gender from single-gender events only. A long tail of that choice surfaced later: fencers who *only* ever fenced mixed events had no single-gender row to vote on, so they fell out of the gendered leaderboards entirely. Their rating existed, but they weren't included. Thankfully, FeNZ has provided me with some fencer info, so gender now falls back to the official FeNZ data (whose ranking keys encode it) whenever the bout vote comes up empty.
+The fix was a deduplication step: `detectMixedEvents` identifies when two competition labels refer to the same bouts, and `boutHash` removes duplicates before any rating maths runs. But the more interesting consequence was downstream: women were appearing in the men's leaderboard. Gender was being assigned based on the first event-label the fencer was seen in; alphabetical sorting meant "Mens" came first, and so women in mixed events got stuck as men. The fix there was majority-voting gender from single-gender events only. A long tail of that choice surfaced later: fencers who *only* ever fenced mixed events had no single-gender row to vote on, so they fell out of the gendered leaderboards entirely. Their rating existed, but they weren't included. Thankfully, FeNZ has provided me with some fencer info, so gender now falls back to the official FeNZ data (whose ranking keys encode it) whenever the bout vote comes up empty.
 
 What I took from this is that I need to assume my data has been touched by every other developer's decisions before it reached me. Always check downstream consequences of dedupe logic before you trust it, and that users will find bugs you missed in five minutes that you'd never have found in five months, because they're checking the system against truths only they know, such as their bout history.
 
@@ -66,7 +66,7 @@ An implication: when two competitions happen on the same day, for example, a jun
 
 ## Age category streams with downward inclusion
 
-Each weapon now has separate rating streams per age category - Cadet, Junior, Senior, Veteran. Within each category, bouts at higher-tier events count toward lower-tier ratings, but not the reverse. Specifically: Senior bouts feed Senior + Junior + Cadet streams. Junior bouts feed Junior + Cadet. Cadet bouts feed only Cadet. Veteran is isolated.
+Each weapon now has separate rating streams per age category - Cadet, Junior, Senior, Veteran. Within each category, bouts at higher-tier events count towards lower-tier ratings, but not the reverse. Specifically: Senior bouts feed Senior + Junior + Cadet streams. Junior bouts feed Junior + Cadet. Cadet bouts feed only Cadet. Veteran is isolated.
 
 This is in line with FeNZ's system logic, the idea being that seniors can't fence in junior events, while juniors can. A junior gaining extra senior ranking points for doing well at an event without seniors seemed unfair to me.
 
@@ -86,7 +86,7 @@ Not every line in a bracket is a fenced result. A fencer can withdraw injured (m
 
 The question was what a withdrawal *should* do. Skipping the bout entirely would erase it from the withdrawer's record, which felt wrong: they did lose the match, and the bracket shows it. Treating it as a normal loss is what caused the complaint, because a medical withdrawal says nothing about either fencer's skill on the day. The decision: record it as a loss for the fencer who withdrew and a win for their opponent, so the result stays visible, but contribute nothing to either rating. My logic is that a withdrawal is a fact about the tournament, not evidence about skill. I am still debating this though... arguably an injured fencer still 'lost', and this may allow people to game the system, by medically withdrawing rather than losing matches. I think it's a consideration I will have to make down the line, if this starts happening.
 
-Mechanically, the ingest reads the code and tags the bout with a `flag` column; the rating engine skips flagged bouts when building its Glicko inputs but still tallies the win and the loss. It's the same lesson as the mixed-events bug in a smaller key: the rating math is only as honest as the pipeline's understanding of what each row of data actually means.
+Mechanically, the ingest reads the code and tags the bout with a `flag` column; the rating engine skips flagged bouts when building its Glicko inputs but still tallies the win and the loss. It's the same lesson as the mixed-events bug in a smaller key: the rating maths is only as honest as the pipeline's understanding of what each row of data actually means.
 
 ---
 
@@ -114,7 +114,7 @@ The issue was that some fencers had very little data, so people with only a hand
 
 ## Best and worst matchups: record versus expectation
 
-I chose to define a worst matchup as a fencer who has beaten you more often than expected, over at least three meetings. The reasoning is that while you might be better on paper, they've shown a higher chance of beating you than the numbers predict, which points to a stylistic mismatch. For example, two of my own worst matchups, Cooper Gouge and Alex Holton, are both right-handed French-grip fencers, which suggests I may struggle against that archetype and would benefit from training against more fencers like them. The best matchups are the same idea inverted: opponents you beat more often than the ratings expect, where you tend to have their number even when they're close to you on paper.
+I chose to define a worst matchup as a fencer who has beaten you more often than expected, over at least three meetings. The reasoning is that while you might be better on paper, they've shown a higher chance of beating you than the numbers predict, which points to a stylistic mismatch. For example, two of my own worst matchups, Cooper G and Alex H, are both right-handed French-grip fencers, which suggests I may struggle against that archetype and would benefit from training against more fencers like them. The best matchups are the same idea inverted: opponents you beat more often than the ratings expect, where you tend to have their number even when they're close to you on paper.
 
 ---
 
@@ -123,6 +123,12 @@ I chose to define a worst matchup as a fencer who has beaten you more often than
 Building out the difficulty of a DE path was a requested feature, and the reasoning fit my goal for the project: I want rankings to be more consistent and objective. A fencer with a relatively easy DE path will, by luck, earn more ranking points in the FeNZ system than someone who beat objectively better fencers and was knocked out by the eventual winner. I could infer the topology of the tableau from the FeNZ data, since it records the matchups and the round each occurred in, but I don't have the pool results that originally seeded the bracket.
 
 I chose to rank by the highest average-rating path, because a strong fencer beating strong fencers still performed the best, more so than a weaker fencer beating average ones, and I didn't want to strip that performance of its value. In addition to this, I thought it would be interesting to also show who had the best chance of sweeping their draw.
+
+---
+
+## Adding an 'Update' button
+
+I wanted to add an update button to the site, to make it easy and low-effort to keep the results on the site up to date. I was faced with a tension: I wanted auto-deployment, and a safety lever. I couldn't have both. How could I make sure that the updated results were correct? The solution was to turn the rejection criteria into a git revert. The refresh will log changes, and Git history becomes the audit log, so there's nothing extra to trust. I also added a shrink guard (an auto abort if the rebuilt CSV loses over 10% of its rows), and the test suite re-runs against the regenerated dataset.
 
 ---
 
@@ -136,11 +142,11 @@ I surfaced the calibration backtest publicly because I want the platform's value
 
 A few decisions are sitting on the to-revisit pile:
 
-The upset multiplier: I added a 1.25× multiplier to rating swings when the lower-rated fencer wins. The standard Glicko-2 formula already produces larger updates for upsets; the multiplier amplifies them further. The reasoning was that genuine upsets carry more information than the math implicitly assumes, because most upsets aren't random, they're caused by something like the higher-rated fencer being injured or the lower-rated fencer having improved. But this is hand-wavy. The right test would be: does the multiplier improve predictive accuracy on held-out data? I haven't run that test yet.
+The upset multiplier: I added a 1.25× multiplier to rating swings when the lower-rated fencer wins. The standard Glicko-2 formula already produces larger updates for upsets; the multiplier amplifies them further. The reasoning was that genuine upsets carry more information than the maths implicitly assumes, because most upsets aren't random, they're caused by something like the higher-rated fencer being injured or the lower-rated fencer having improved. But this is hand-wavy. The right test would be: does the multiplier improve predictive accuracy on held-out data? I haven't run that test yet.
 
-Club strength tiers: the current implementation uses median pool rating, which provides unintuitive results in early feedback. Small clubs with one or two strong members are ranked above larger clubs whose distribution naturally regressed toward the mean. There's a fix in place (median-of-active with a minimum-member threshold) but the deeper question is whether "club strength" is even the right metric, or whether the club section should be reframed entirely around "where should I fence?", a question about location, training environment, times, and affiliation rather than rating.
+Club strength tiers: the current implementation uses median pool rating, which provides unintuitive results in early feedback. Small clubs with one or two strong members are ranked above larger clubs whose distribution naturally regressed towards the mean. There's a fix in place (median-of-active with a minimum-member threshold) but the deeper question is whether "club strength" is even the right metric, or whether the club section should be reframed entirely around "where should I fence?", a question about location, training environment, times, and affiliation rather than rating.
 
-Provisional vs. displayed ratings: fencers with very few bouts have high RD, and Glicko-2's math can make their ratings spike to look unreasonably high. The system now shows the conservative `rating - RD` as the headline (see "Showing uncertainty" above), with a minimum-bouts filter on the leaderboard, which keeps thin-data fencers off the top. I'm still not certain that beats showing the raw rating behind the filter, since people don't always recognise the conservative number as their "actual" rating.
+Provisional vs. displayed ratings: fencers with very few bouts have high RD, and Glicko-2's maths can make their ratings spike to look unreasonably high. The system now shows the conservative `rating - RD` as the headline (see "Showing uncertainty" above), with a minimum-bouts filter on the leaderboard, which keeps thin-data fencers off the top. I'm still not certain that beats showing the raw rating behind the filter, since people don't always recognise the conservative number as their "actual" rating.
 
 What I should do with withdrawals: losses or ties? Reduced rating weight?
 
@@ -152,7 +158,7 @@ These are the kinds of things I want the user study and continued beta feedback 
 
 I'd write the data pipeline as a real pipeline from the start. Explicit stages with explicit invariants, rather than treating it as glue code between the API and the rating engine. The mixed-events bug took longer to find than it should have because the pipeline was implicit and the data assumptions were buried.
 
-I'd build the FAQ and the in-app explanation of the math much earlier. Users went into the system without the conceptual framework to interpret it, which generated feedback that was 70% "I don't understand X" and 30% actual design issues. Better explanation upfront would have surfaced more substantive feedback faster.
+I'd build the FAQ and the in-app explanation of the maths much earlier. Users went into the system without the conceptual framework to interpret it, which generated feedback that was 70% "I don't understand X" and 30% actual design issues. Better explanation upfront would have surfaced more substantive feedback faster.
 
 I'd treat the FEEDBACK.md as something valuable. It started as a personal note-taking file and only later became something I'd want others to read. If I'd been writing it for an audience from the start, the early entries would be more useful both for me and for anyone else trying to learn from the project.
 
