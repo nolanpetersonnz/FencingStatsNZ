@@ -9,16 +9,35 @@ import { hashLicence, findFencerByLicenceHash } from '../data/fencerInfo.js';
 // account creation — the licence number IS the credential, the same way
 // it identifies you on FeNZ entry forms.
 //
-// In Phase 3 this is purely cosmetic: once we know who you are we mark
-// "your" profile with a "You" badge. Phase 4 will use the same session
-// to gate edit submissions to the API.
+// The session marks "your" profile with a "You" badge and gates edit
+// submissions to the API (see EditPanel and api/edit.js).
 export default function LoginModal({ onClose, onLogin, fencerInfo }) {
   const [value, setValue] = useState('');
   const [status, setStatus] = useState('idle'); // idle | checking | error
   const [error, setError] = useState('');
   const inputRef = useRef(null);
+  const dialogRef = useRef(null);
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  // Focus the input on open, return focus to whatever opened the modal on
+  // close, and keep Tab cycling inside the dialog while it's up.
+  useEffect(() => {
+    const opener = document.activeElement;
+    inputRef.current?.focus();
+    return () => opener?.focus?.();
+  }, []);
+
+  const onKeyDown = (e) => {
+    if (e.key === 'Escape') { onClose(); return; }
+    if (e.key !== 'Tab') return;
+    const focusables = dialogRef.current?.querySelectorAll(
+      'button:not([disabled]), input:not([disabled])'
+    );
+    if (!focusables?.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  };
 
   const submit = async (e) => {
     e?.preventDefault?.();
@@ -50,8 +69,13 @@ export default function LoginModal({ onClose, onLogin, fencerInfo }) {
         zIndex: 100, padding: 20,
       }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onKeyDown={onKeyDown}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-modal-title"
         style={{
           background: 'var(--paper)', border: '1px solid var(--ink)',
           maxWidth: 460, width: '100%', padding: '28px 32px',
@@ -61,7 +85,7 @@ export default function LoginModal({ onClose, onLogin, fencerInfo }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
           <div>
             <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Sign in</div>
-            <h3 className="fl-display" style={{ fontSize: '1.7rem', fontWeight: 700, margin: 0 }}>
+            <h3 id="login-modal-title" className="fl-display" style={{ fontSize: '1.7rem', fontWeight: 700, margin: 0 }}>
               By licence number
             </h3>
           </div>
@@ -89,6 +113,9 @@ export default function LoginModal({ onClose, onLogin, fencerInfo }) {
             value={value}
             onChange={(e) => { setValue(e.target.value); if (status === 'error') setStatus('idle'); }}
             placeholder="e.g. 20391 or SP7893420"
+            aria-label="Licence number"
+            aria-invalid={status === 'error'}
+            aria-describedby={status === 'error' ? 'login-error' : undefined}
             autoComplete="off"
             spellCheck={false}
             style={{
@@ -101,7 +128,7 @@ export default function LoginModal({ onClose, onLogin, fencerInfo }) {
             }}
           />
           {status === 'error' && (
-            <div className="fl-italic" style={{ color: 'var(--red-light, #c44)', fontSize: '0.88rem', marginTop: 10 }}>
+            <div id="login-error" role="alert" className="fl-italic" style={{ color: 'var(--red-light, #c44)', fontSize: '0.88rem', marginTop: 10 }}>
               {error}
             </div>
           )}

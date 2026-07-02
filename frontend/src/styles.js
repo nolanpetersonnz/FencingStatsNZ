@@ -33,6 +33,17 @@ const STYLE = `
 .fl-link { cursor: pointer; transition: color 120ms ease, background 120ms ease; }
 .fl-link:hover { color: var(--ox); }
 
+/* Reset so inline navigation can be a real <button> (keyboard-focusable,
+   screen-reader actionable) without changing how the text renders. */
+button.fl-link, button.fl-tab { background: none; border: none; padding: 0; margin: 0; font: inherit; color: inherit; text-align: inherit; }
+button.fl-tab { padding: 8px 0; margin-right: 28px; }
+
+/* One visible keyboard-focus treatment for every interactive element. */
+.fl-link:focus-visible, .fl-tab:focus-visible, .fl-pill:focus-visible,
+.fl-btn:focus-visible, .fl-input:focus-visible, [role="button"]:focus-visible {
+  outline: 2px solid var(--ox); outline-offset: 2px;
+}
+
 .fl-tab { padding: 8px 0; margin-right: 28px; cursor: pointer; position: relative; transition: color 120ms ease; }
 .fl-tab:hover { color: var(--ox); }
 .fl-tab.active { color: var(--ink); }

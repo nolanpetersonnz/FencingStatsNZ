@@ -11,6 +11,8 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
   const f = fencers[fencerKey];
   const info = enrichment?.[fencerKey] || null;
   const [disputeStatus, setDisputeStatus] = useState({}); // boutId -> 'sending'|'sent'|'error:msg'
+  const [disputeFor, setDisputeFor] = useState(null); // boutId with the reason form open
+  const [disputeReason, setDisputeReason] = useState('');
   const [weapon, setWeapon] = useState(() => {
     if (f && f.byWeapon[globalWeapon]) return globalWeapon;
     return f ? Object.keys(f.byWeapon)[0] : globalWeapon;
@@ -59,14 +61,14 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
 
   return (
     <div className="fl-fade-in">
-      <div className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <button type="button" className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
         <ArrowLeft size={12} /> Back
-      </div>
+      </button>
 
       <div style={{ marginBottom: 32 }}>
         <div className="fl-smallcaps">
           {f.club ? (
-            <span className="fl-link" onClick={() => onSelectClub?.(f.club)}>{f.club}</span>
+            <button type="button" className="fl-link" onClick={() => onSelectClub?.(f.club)}>{f.club}</button>
           ) : 'Unaffiliated'}
         </div>
         <h2 className="fl-display" style={{ fontSize: 'clamp(2.4rem, 5vw, 3.6rem)', fontWeight: 700, letterSpacing: '-0.025em', margin: '6px 0 0', lineHeight: 1 }}>
@@ -185,7 +187,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                       <div className="fl-italic" style={{ fontSize: '0.85rem', color: 'var(--ink-faint)' }}>None on record.</div>
                     ) : col.list.map((o) => (
                       <div key={o.oppKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, padding: '6px 0' }}>
-                        <span className="fl-link fl-display" style={{ fontWeight: 600, fontSize: '0.98rem' }} onClick={() => onSelectFencer(o.oppKey)}>{o.oppName}</span>
+                        <button type="button" className="fl-link fl-display" style={{ fontWeight: 600, fontSize: '0.98rem' }} onClick={() => onSelectFencer(o.oppKey)}>{o.oppName}</button>
                         <span className="fl-mono" style={{ fontSize: '0.76rem', color: 'var(--ink-soft)', whiteSpace: 'nowrap' }}
                           title={`Won ${Math.round(o.winRate * 100)}% of ${o.meetings}; the ratings expected ${Math.round(o.expectedRate * 100)}%.`}>
                           {o.wins}–{o.losses} · <span style={{ color: col.color, fontWeight: 600 }}>{o.edge > 0 ? '+' : ''}{Math.round(o.edge * 100)}</span>
@@ -244,7 +246,12 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                       style={{ display: 'grid', gridTemplateColumns: '90px 1fr 80px 1fr 1fr', alignItems: 'center', padding: '14px 14px 10px', background: 'var(--ink-fade)', borderBottom: '1px solid var(--rule)' }}
                     >
                       <div className="fl-mono" style={{ fontSize: '0.78rem', color: 'var(--ink-soft)' }}>{fmtDateShort(g.date)}</div>
-                      <div className="fl-display" style={{ fontWeight: 600, fontSize: '1.05rem' }}>{g.competition}</div>
+                      {/* The row stays clickable for the mouse; the name is the
+                          single keyboard/screen-reader entry point. */}
+                      <button type="button" className="fl-link fl-display" style={{ fontWeight: 600, fontSize: '1.05rem' }}
+                        onClick={(e) => { e.stopPropagation(); onSelectComp(`${g.competition}|${g.weapon}|${g.date}`); }}>
+                        {g.competition}
+                      </button>
                       <div className="fl-mono" style={{ textAlign: 'center', fontSize: '0.85rem' }}>
                         <span style={{ color: 'var(--green)' }}>{wins}</span>
                         <span style={{ color: 'var(--ink-faint)' }}>·</span>
@@ -315,9 +322,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                       const flagged = flaggedBouts?.has(fingerprint);
                       const ds = disputeStatus[b.id];
                       const canDispute = isOwnProfile && session?.licenceHash && !flagged && ds !== 'sent';
-                      const onDispute = async () => {
-                        const reason = prompt('Briefly describe what is wrong with this bout (max 500 chars).');
-                        if (!reason || !reason.trim()) return;
+                      const onDispute = async (reason) => {
                         setDisputeStatus(s => ({ ...s, [b.id]: 'sending' }));
                         try {
                           await submitEdit({
@@ -331,7 +336,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                                 date: b.date, competition: b.competition, weapon: b.weapon,
                                 de_round: b.deRound || '',
                               },
-                              reason: reason.trim(),
+                              reason,
                             },
                           });
                           setDisputeStatus(s => ({ ...s, [b.id]: 'sent' }));
@@ -341,16 +346,17 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                         }
                       };
                       return (
-                        <div key={b.id} style={{ display: 'grid', gridTemplateColumns: '90px 1fr 100px 200px', alignItems: 'center', padding: '10px 14px 10px 28px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-row-hover">
+                        <React.Fragment key={b.id}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '90px 1fr 100px 200px', alignItems: 'center', padding: '10px 14px 10px 28px', borderBottom: '1px solid var(--rule-soft)' }} className="fl-row-hover">
                           <div className="fl-smallcaps" style={{ fontSize: '0.62rem', color: b.type === 'de' ? 'var(--ox)' : 'var(--ink-faint)' }}>
                             {b.type === 'de' ? `DE ${b.deRound}` : 'Pool'}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                             <span className={`fl-tag ${won ? 'solid-ink' : ''}`}>{won ? 'W' : 'L'}</span>
                             <span className="fl-italic" style={{ color: 'var(--ink-soft)' }}>vs.</span>
-                            <span className="fl-link fl-display" style={{ fontWeight: 600 }} onClick={(e) => { e.stopPropagation(); onSelectFencer(oppKey); }}>
+                            <button type="button" className="fl-link fl-display" style={{ fontWeight: 600 }} onClick={(e) => { e.stopPropagation(); onSelectFencer(oppKey); }}>
                               {opp ? opp.name : oppKey}
-                            </span>
+                            </button>
                             <span className="fl-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)' }}>({fmtRating(oppBefore)})</span>
                             {flagged && (
                               <span className="fl-smallcaps" title="Flagged for review" style={{ fontSize: '0.62rem', padding: '2px 6px', border: '1px solid var(--red-light)', color: 'var(--red-light)' }}>
@@ -363,10 +369,10 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                             <span style={{ color: 'var(--ink-faint)' }}> – </span>
                             <span>{oppScore}</span>
                           </div>
-                          <div style={{ textAlign: 'right' }}>
-                            {canDispute && (
+                          <div style={{ textAlign: 'right' }} aria-live="polite">
+                            {canDispute && disputeFor !== b.id && (
                               <button
-                                onClick={onDispute}
+                                onClick={() => { setDisputeFor(b.id); setDisputeReason(''); }}
                                 title="Flag this bout for admin review"
                                 className="fl-smallcaps"
                                 style={{ background: 'none', border: '1px solid var(--rule)', padding: '3px 9px', cursor: 'pointer', color: 'var(--ink-soft)', fontSize: '0.62rem', display: 'inline-flex', alignItems: 'center', gap: 5 }}
@@ -381,6 +387,37 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                             )}
                           </div>
                         </div>
+                        {disputeFor === b.id && (
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              if (!disputeReason.trim()) return;
+                              setDisputeFor(null);
+                              onDispute(disputeReason.trim());
+                            }}
+                            style={{ display: 'flex', gap: 10, alignItems: 'flex-end', padding: '10px 14px 14px 28px', borderBottom: '1px solid var(--rule-soft)', background: 'var(--ink-fade)' }}
+                          >
+                            <textarea
+                              className="fl-textarea"
+                              autoFocus
+                              rows={2}
+                              maxLength={500}
+                              value={disputeReason}
+                              onChange={(e) => setDisputeReason(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === 'Escape') setDisputeFor(null); }}
+                              aria-label="What is wrong with this bout?"
+                              placeholder="Briefly describe what is wrong with this bout (max 500 characters)."
+                              style={{ flex: 1, minHeight: 54, fontSize: '0.8rem' }}
+                            />
+                            <button type="submit" disabled={!disputeReason.trim()} className="fl-btn" style={{ padding: '8px 14px', fontSize: '0.62rem' }}>
+                              Submit
+                            </button>
+                            <button type="button" onClick={() => setDisputeFor(null)} className="fl-btn ghost" style={{ padding: '8px 14px', fontSize: '0.62rem' }}>
+                              Cancel
+                            </button>
+                          </form>
+                        )}
+                        </React.Fragment>
                       );
                     })}
                   </div>

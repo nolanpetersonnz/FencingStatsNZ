@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtRD, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
+import { pressable } from '../utils/a11y.js';
 import { strengthTier } from '../data/pipeline.js';
 
 const median = (xs) => {
@@ -96,9 +97,9 @@ export default function ClubDetail({ clubName, fencers, settings, clubMeta, onBa
   if (members.length === 0) {
     return (
       <div className="fl-fade-in">
-        <div className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <button type="button" className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <ArrowLeft size={12} /> Back
-        </div>
+        </button>
         <div style={{ padding: 60, textAlign: 'center' }} className="fl-italic">No active fencers found for {clubName}.</div>
       </div>
     );
@@ -109,9 +110,9 @@ export default function ClubDetail({ clubName, fencers, settings, clubMeta, onBa
 
   return (
     <div className="fl-fade-in">
-      <div className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <button type="button" className="fl-link fl-smallcaps" onClick={onBack} style={{ marginBottom: 20, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
         <ArrowLeft size={12} /> Back
-      </div>
+      </button>
 
       <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, flexWrap: 'wrap' }}>
         <div>
@@ -213,7 +214,7 @@ export default function ClubDetail({ clubName, fencers, settings, clubMeta, onBa
         {memberRows.map(({ f, bestDe, bestWeapon, totalBouts, totalWins, totalLosses, weapons }) => (
           <div
             key={f.key}
-            onClick={() => onSelectFencer(f.key)}
+            {...pressable(() => onSelectFencer(f.key))}
             className="fl-link fl-row-hover"
             style={{ display: 'grid', gridTemplateColumns: '1fr 110px 80px 90px 110px', columnGap: 16, alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--rule-soft)' }}
           >

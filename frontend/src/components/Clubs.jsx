@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRating } from '../utils/formatters.js';
 import { strengthTier } from '../data/pipeline.js';
+import { pressable } from '../utils/a11y.js';
 
 const median = (xs) => {
   if (!xs.length) return null;
@@ -118,15 +119,15 @@ export default function Clubs({ fencers, gender, weapon, onSelectClub }) {
         <div style={{ display: 'grid', gridTemplateColumns: gridCols, columnGap: 20, alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--rule)' }} className="fl-smallcaps">
           <div>Rank</div>
           <div>Club</div>
-          <div className="fl-link" onClick={() => toggleSort('members')} style={{ textAlign: 'right', color: sort === 'members' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          <button type="button" className="fl-link" onClick={() => toggleSort('members')} style={{ textAlign: 'right', color: sort === 'members' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             Members {sort === 'members' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
-          </div>
-          <div className="fl-link" onClick={() => toggleSort('de')} style={{ textAlign: 'right', color: sort === 'de' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          </button>
+          <button type="button" className="fl-link" onClick={() => toggleSort('de')} style={{ textAlign: 'right', color: sort === 'de' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             DE median {sort === 'de' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
-          </div>
-          <div className="fl-link fl-hide-mobile" onClick={() => toggleSort('top')} style={{ textAlign: 'right', color: sort === 'top' ? 'var(--ink)' : 'var(--ink-soft)' }}>
+          </button>
+          <button type="button" className="fl-link fl-hide-mobile" onClick={() => toggleSort('top')} style={{ textAlign: 'right', color: sort === 'top' ? 'var(--ink)' : 'var(--ink-soft)' }}>
             DE top {sort === 'top' && <span style={{ color: 'var(--ox)' }}>{arrow}</span>}
-          </div>
+          </button>
           <div style={{ textAlign: 'right' }}>Strength</div>
         </div>
 
@@ -138,7 +139,7 @@ export default function Clubs({ fencers, gender, weapon, onSelectClub }) {
           return (
             <div
               key={c.name}
-              onClick={() => onSelectClub(c.name)}
+              {...pressable(() => onSelectClub(c.name))}
               className="fl-link fl-row-hover"
               style={{ display: 'grid', gridTemplateColumns: gridCols, columnGap: 20, alignItems: 'center', padding: '16px 16px', borderBottom: '1px solid var(--rule-soft)' }}
             >

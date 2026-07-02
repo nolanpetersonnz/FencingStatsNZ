@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, User } from 'lucide-react';
 import LoginModal from './LoginModal.jsx';
+import { pressable } from '../utils/a11y.js';
 
 const AGE_OPTIONS = [
   ['all', 'All ages'],
@@ -48,19 +49,20 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
                 <div className="fl-smallcaps" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.72rem', color: 'var(--ink-soft)' }}>
                   <User size={12} />
                   {sessionFencerKey ? (
-                    <span
+                    <button
+                      type="button"
                       className="fl-link"
                       onClick={() => onSelectFencer?.(sessionFencerKey)}
                       style={{ textTransform: 'none', letterSpacing: 'normal', fontFamily: 'Newsreader, serif', fontSize: '0.92rem', color: 'var(--ink)' }}
                     >
                       {session.info.display_name}
-                    </span>
+                    </button>
                   ) : (
                     <span style={{ textTransform: 'none', letterSpacing: 'normal', fontFamily: 'Newsreader, serif', fontSize: '0.92rem' }}>
                       {session.info.display_name}
                     </span>
                   )}
-                  <span className="fl-link" onClick={onLogout}>Sign out</span>
+                  <button type="button" className="fl-link" onClick={onLogout}>Sign out</button>
                 </div>
               ) : (
                 <button
@@ -96,7 +98,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
                     key={f.key}
                     className="fl-link fl-row-hover"
                     style={{ padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }}
-                    onClick={() => { onSelectFencer(f.key); setSearch(''); setOpen(false); }}
+                    {...pressable(() => { onSelectFencer(f.key); setSearch(''); setOpen(false); })}
                   >
                     <div className="fl-display" style={{ fontWeight: 600, fontSize: '1rem' }}>{f.name}</div>
                     <div className="fl-italic" style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{f.club}</div>
@@ -109,11 +111,11 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 28, gap: 24, flexWrap: 'wrap' }}>
           <nav style={{ display: 'flex', alignItems: 'center' }} className="fl-smallcaps">
-            <div className={`fl-tab ${view === 'leaderboard' ? 'active' : ''}`} onClick={() => setView('leaderboard')}>Ledger</div>
-            <div className={`fl-tab ${view === 'competitions' ? 'active' : ''}`} onClick={() => setView('competitions')}>Competitions</div>
-            <div className={`fl-tab ${view === 'clubs' ? 'active' : ''}`} onClick={() => setView('clubs')}>Clubs</div>
-            <div className={`fl-tab ${view === 'h2h' ? 'active' : ''}`} onClick={() => setView('h2h')}>Head-to-Head</div>
-            <div className={`fl-tab ${view === 'method' ? 'active' : ''}`} onClick={() => setView('method')}>Method</div>
+            <button type="button" className={`fl-tab ${view === 'leaderboard' ? 'active' : ''}`} aria-current={view === 'leaderboard' ? 'page' : undefined} onClick={() => setView('leaderboard')}>Ledger</button>
+            <button type="button" className={`fl-tab ${view === 'competitions' ? 'active' : ''}`} aria-current={view === 'competitions' ? 'page' : undefined} onClick={() => setView('competitions')}>Competitions</button>
+            <button type="button" className={`fl-tab ${view === 'clubs' ? 'active' : ''}`} aria-current={view === 'clubs' ? 'page' : undefined} onClick={() => setView('clubs')}>Clubs</button>
+            <button type="button" className={`fl-tab ${view === 'h2h' ? 'active' : ''}`} aria-current={view === 'h2h' ? 'page' : undefined} onClick={() => setView('h2h')}>Head-to-Head</button>
+            <button type="button" className={`fl-tab ${view === 'method' ? 'active' : ''}`} aria-current={view === 'method' ? 'page' : undefined} onClick={() => setView('method')}>Method</button>
           </nav>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             {[['M', 'Mens'], ['W', 'Womens']].map(([g, label]) => (
