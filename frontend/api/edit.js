@@ -61,6 +61,12 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'method not allowed' });
     return;
   }
+    // Kill switch
+  
+  if (process.env.EDITS_FROZEN === '1') {
+    res.status(503).json({ error: 'Edits are paused for now. Please try again later.' });
+    return;
+  }
   let body;
   try {
     body = await readJsonBody(req);
