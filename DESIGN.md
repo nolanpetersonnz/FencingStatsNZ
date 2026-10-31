@@ -14,6 +14,8 @@ Glicko-2 adds two things Elo lacks. First, *rating deviation* (RD) - a measure o
 
 The trade-off was that Glicko-2 is significantly more complex to implement and harder to explain. RD specifically is a concept fencers don't intuitively understand - most just want to know "what's my number?" I've added a note in the FAQ but it's an ongoing UX challenge.
 
+**User study, October 2026** ([USER_STUDY.md](USER_STUDY.md), section 2.9): nobody consulted the FAQ for the rating, and four participants asked for an explanation on the page itself. I feel that people don't look at the FAQ because they were in a test, an interview with me, and they are not going to stop for the FAQ mid-session. But also, it could be humanized a bit more and made more concise.
+
 I'm still wondering whether something better than Glicko-2 would suit fencing more. Glicko-2 is designed for one-on-one rating-based contests; it doesn't model things specific to fencing like the difference between pool and Direct Elimination psychology, or referee effects, or weapon-specific factors. I'm treating the current implementation as a starting point that's better than what I had, not as the final system.
 
 ---
@@ -104,11 +106,15 @@ That gave me the confidence to surface it as a "Field overview": each bout drawn
 
 The mechanism is shipped but switched off. There's an inactivity decay in place that widens a fencer's uncertainty the longer they go without competing, but it's off by default and I haven't tuned it yet. What I haven't committed to is decaying individual bouts by age, and that's the part I'm still uncertain about: what decay should mean and where to draw the lines. I do believe more recent bouts are more relevant, especially in a sport like fencing where a fencer's skill can change dramatically over a short period. It's a decision I want outside opinions on before I turn anything on.
 
+**User study, October 2026** ([USER_STUDY.md](USER_STUDY.md), RQ1, RQ5 and section 2.9): readers expected inactive fencers to drop, and recency was the most common reason to discount a prediction. Decay does not fit the nature of fencing. It should be replaced so that only one year's worth of results are counted at a time, because that is the selection period. However, we should extend the dataset to contain all historical bouts. That way, head-to-head is extended, and people can see their historical matchups better. However, it should not count towards the rating.
+
 ---
 
 ## Showing uncertainty: a range, not just a number
 
 The issue was that some fencers had very little data, so people with only a handful of bouts were being boosted to the top of the rankings despite high uncertainty. I decided to display the low end of that uncertainty as the headline number, to keep the fencers who have actually demonstrated consistent results at the top. It's a design decision I'm still not completely certain about, and one I intend to document better for users.
+
+**User study, October 2026** ([USER_STUDY.md](USER_STUDY.md), RQ1 and section 2.9): nobody read the headline as the low end of a range unprompted, and four participants built their own model of the number. Keep the conservative headline. If not, you get fencers that skyrocket to the top with a very small data set. However, it should be made more clear, including on the ledger. On that note, "Ledger" should be renamed to "Leaderboard".
 
 ---
 
@@ -124,6 +130,8 @@ Building out the difficulty of a DE path was a requested feature, and the reason
 
 I chose to rank by the highest average-rating path, because a strong fencer beating strong fencers still performed the best, more so than a weaker fencer beating average ones, and I didn't want to strip that performance of its value. In addition to this, I thought it would be interesting to also show who had the best chance of sweeping their draw.
 
+**User study, October 2026** ([USER_STUDY.md](USER_STUDY.md), RQ4 and section 2.9): the toughest-lines table was found unaided by one participant of eight. Since 2026-06-05 both figures cover a fencer's whole path to the title, so the paragraph above describes the earlier version. The sweep odds need an updated description, because if you sweep the competition by winning all of your line, you win. That's what it means. I feel people struggled to find the tableau due to the nature of the question. If they were looking for the tableau, they would find it. However, going from the tableau page and scrolling down to find sweep odds may be difficult.
+
 ---
 
 ## Adding an 'Update' button
@@ -136,6 +144,8 @@ I wanted to add an update button to the site, to make it easy and low-effort to 
 
 I surfaced the calibration backtest publicly because I want the platform's value to be visible: that it can be a genuine tool with real predictive value, and that users can draw their own conclusions about where it might help them (or not).
 
+**User study, October 2026** ([USER_STUDY.md](USER_STUDY.md), RQ5 and section 2.9): the Method tab did not move trust in any meaningful way. Brier and log loss were not read because they don't make sense to a layperson; the calibration chart was read correctly by P01, P04 and P08. The page also does not say the backtest is out of sample.
+
 ---
 
 ## Things I'm still uncertain about
@@ -146,7 +156,11 @@ The upset multiplier: I added a 1.25× multiplier to rating swings when the lowe
 
 Club strength tiers: the current implementation uses median pool rating, which provides unintuitive results in early feedback. Small clubs with one or two strong members are ranked above larger clubs whose distribution naturally regressed towards the mean. There's a fix in place (median-of-active with a minimum-member threshold) but the deeper question is whether "club strength" is even the right metric, or whether the club section should be reframed entirely around "where should I fence?", a question about location, training environment, times, and affiliation rather than rating.
 
+**User study, October 2026** ([USER_STUDY.md](USER_STUDY.md), RQ6 and section 2.9): six of seven participants looked for a region first, and strength was read against club size. Club strength tiers are not relevant. If "where should I fence?" is the main question, we should include a map and a region sort.
+
 Provisional vs. displayed ratings: fencers with very few bouts have high RD, and Glicko-2's maths can make their ratings spike to look unreasonably high. The system now shows the conservative `rating - RD` as the headline (see "Showing uncertainty" above), with a minimum-bouts filter on the leaderboard, which keeps thin-data fencers off the top. I'm still not certain that beats showing the raw rating behind the filter, since people don't always recognise the conservative number as their "actual" rating.
+
+**User study, October 2026:** keep the conservative headline; see "Showing uncertainty" above.
 
 What I should do with withdrawals: losses or ties? Reduced rating weight?
 
@@ -168,7 +182,7 @@ I'd treat the FEEDBACK.md as something valuable. It started as a personal note-t
 
 Some things on the roadmap, framed by uncertainty rather than scope:
 
-A user study with 6-8 fencers, using a remote screen-share methodology. The findings will go in `USER_STUDY.md` and inform v1.1.
+The user study is done: eight fencers, remote screen-share sessions, September to October 2026. The findings and the v1.1 plan are in [USER_STUDY.md](USER_STUDY.md).
 
 Reconsidering the club section based on early feedback that "where should I fence?" might be a more useful framing than "how strong is this club?" This depends on data I don't currently have (location, affiliation status, training info).
 
