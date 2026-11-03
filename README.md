@@ -31,7 +31,7 @@ FencingStatsNZ is an attempt at something better: a system that weights wins by 
 - **Rating ranges** - every rating carries a likely range from its uncertainty; the headline number is the conservative low end, so a settled fencer outranks a high-variance one until the uncertain rating is earned.
 - **Best and worst matchups** - a fencer's profile flags the opponents they beat more, or less, often than the ratings predict, surfacing the style matchups a single number hides.
 - **Direct-elimination tableaus** - each event's bracket is rebuilt from the bouts and drawn, with the lines coloured by how hard each win was and a Toughest lines table ranking the hardest draws by line average (the mean opponent rating across each fencer's whole path to the title, the rounds past their elimination included).
-- **Predictive-accuracy dashboard** - a Method tab backtests the win-probability model out of sample (calibration, accuracy, Brier, log-loss) alongside a plain-language FAQ.
+- **Predictive-accuracy dashboard** - a Method tab backtests the win-probability model out of sample (accuracy against what exactly-right odds would score, plus calibration), and an FAQ tab answers common questions in plain language.
 
 ---
 
@@ -122,7 +122,7 @@ Among opponents you've met at least three times, the system compares how often y
 Direct-elimination results are rebuilt into a bracket by following the winners forward (the source data has rounds but no seeds, so the shape is right while the exact line order is inferred). Each line is coloured by how hard the win was. The Toughest lines table ranks draws by line average - the mean opponent rating across a fencer's whole path to the title, including the rounds past where they went out, taking whoever actually filled each later slot as the opponent they would have met. Sweep odds is a separate figure: the chance, from the ratings before each bout, that a fencer would have won that whole path and taken the title.
 
 **How accurate are the predictions?**
-See the Method tab on the site. Every bout is scored from the ratings as they stood before that competition, so the numbers are out of sample. Favourites win about 67% of the time overall, the model is calibrated (a 70% call wins about 70% of the time), and it beats a coin flip on both Brier score and log-loss.
+See the Method tab on the site. Every bout is scored from the ratings as they stood before that competition, so the numbers are out of sample. Favourites win about 67% of the time overall, and the model is calibrated (a 70% call wins about 70% of the time).
 
 **How do I report a bug or weird-looking rating?**
 Email [nolanpeterson.nz@gmail.com](mailto:nolanpeterson.nz@gmail.com) or open an issue on the GitHub repo. Include: who, what tournament, what looked wrong, what you'd expect instead. Most bugs surface this way - your "this looks wrong" report is more useful than you think. Signed-in fencers can also click "Dispute" on any of their own bouts directly from their profile.

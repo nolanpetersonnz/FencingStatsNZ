@@ -143,7 +143,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
 
       {/* v1.1 #1 (I-01): what the rating columns show, readable without hovering. */}
       <div className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', lineHeight: 1.5, marginBottom: 14, maxWidth: 720, textWrap: 'pretty' }}>
-        Each rating is the low end of the fencer's likely range (± shows how far it spreads). Ratings rise as more bouts narrow the range.
+        ± is the uncertainty; the headline number is at the bottom of the range. Ratings rise as more bouts narrow the range.
       </div>
 
       <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>

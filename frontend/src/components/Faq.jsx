@@ -64,7 +64,7 @@ const FAQ = [
     items: [
       {
         q: 'Is the prediction model any good?',
-        a: 'Have a look at the predictive accuracy panel. Every bout is scored from the ratings as they stood before that event, so the model is never tested on a result it already knows. It is well calibrated: when it calls someone a 70% favourite, they win about 70% of the time. It also beats a coin flip on both Brier score and log-loss.',
+        a: 'Have a look at the Method page. Every bout is scored from the ratings as they stood before that event, so the model is never tested on a result it already knows. It is well calibrated: when it calls someone a 70% favourite, they win about 70% of the time.',
       },
       {
         q: 'Why Glicko-2?',
@@ -99,9 +99,16 @@ const FAQ = [
   },
 ];
 
+// Its own top-level tab (v1.1), so it carries its page header.
 export default function Faq() {
   return (
-    <div>
+    <div className="fl-fade-in">
+      <div style={{ marginBottom: 28 }}>
+        <div className="fl-smallcaps">Behind the numbers</div>
+        <h2 className="fl-display" style={{ fontSize: '2.4rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
+          Frequently asked questions
+        </h2>
+      </div>
       {FAQ.map((group) => (
         <div key={group.section} style={{ marginBottom: 36 }}>
           <div className="fl-smallcaps" style={{ marginBottom: 14, paddingBottom: 8, borderBottom: '1px solid var(--ink)' }}>{group.section}</div>
