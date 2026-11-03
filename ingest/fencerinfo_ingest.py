@@ -11,7 +11,7 @@ Output schema (frontend/public/data/fencers.json) is a list of:
     {
       "display_name": "Joel Ball-La Hood",
       "name_keys": ["joel ball-la hood", "joel ball-la-hood"],
-      "dob_year": 2006,                  # year only — full DOB never leaves
+      "dob_year": 2006,                  # year only; full DOB never leaves
       "handedness": "right" | "left",    # null if unknown
       "nation": "NZL",
       "current_club": "South Wellington Fencing Club",
@@ -20,21 +20,16 @@ Output schema (frontend/public/data/fencers.json) is a list of:
         "epee_M": {"rank": 2, "as_of": "2024-10-27"},
         ...
       },
-      "licence_hash": "sha256(pepper|licence)"   # absent if no licence
+      "has_licence": true,               # absent if no licence on record
     }
 
-Licence numbers themselves never appear in the output. The pepper lives
-in .env (gitignored) and is also bundled into the Vite frontend via
-VITE_LICENCE_PEPPER so the login modal can hash user input client-side
-and compare to the shipped hashes.
+Licence numbers and licence hashes never appear in the output.
 
 Usage:
     python ingest/fencerinfo_ingest.py
 """
 
-import hashlib
 import json
-import os
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -50,17 +45,6 @@ XML_DIR = ROOT / "Fencerinfo" / "uploads"
 # both into frontend/public/data/ at build time, so this file ships with
 # every Vercel deploy.
 OUT_PATH = ROOT / "ingest" / "fencers.json"
-ENV_PATH = ROOT / ".env"
-
-
-def load_pepper() -> str:
-    if ENV_PATH.exists():
-        for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
-            s = line.strip()
-            if s.startswith("VITE_LICENCE_PEPPER="):
-                _, _, val = s.partition("=")
-                return val.strip().strip('"').strip("'")
-    return os.environ.get("VITE_LICENCE_PEPPER", "")
 
 
 def parse_date(s: str):
@@ -99,10 +83,8 @@ def display_name(prenom: str, nom: str) -> str:
 
 
 # A handful of XML rows have data-entry cruft like "FNZ #12345" or
-# "23456'". Normalise before hashing so the user-typed licence (sans
-# cruft) still matches, and so multiple cruft variants of the same
-# number collapse to one hash. KEEP THIS IN SYNC with the same
-# normaliser in frontend/src/data/fencerInfo.js.
+# "23456'". Normalise before using the licence as a merge key, so
+# multiple cruft variants of the same number collapse to one fencer.
 _LICENCE_PREFIX_RE = re.compile(r"^\s*(FE?NZ\s*#?\s*)+", re.IGNORECASE)
 _LICENCE_TRIM_RE = re.compile(r"[^A-Za-z0-9]+$")
 
@@ -113,10 +95,6 @@ def normalise_licence(licence: str) -> str:
     s = _LICENCE_PREFIX_RE.sub("", s)
     s = _LICENCE_TRIM_RE.sub("", s)
     return s.strip().upper()
-
-
-def hash_licence(licence: str, pepper: str) -> str:
-    return hashlib.sha256(f"{pepper}|{normalise_licence(licence)}".encode("utf-8")).hexdigest()
 
 
 def new_record():
@@ -175,7 +153,7 @@ def absorb(rec, comp_date, name, dob, club, hand, nation, weapon, gender, rank, 
         rec["licences"].add(licence)
 
 
-def finalize(rec, pepper):
+def finalize(rec):
     rec["displays"].sort(key=lambda x: x[0] or datetime.min)
     disp = rec["displays"][-1][1] if rec["displays"] else ""
     rec["clubs"].sort(key=lambda x: x[0] or datetime.min)
@@ -203,18 +181,13 @@ def finalize(rec, pepper):
         "rankings": rankings,
     }
     if rec["licences"]:
-        # A fencer can legitimately accumulate several licence numbers over
-        # the years (federation licences renew, FIE licences are separate).
-        # Ship all hashes; login accepts a match against any of them.
-        entry["licence_hashes"] = sorted({hash_licence(l, pepper) for l in rec["licences"]})
+        # Only the fact that a licence is on record ships. buildEnrichmentIndex
+        # uses it to pick between duplicate records for the same name.
+        entry["has_licence"] = True
     return entry
 
 
 def main():
-    pepper = load_pepper()
-    if not pepper:
-        print("WARNING: VITE_LICENCE_PEPPER not found — hashes will be unsalted.", file=sys.stderr)
-
     if not XML_DIR.exists():
         print(f"ERROR: {XML_DIR} does not exist", file=sys.stderr)
         sys.exit(1)
@@ -323,8 +296,8 @@ def main():
         if len(candidates) == 1:
             merge_record(candidates[0][1], by_key.pop(loose))
 
-    output = [finalize(rec, pepper) for rec in by_key.values()]
-    output.extend(finalize(rec, pepper) for rec in name_only.values())
+    output = [finalize(rec) for rec in by_key.values()]
+    output.extend(finalize(rec) for rec in name_only.values())
     output.sort(key=lambda x: x["display_name"].lower())
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -333,16 +306,14 @@ def main():
         encoding="utf-8",
     )
 
-    with_lic = sum(1 for x in output if x.get("licence_hashes"))
-    total_hashes = sum(len(x.get("licence_hashes", [])) for x in output)
+    with_lic = sum(1 for x in output if x.get("has_licence"))
     try:
         rel = OUT_PATH.relative_to(Path.cwd())
     except ValueError:
         rel = OUT_PATH
     print(f"Parsed {parsed}/{len(files)} files, {fencer_rows} fencer rows")
     print(f"Wrote {len(output)} fencers -> {rel}")
-    print(f"  {with_lic} fencers with at least one licence hash ({total_hashes} hashes total)")
-    print(f"  {len(output) - with_lic} fencers without any licence hash")
+    print(f"  {with_lic} fencers with a licence on record")
 
 
 if __name__ == "__main__":

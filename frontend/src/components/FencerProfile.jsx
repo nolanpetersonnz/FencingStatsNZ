@@ -88,6 +88,9 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
         )}
       </div>
 
+      {/* Sign-in is paused: App passes no session or isOwnProfile, so the edit
+          panel and the dispute controls below stay hidden until sign-in is
+          rebuilt with a server-side check. */}
       {isOwnProfile && <EditPanel fencer={f} info={info} session={session} onEditApplied={onEditApplied} />}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>

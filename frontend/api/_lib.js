@@ -101,6 +101,11 @@ export function nameKey(s) {
 // Find the fencer enrichment record by licence hash. Returns null when
 // the hash doesn't belong to any known fencer. Pass `req` so the
 // loader can self-fetch via HTTP if the bundled file isn't present.
+//
+// Sign-in is paused: the public fencers.json no longer carries licence
+// hashes, so this always returns null and /api/edit answers 401 to every
+// request. The rebuilt sign-in will check credentials server-side against
+// a store that never ships to the browser.
 export async function fencerForHash(hash, req) {
   if (!hash || typeof hash !== 'string' || hash.length !== 64) return null;
   const list = await fencerInfo(req);

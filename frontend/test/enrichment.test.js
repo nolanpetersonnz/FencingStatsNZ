@@ -57,6 +57,19 @@ test('genderFromEnrichment reads gender from FNZ ranking keys', () => {
   assert.equal(genderFromEnrichment(null), null);
 });
 
+// Taking licence hashes (and later, minors' birth years) out of the public
+// registry must not change which record any name resolves to. The fixture
+// maps every name key to the index of its canonical record. It was captured
+// from the original selection logic on the original, hash-carrying file.
+// After deliberately regenerating the registry, refresh it with
+// `node scripts/snapshot-enrichment.mjs`.
+test('every name key resolves to the same registry record as before the privacy scrub', () => {
+  const fixture = JSON.parse(readFileSync(resolve(__dirname, 'fixtures/enrichment-canonical.json'), 'utf8'));
+  const actual = {};
+  for (const key of Object.keys(idx).sort()) actual[key] = info.indexOf(idx[key]);
+  assert.deepEqual(actual, fixture);
+});
+
 test('a record always wins its own canonical name key', () => {
   // No key should resolve to a record whose display_name differs, UNLESS no
   // record is literally named that key (nicknames like "charlie"/"charles").

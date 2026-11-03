@@ -3,7 +3,7 @@ import STYLE from './styles.js';
 import { DEFAULT_SETTINGS } from './constants.js';
 import { processBouts, makeDemoBouts, parseCSV, nameKey } from './data/pipeline.js';
 import { loadFromStorage, saveToStorage, clearStorage } from './data/storage.js';
-import { loadFencerInfo, buildEnrichmentIndex, genderFromEnrichment, findFencerByLicenceHash, fencerKeyForInfo } from './data/fencerInfo.js';
+import { loadFencerInfo, buildEnrichmentIndex, genderFromEnrichment } from './data/fencerInfo.js';
 import { loadOverrides } from './data/edits.js';
 import Header from './components/Header.jsx';
 import EmptyState from './components/EmptyState.jsx';
@@ -20,7 +20,6 @@ import Admin from './components/Admin.jsx';
 export default function App() {
   const [rawBouts, setRawBouts] = useState([]);
   const [fencerInfo, setFencerInfo] = useState([]);
-  const [session, setSession] = useState(null); // { licenceHash, info } when signed in
   const [overrides, setOverrides] = useState({ name_overrides: {}, club_overrides: {}, flagged_bouts: [], club_meta: {}, merges: {} });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [view, setView] = useState('leaderboard');
@@ -35,6 +34,14 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    // Sign-in is paused until it is checked on the server: never restore a
+    // session, and clear the licence hash an earlier visit may have stored.
+    try {
+      localStorage.removeItem('fl_session_licence_hash');
+    } catch {
+      // Private-mode browsers may throw on localStorage access; ignore.
+    }
+
     (async () => {
       // Try the canonical server dataset first (public/data/manifest.json
       // produced by scripts/copy-data.mjs). When present, it overrides any
@@ -81,19 +88,6 @@ export default function App() {
         club_meta: ov.club_meta || {},
         merges: ov.merges || {},
       });
-
-      // Restore login session if a hash is in localStorage and still
-      // resolves to a known fencer.
-      try {
-        const savedHash = localStorage.getItem('fl_session_licence_hash');
-        if (savedHash) {
-          const match = findFencerByLicenceHash(info, savedHash);
-          if (match) setSession({ licenceHash: savedHash, info: match });
-          else localStorage.removeItem('fl_session_licence_hash');
-        }
-      } catch {
-        // Private-mode browsers may throw on localStorage access — ignore.
-      }
 
       setLoaded(true);
     })();
@@ -177,23 +171,8 @@ export default function App() {
 
   const flaggedBouts = useMemo(() => new Set(overrides.flagged_bouts || []), [overrides]);
 
-  // The session fencer's key in the current `fencers` map — null when
-  // signed out, or when the signed-in person has no bouts in the dataset.
-  const sessionFencerKey = useMemo(
-    () => (session ? fencerKeyForInfo(session.info, fencers) : null),
-    [session, fencers]
-  );
-
   const hasData = rawBouts.length > 0;
 
-  const handleLogin = (licenceHash, info) => {
-    try { localStorage.setItem('fl_session_licence_hash', licenceHash); } catch {}
-    setSession({ licenceHash, info });
-  };
-  const handleLogout = () => {
-    try { localStorage.removeItem('fl_session_licence_hash'); } catch {}
-    setSession(null);
-  };
   const refreshOverrides = async () => {
     const ov = await loadOverrides({ fresh: true });
     if (ov) setOverrides({
@@ -276,11 +255,6 @@ export default function App() {
         fencers={fencers}
         onSelectFencer={goFencer}
         hasData={hasData}
-        fencerInfo={fencerInfo}
-        session={session}
-        sessionFencerKey={sessionFencerKey}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
       />
 
       <main style={{ maxWidth: 1240, margin: '0 auto', padding: '36px 32px 80px' }}>
@@ -319,10 +293,7 @@ export default function App() {
             weapon={weapon}
             settings={settings}
             enrichment={enrichment}
-            isOwnProfile={sessionFencerKey && sessionFencerKey === selectedFencer}
-            session={session}
             flaggedBouts={flaggedBouts}
-            onEditApplied={refreshOverrides}
             onBack={goBack}
             onSelectFencer={goFencer}
             onSelectComp={goComp}

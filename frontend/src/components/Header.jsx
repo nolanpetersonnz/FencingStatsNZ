@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, User } from 'lucide-react';
-import LoginModal from './LoginModal.jsx';
 import { pressable } from '../utils/a11y.js';
 
 const AGE_OPTIONS = [
@@ -10,10 +9,9 @@ const AGE_OPTIONS = [
   ['veteran', 'Veteran'],
 ];
 
-export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData, fencerInfo, session, sessionFencerKey, onLogin, onLogout }) {
+export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
   const ref = useRef(null);
 
   const results = useMemo(() => {
@@ -45,40 +43,15 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
           </div>
           <div ref={ref} style={{ position: 'relative', minWidth: 280, flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10, minHeight: 22 }}>
-              {session ? (
-                <div className="fl-smallcaps" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.72rem', color: 'var(--ink-soft)' }}>
-                  <User size={12} />
-                  {sessionFencerKey ? (
-                    <button
-                      type="button"
-                      className="fl-link"
-                      onClick={() => onSelectFencer?.(sessionFencerKey)}
-                      style={{ textTransform: 'none', letterSpacing: 'normal', fontFamily: 'Newsreader, serif', fontSize: '0.92rem', color: 'var(--ink)' }}
-                    >
-                      {session.info.display_name}
-                    </button>
-                  ) : (
-                    <span style={{ textTransform: 'none', letterSpacing: 'normal', fontFamily: 'Newsreader, serif', fontSize: '0.92rem' }}>
-                      {session.info.display_name}
-                    </span>
-                  )}
-                  <button type="button" className="fl-link" onClick={onLogout}>Sign out</button>
-                </div>
-              ) : (
-                <button
-                  className="fl-smallcaps"
-                  onClick={() => setLoginOpen(true)}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    background: 'none', border: '1px solid var(--rule)', padding: '5px 12px',
-                    cursor: 'pointer', color: 'var(--ink-soft)', fontSize: '0.7rem',
-                  }}
-                  title="Sign in with your FNZ licence number"
-                >
-                  <User size={12} />
-                  Sign in
-                </button>
-              )}
+              {/* Sign-in is paused until it is checked on the server. A plain
+                  label, not a control: nothing here opens a sign-in form. */}
+              <span
+                className="fl-smallcaps"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 0', color: 'var(--ink-faint)', fontSize: '0.7rem' }}
+              >
+                <User size={12} aria-hidden="true" />
+                Sign-in paused
+              </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Search size={16} color="var(--ink-soft)" />
@@ -148,13 +121,6 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
           </div>
         </div>
       </div>
-      {loginOpen && (
-        <LoginModal
-          onClose={() => setLoginOpen(false)}
-          onLogin={onLogin}
-          fencerInfo={fencerInfo || []}
-        />
-      )}
     </div>
   );
 }

@@ -1,11 +1,10 @@
 // Tests for the API/auth layer: frontend/api/*.js plus the client-side
-// helpers that must stay byte-identical with it (bout fingerprints,
-// licence normalisation and hashing). No network and no Redis: only the
-// pure helpers and the handler paths that return before touching either.
+// helpers that must stay byte-identical with it (bout fingerprints).
+// No network and no Redis: only the pure helpers and the handler paths
+// that return before touching either.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 
 // Scrub every env var the API layer reads before importing anything, so
 // a developer's real Upstash credentials or admin token can never leak
@@ -20,7 +19,6 @@ for (const k of [
 import { boutFingerprint as serverFingerprint, nameKey as serverNameKey, isAdmin } from '../api/_lib.js';
 import { boutFingerprint as clientFingerprint } from '../src/data/edits.js';
 import { nameKey as pipelineNameKey } from '../src/data/pipeline.js';
-import { normaliseLicence, hashLicence } from '../src/data/fencerInfo.js';
 import editHandler, { validatePayload, resolveFencerKey } from '../api/edit.js';
 import adminHandler, { validateMergeRequest, applyMergeFencers } from '../api/admin.js';
 import overridesHandler from '../api/overrides.js';
@@ -115,71 +113,6 @@ test('nameKey parity between api/_lib.js and src/data/pipeline.js', () => {
   for (const s of ['  Joel   Ball-La Hood ', 'ALICE smith', '', null, ' A\tB ']) {
     assert.equal(serverNameKey(s), pipelineNameKey(s));
   }
-});
-
-// ---------------------------------------------------------------------------
-// Licence normalisation: golden vectors mirroring normalise_licence() in
-// ingest/fencerinfo_ingest.py (lines 109-115, regexes at lines 106-107).
-// Python can't run inside this suite, so these expected values are derived
-// from that source by hand. If the Python normaliser changes, these vectors
-// must be re-derived or login hashes stop matching the shipped registry.
-// ---------------------------------------------------------------------------
-
-const licenceVectors = [
-  // [input, expected]
-  ['FNZ #12345', '12345'],        // documented cruft case
-  ['fnz#12345', '12345'],         // prefix regex is case-insensitive
-  ['FENZ 12345', '12345'],        // FE?NZ matches both FNZ and FENZ
-  ['FNZ #FNZ #12345', '12345'],   // (prefix)+ strips repeated cruft
-  ["23456'", '23456'],            // documented trailing-quote case
-  ['  12345  ', '12345'],
-  ['sp1234567', 'SP1234567'],     // SP-prefixed licences upper-cased
-  [' sp1234567 ', 'SP1234567'],
-  ["SP1234567''", 'SP1234567'],
-  ['FNZ #', ''],                  // cruft-only input normalises to empty
-  ['', ''],
-  [null, ''],
-];
-
-for (const [input, expected] of licenceVectors) {
-  test(`normaliseLicence(${JSON.stringify(input)}) -> ${JSON.stringify(expected)}`, () => {
-    assert.equal(normaliseLicence(input), expected);
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Licence hash formula: sha256(`${pepper}|${normalised}`), UTF-8, lowercase
-// hex. Must match hash_licence() in ingest/fencerinfo_ingest.py (line 118).
-// Under Node import.meta.env is absent (it's Vite-only), so the app module's
-// pepper is '', which lets us pin the app function against the formula. The
-// non-empty-pepper golden below pins the formula itself for the Python side.
-// ---------------------------------------------------------------------------
-
-// The same formula the ingest script implements, expressed with node:crypto.
-function hashWithPepper(pepper, licence) {
-  return createHash('sha256')
-    .update(`${pepper}|${normaliseLicence(licence)}`, 'utf8')
-    .digest('hex');
-}
-
-test('hashLicence implements sha256(pepper + "|" + normalised licence)', async () => {
-  // Golden vector: sha256('|12345') with the empty pepper Node sees.
-  // Pins separator, pepper-first order, normalisation-before-hash,
-  // UTF-8 encoding and lowercase hex all at once.
-  const golden = '064687056fd14e7e7566188288c768e0cc81c161dfe3dd1c4ef04f36d1fd68e5';
-  assert.equal(await hashLicence('FNZ #12345'), golden);
-  assert.equal(hashWithPepper('', 'FNZ #12345'), golden);
-});
-
-test('licence hash golden vector for a non-empty pepper', () => {
-  // Python's hash_licence('sp1234567', 'test-pepper') must produce this
-  // exact hex. The app function can't be exercised with a custom pepper
-  // because Vite bakes VITE_LICENCE_PEPPER in at build time, so this
-  // golden guards the formula both sides implement.
-  assert.equal(
-    hashWithPepper('test-pepper', 'sp1234567'),
-    'b110f4cec4dd5c44b3ddc8aac7123e01e6893ab2e885cb3ff1ae0b74a3a531e2',
-  );
 });
 
 // ---------------------------------------------------------------------------
@@ -405,6 +338,8 @@ test('POST /api/edit rejects non-POST, missing hash, bad kind, bad payload', asy
   assert.equal(res.statusCode, 400);
 });
 
+// While sign-in is paused the public registry carries no hashes, so every
+// hash lands here; privacy.test.js guards that the registry stays hash-free.
 test('POST /api/edit rejects a hash that matches no fencer with 401', async () => {
   // A hash that isn't 64 chars short-circuits in fencerForHash before
   // any file or Redis access, so this exercises the auth path cleanly.

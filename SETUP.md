@@ -2,6 +2,8 @@
 
 The login + edit features run on Vercel Functions backed by Upstash Redis. Reading the public site doesn't touch the backend; the API only matters when a signed-in fencer submits an edit or you visit `/#admin`.
 
+**Sign-in is paused (November 2026).** The public `fencers.json` no longer carries licence hashes and the site has no sign-in button, so `/api/edit` rejects every request with 401 (503 while `EDITS_FROZEN=1` is set in Vercel). The edit flow below describes how it worked; it will change when sign-in is rebuilt with a server-side check and a new server-only pepper.
+
 ## 1. Provision Upstash Redis
 
 1. In Vercel, open your `fencingstatsnz` project.
@@ -27,7 +29,7 @@ This is the bearer token you'll paste once into `/#admin` to manage the edit que
 
 ## 3. Local dev
 
-`.env` and `frontend/.env` already hold `VITE_LICENCE_PEPPER`. For local API testing, add Upstash + admin vars to a gitignored `.env.local` in `frontend/`. You can pull the production values down with `vercel env pull frontend/.env.local` once the Upstash integration is connected, or paste manually:
+The client no longer reads `VITE_LICENCE_PEPPER`: delete it from `.env`, `frontend/.env` and the Vercel environment variables. Its old value shipped in every past bundle, so treat it as public and never reuse it. For local API testing, add Upstash + admin vars to a gitignored `.env.local` in `frontend/`. You can pull the production values down with `vercel env pull frontend/.env.local` once the Upstash integration is connected, or paste manually:
 
 ```
 KV_REST_API_URL=https://....upstash.io

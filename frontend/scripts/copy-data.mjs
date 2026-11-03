@@ -20,8 +20,8 @@ for (const f of csvs) {
 }
 
 // fencers.json is the privacy-scrubbed registry from the Fencing Time
-// XML ingest (handedness, DOB year, official FNZ ranking, hashed licence
-// numbers for client-side login). Copied if present; site falls back to
+// XML ingest (handedness, DOB year, official FNZ ranking, a has_licence
+// flag; no licence numbers or hashes). Copied if present; site falls back to
 // bout-derived fencers when missing.
 const fencerJson = path.join(ingestDir, 'fencers.json');
 const hasFencerJson = fs.existsSync(fencerJson);
