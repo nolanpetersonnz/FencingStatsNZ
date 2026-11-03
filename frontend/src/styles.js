@@ -97,6 +97,10 @@ button.fl-tab { padding: 8px 0; margin-right: 28px; }
 @media (max-width: 760px) {
   .fl-hide-mobile { display: none !important; }
   .fl-stack-mobile { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+  /* Main nav on phones: whole tabs wrap to a second row instead of
+     breaking "Head-to-Head" across lines or running off the edge. */
+  .fl-nav { flex-wrap: wrap; row-gap: 2px; }
+  .fl-nav .fl-tab { margin-right: 18px; white-space: nowrap; }
 }
 `;
 

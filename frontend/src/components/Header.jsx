@@ -98,7 +98,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 28, gap: 24, flexWrap: 'wrap' }}>
-          <nav style={{ display: 'flex', alignItems: 'center' }} className="fl-smallcaps">
+          <nav style={{ display: 'flex', alignItems: 'center' }} className="fl-smallcaps fl-nav">
             <button type="button" className={`fl-tab ${view === 'leaderboard' ? 'active' : ''}`} aria-current={view === 'leaderboard' ? 'page' : undefined} onClick={() => setView('leaderboard')}>Leaderboard</button>
             <button type="button" className={`fl-tab ${view === 'competitions' ? 'active' : ''}`} aria-current={view === 'competitions' ? 'page' : undefined} onClick={() => setView('competitions')}>Competitions</button>
             <button type="button" className={`fl-tab ${view === 'clubs' ? 'active' : ''}`} aria-current={view === 'clubs' ? 'page' : undefined} onClick={() => setView('clubs')}>Clubs</button>
