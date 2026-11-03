@@ -92,6 +92,10 @@ export default function HeadToHead({ fencers, bouts, weapon: globalWeapon, gende
                 <span>{a.name}</span>
                 <span>{b.name}</span>
               </div>
+              {/* v1.1 #7 (I-09): participants assumed the bars came from past meetings. */}
+              <div className="fl-italic" style={{ marginTop: 14, fontSize: '0.9rem', color: 'var(--ink-soft)' }}>
+                Predicted from the two fencers' current ratings, not from their past bouts against each other.
+              </div>
             </div>
           )}
 
