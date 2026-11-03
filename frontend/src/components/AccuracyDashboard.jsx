@@ -37,6 +37,12 @@ export default function AccuracyDashboard({ bouts, settings }) {
   const readsWell = data.accuracy != null && data.expectedAccuracy != null
     && data.accuracy >= data.expectedAccuracy - 0.01;
 
+  // v1.1 #6 (I-07): the band-table reading quotes a real row. Prefer the
+  // 70% to 80% band; with filters that leave it empty, the busiest band.
+  const filled = data.buckets.filter((b) => b.n > 0);
+  const exampleBand = filled.find((b) => Math.abs(b.lo - 0.7) < 1e-9)
+    || filled.reduce((best, b) => (!best || b.n > best.n ? b : best), null);
+
   return (
     <div>
       <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginBottom: 20, fontSize: '0.95rem' }}>
@@ -79,6 +85,22 @@ export default function AccuracyDashboard({ bouts, settings }) {
           <div className="fl-smallcaps" style={{ marginBottom: 4 }}>Calibration</div>
           <div className="fl-italic" style={{ fontSize: '0.82rem', color: 'var(--ink-faint)', marginBottom: 16 }}>
             Each dot is a band of predictions. Left to right is how confident the model was; up and down is how often that call was right. A well-calibrated model sits on the dashed line, so when it says 70% the favourite wins about 70% of the time.
+          </div>
+          {/* v1.1 #6 (I-07): a legend for the two encodings readers missed. */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 24px', marginBottom: 12, fontSize: '0.82rem', fontFamily: 'Newsreader, serif', color: 'var(--ink-soft)' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <svg width="26" height="16" aria-hidden="true">
+                <circle cx="5" cy="8" r="3" fill="var(--ox)" fillOpacity="0.75" />
+                <circle cx="18" cy="8" r="6.5" fill="var(--ox)" fillOpacity="0.75" />
+              </svg>
+              Bigger dot: more bouts in the band
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <svg width="26" height="16" aria-hidden="true">
+                <line x1="0" y1="8" x2="26" y2="8" stroke="var(--ink-faint)" strokeWidth="1.5" strokeDasharray="4 4" />
+              </svg>
+              Dashed line: perfect calibration, where the odds come true exactly
+            </span>
           </div>
           <div style={{ height: 320, marginLeft: -8 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -132,6 +154,11 @@ export default function AccuracyDashboard({ bouts, settings }) {
               </div>
             ))}
           </div>
+          {exampleBand && (
+            <div className="fl-italic" style={{ marginTop: 12, fontSize: '0.9rem', color: 'var(--ink-soft)', lineHeight: 1.5 }}>
+              How to read a row: in the {pct(exampleBand.lo)} to {pct(exampleBand.hi)} band, the model expected the favourite to win {pct(exampleBand.predicted, 1)} of {exampleBand.n.toLocaleString()} bouts; they won {pct(exampleBand.observed, 1)}.
+            </div>
+          )}
         </>
       )}
     </div>
