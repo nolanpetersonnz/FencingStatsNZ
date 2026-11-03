@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, User } from 'lucide-react';
 import { pressable } from '../utils/a11y.js';
+import { fmtDateLong } from '../utils/formatters.js';
+import { DATA_FEED_NOTE } from '../constants.js';
 
 const AGE_OPTIONS = [
   ['all', 'All ages'],
@@ -9,7 +11,7 @@ const AGE_OPTIONS = [
   ['veteran', 'Veteran'],
 ];
 
-export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData }) {
+export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData, latestBoutDate }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -40,6 +42,18 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
             <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginTop: 10, fontSize: '1.05rem' }}>
               Glicko-style ratings drawn from the bouts of New Zealand
             </div>
+            {latestBoutDate && (
+              <div style={{ marginTop: 14 }}>
+                <div className="fl-smallcaps" style={{ fontSize: '0.66rem' }}>
+                  Last Update: {fmtDateLong(latestBoutDate)}
+                </div>
+                {DATA_FEED_NOTE && (
+                  <div className="fl-italic" style={{ color: 'var(--ink-faint)', fontSize: '0.9rem', marginTop: 3 }}>
+                    {DATA_FEED_NOTE}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div ref={ref} style={{ position: 'relative', minWidth: 280, flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10, minHeight: 22 }}>

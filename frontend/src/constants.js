@@ -16,6 +16,11 @@ export const DEFAULT_SETTINGS = {
   inactivityDecayC: 0,
 };
 
+// Shown in the header under "Last Update" while new results can't come in:
+// FeNZ moved to a new results portal in 2026 and the old API refuses requests.
+// Set to null once the refresh works again; the Last Update line stays.
+export const DATA_FEED_NOTE = 'Updates resume once new FeNZ system connected';
+
 export const CSV_HEADER = 'date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_b,de_round';
 export const CSV_TEMPLATE = `${CSV_HEADER}
 2025-03-15,NZ Open 2025,epee,pool,Hamish Carter,Auckland Swords,Tane Ngata,Wellington FC,5,3,

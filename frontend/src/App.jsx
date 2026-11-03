@@ -171,6 +171,13 @@ export default function App() {
 
   const flaggedBouts = useMemo(() => new Set(overrides.flagged_bouts || []), [overrides]);
 
+  // Date of the most recent bout on record ('YYYY-MM-DD' sorts as text), shown
+  // in the header as the Last Update line.
+  const latestBoutDate = useMemo(
+    () => bouts.reduce((latest, b) => (b.date && b.date > latest ? b.date : latest), ''),
+    [bouts]
+  );
+
   const hasData = rawBouts.length > 0;
 
   const refreshOverrides = async () => {
@@ -255,6 +262,7 @@ export default function App() {
         fencers={fencers}
         onSelectFencer={goFencer}
         hasData={hasData}
+        latestBoutDate={latestBoutDate}
       />
 
       <main style={{ maxWidth: 1240, margin: '0 auto', padding: '36px 32px 80px' }}>

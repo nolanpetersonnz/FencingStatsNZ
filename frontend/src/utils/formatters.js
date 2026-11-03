@@ -33,6 +33,15 @@ export const fmtDate = (d) => {
   const mn = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   return `${parseInt(day,10)} ${mn[parseInt(m,10)-1]} ${y}`;
 };
+// "2026-07-19" -> "19 July 2026", for running text.
+export const fmtDateLong = (d) => {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  const mn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const month = mn[parseInt(m, 10) - 1];
+  if (!y || !month || !day) return d;
+  return `${parseInt(day, 10)} ${month} ${y}`;
+};
 export const fmtDateShort = (d) => {
   if (!d) return '';
   const [y, m, day] = d.split('-');
