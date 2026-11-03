@@ -94,7 +94,7 @@ export default function Import({ onImport, onLoadDemo, hasData, onClear, rawBout
 
       {hasData && (
         <div style={{ marginTop: 36, padding: 20, border: '1px solid var(--rule)' }}>
-          <div className="fl-smallcaps" style={{ marginBottom: 8 }}>Current ledger</div>
+          <div className="fl-smallcaps" style={{ marginBottom: 8 }}>Current leaderboard</div>
           <div style={{ marginBottom: 14 }}>{rawBouts.length} bouts on record.</div>
           <button className="fl-btn danger" onClick={onClear} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <Trash2 size={13} /> Clear all data

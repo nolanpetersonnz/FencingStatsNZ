@@ -26,7 +26,7 @@ FencingStatsNZ is an attempt at something better: a system that weights wins by 
 - **Head-to-head comparison** - look up any two fencers' shared bout history and see a predicted win probability per stream based on current ratings.
 - **Competition browser** - browse events ranked by field strength (S–D tiers based on median pool rating).
 - **Clubs ledger** - clubs ranked by aggregate member ratings, with per-club detail pages.
-- **Age-category rankings** - the Ledger can be filtered to Cadet, Junior, Veteran, or All to see how fencers stack up within their selection pool. Cadet/Junior eligibility uses DOB year when known and falls back to event-tag inference otherwise.
+- **Age-category rankings** - the Leaderboard can be filtered to Cadet, Junior, Veteran, or All to see how fencers stack up within their selection pool. Cadet/Junior eligibility uses DOB year when known and falls back to event-tag inference otherwise.
 - **Canonical dataset out of the box** - every visitor loads the same up-to-date dataset on first open (served from `public/data`), with CSV import still available for personal experiments.
 - **Rating ranges** - every rating carries a likely range from its uncertainty; the headline number is the conservative low end, so a settled fencer outranks a high-variance one until the uncertain rating is earned.
 - **Best and worst matchups** - a fencer's profile flags the opponents they beat more, or less, often than the ratings predict, surfacing the style matchups a single number hides.

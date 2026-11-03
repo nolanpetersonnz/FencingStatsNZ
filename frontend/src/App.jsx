@@ -236,7 +236,7 @@ export default function App() {
   }, [hasData, fencers, weapon]);
 
   // Hash-route the admin page so it stays off the visible nav. Visit
-  // /#admin to access it. Leaving the page returns you to the Ledger.
+  // /#admin to access it. Leaving the page returns you to the Leaderboard.
   useEffect(() => {
     const checkHash = () => {
       if (window.location.hash === '#admin' && view !== 'admin') setView('admin');
