@@ -28,9 +28,14 @@ export default function AccuracyDashboard({ bouts, settings }) {
   const metrics = [
     { l: 'Bouts scored', v: data.n.toLocaleString(), sub: 'matching the filters' },
     { l: 'Accuracy', v: pct(data.accuracy, 1), sub: 'favourite wins' },
-    { l: 'Brier', v: data.brier?.toFixed(3) ?? '—', sub: `vs ${data.baselineBrier.toFixed(2)} coin-flip` },
-    { l: 'Log-loss', v: data.logLoss?.toFixed(3) ?? '—', sub: `vs ${data.baselineLogLoss.toFixed(2)} coin-flip` },
   ];
+
+  // v1.1 #5 (I-06): one plain-language reading instead of Brier and log-loss
+  // boxes. The yardstick is what exactly-right odds would score on these same
+  // bouts. If accuracy ever falls clearly below it, the "not a weak model"
+  // clause is dropped rather than overclaim.
+  const readsWell = data.accuracy != null && data.expectedAccuracy != null
+    && data.accuracy >= data.expectedAccuracy - 0.01;
 
   return (
     <div>
@@ -52,14 +57,19 @@ export default function AccuracyDashboard({ bouts, settings }) {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', marginBottom: 36 }}>
-        {metrics.map((m, i, arr) => (
-          <div key={m.l} style={{ padding: '18px 16px', borderRight: i < arr.length - 1 ? '1px solid var(--rule-soft)' : 'none' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', marginBottom: 36 }}>
+        {metrics.map((m) => (
+          <div key={m.l} style={{ flex: '0 0 170px', padding: '18px 16px', borderRight: '1px solid var(--rule-soft)' }}>
             <div className="fl-smallcaps" style={{ marginBottom: 6 }}>{m.l}</div>
             <div className="fl-mono" style={{ fontSize: '1.7rem', fontWeight: 600, lineHeight: 1 }}>{m.v}</div>
             <div className="fl-mono" style={{ fontSize: '0.7rem', color: 'var(--ink-faint)', marginTop: 6 }}>{m.sub}</div>
           </div>
         ))}
+        {data.n > 0 && data.expectedAccuracy != null && (
+          <div className="fl-italic" style={{ flex: '1 1 280px', alignSelf: 'center', padding: '18px 16px', color: 'var(--ink-soft)', fontSize: '0.95rem', lineHeight: 1.5 }}>
+            If every chance the model gave were exactly right, it would still pick the winner only about {pct(data.expectedAccuracy)} of the time, because so many bouts are close. It actually picks {pct(data.accuracy)}{readsWell ? ', so the figure reflects close bouts, not a weak model.' : '.'}
+          </div>
+        )}
       </div>
 
       {data.n === 0 ? (

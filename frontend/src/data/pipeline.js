@@ -718,7 +718,7 @@ export function predictiveAccuracy(bouts, options = {}) {
   const edges = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0001];
   const bins = edges.slice(0, -1).map((lo, i) => ({ lo, hi: edges[i + 1], n: 0, favWins: 0, predicted: 0 }));
   const eps = 1e-15;
-  let n = 0, correct = 0, brier = 0, logLoss = 0;
+  let n = 0, correct = 0, brier = 0, logLoss = 0, expected = 0;
   for (const b of bouts) {
     if (b.withdrawal || !b.winnerKey) continue;
     if (stream && b.type !== stream) continue;
@@ -732,6 +732,7 @@ export function predictiveAccuracy(bouts, options = {}) {
     const favKey = pA >= 0.5 ? b.keyA : b.keyB;
     const favWon = b.winnerKey === favKey;
     if (favWon) correct++;
+    expected += pFav;
     for (const bin of bins) {
       if (pFav >= bin.lo && pFav < bin.hi) { bin.n++; bin.predicted += pFav; if (favWon) bin.favWins++; break; }
     }
@@ -740,6 +741,10 @@ export function predictiveAccuracy(bouts, options = {}) {
   return {
     n,
     accuracy: n ? correct / n : null,
+    // The accuracy the model would score if every probability it gave were
+    // exactly right: the mean of the favourite's predicted chance. Close bouts
+    // cap it, so it is the fair yardstick for `accuracy`, not 100%.
+    expectedAccuracy: n ? expected / n : null,
     brier: n ? brier / n : null,
     logLoss: n ? logLoss / n : null,
     baselineBrier: 0.25,        // always predicting 50/50

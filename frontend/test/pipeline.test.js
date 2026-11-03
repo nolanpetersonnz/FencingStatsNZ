@@ -8,7 +8,7 @@ import {
   difficultyTier, fieldOverview, predictiveAccuracy, buildTableau,
   lineDifficulty, matchups, makeDemoBouts,
 } from '../src/data/pipeline.js';
-import { decayRD } from '../src/engine/glicko2.js';
+import { decayRD, winProbability } from '../src/engine/glicko2.js';
 import { DEFAULT_SETTINGS } from '../src/constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -212,6 +212,28 @@ test('predictiveAccuracy scores the model out-of-sample and bins calibrate', () 
   assert.ok(acc.brier < acc.baselineBrier, 'Brier beats the 0.25 coin-flip baseline');
   const binTotal = acc.buckets.reduce((s, b) => s + b.n, 0);
   assert.equal(binTotal, acc.n, 'every scored bout lands in exactly one calibration bin');
+  // expectedAccuracy is the mean favourite probability: the bin means weighted
+  // by bin size, and never below a coin flip.
+  const fromBins = acc.buckets.reduce((s, b) => s + (b.n ? b.predicted * b.n : 0), 0) / acc.n;
+  assert.ok(Math.abs(acc.expectedAccuracy - fromBins) < 1e-12);
+  assert.ok(acc.expectedAccuracy >= 0.5 && acc.expectedAccuracy <= 1);
+});
+
+test('predictiveAccuracy: expectedAccuracy is what exactly-right odds would score', () => {
+  // Two bouts: one favourite at 70%, one at 90%. Odds that were exactly right
+  // would pick the winner (0.7 + 0.9) / 2 = 80% of the time.
+  const bout = (rA, rB, winnerIsA) => ({
+    keyA: 'a', keyB: 'b', winnerKey: winnerIsA ? 'a' : 'b', type: 'pool',
+    ratingABefore: rA, rdABefore: 50, ratingBBefore: rB, rdBBefore: 50,
+  });
+  const p = (rA, rB) => winProbability(rA, 50, rB, 50);
+  const close = [1500, 1500 - 400 * Math.log10(0.7 / 0.3)];
+  const wide = [1500, 1500 - 400 * Math.log10(0.9 / 0.1)];
+  const expected = (Math.max(p(...close), 1 - p(...close)) + Math.max(p(...wide), 1 - p(...wide))) / 2;
+  const acc = predictiveAccuracy([bout(...close, true), bout(...wide, false)], {});
+  assert.ok(Math.abs(acc.expectedAccuracy - expected) < 1e-12);
+  assert.equal(acc.accuracy, 0.5); // one favourite won, one lost
+  assert.equal(predictiveAccuracy([], {}).expectedAccuracy, null);
 });
 
 // ---- Tableau reconstruction + line difficulty -------------------------------
