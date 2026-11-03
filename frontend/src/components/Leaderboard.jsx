@@ -141,6 +141,11 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
         </div>
       </div>
 
+      {/* v1.1 #1 (I-01): what the rating columns show, readable without hovering. */}
+      <div className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', lineHeight: 1.5, marginBottom: 14, maxWidth: 720 }}>
+        Each rating is the low end of the fencer's likely range (± shows how far it spreads). Ratings rise as more bouts narrow the range.
+      </div>
+
       <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: gridCols, alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--rule)' }} className="fl-smallcaps">
           <div>Rank</div>

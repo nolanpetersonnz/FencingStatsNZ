@@ -121,7 +121,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
         </div>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', marginBottom: 32 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', marginBottom: 12 }}>
             {[
               { label: 'Pool', stream: w.pool, winRate: poolWinRate, accent: 'var(--ink)' },
               { label: 'Direct Elimination', stream: w.de, winRate: deWinRate, accent: 'var(--ox)' },
@@ -147,6 +147,10 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                 </div>
               </div>
             ))}
+          </div>
+          {/* v1.1 #1 (I-01): the headline explained in place, not only on hover. */}
+          <div className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', lineHeight: 1.5, marginBottom: 32, maxWidth: 720 }}>
+            The big number is the low end of this fencer's likely range, a cautious estimate. It rises as more bouts narrow the range. Raw is the middle of the range.
           </div>
 
           {chartData.length >= 2 && (
