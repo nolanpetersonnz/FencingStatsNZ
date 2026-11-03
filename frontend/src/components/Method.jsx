@@ -43,7 +43,7 @@ export default function Method({ bouts, settings }) {
         role="tablist"
         aria-label="Behind the numbers"
         className="fl-smallcaps"
-        style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '1px solid var(--rule)', marginBottom: 28, fontSize: '0.8rem' }}
+        style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '1px solid var(--rule)', marginBottom: 28, fontSize: '1rem' }}
       >
         {PANELS.map(([v, label]) => (
           <button
@@ -58,7 +58,7 @@ export default function Method({ bouts, settings }) {
             className={`fl-tab ${panel === v ? 'active' : ''}`}
             onClick={() => setPanel(v)}
             onKeyDown={onTabKeyDown}
-            style={{ padding: '10px 0', marginRight: 32 }}
+            style={{ padding: '10px 0', marginRight: 32, fontWeight: panel === v ? 600 : 500 }}
           >
             {label}
           </button>
