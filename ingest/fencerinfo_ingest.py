@@ -11,7 +11,8 @@ Output schema (frontend/public/data/fencers.json) is a list of:
     {
       "display_name": "Joel Ball-La Hood",
       "name_keys": ["joel ball-la hood", "joel ball-la-hood"],
-      "dob_year": 2006,                  # year only; full DOB never leaves
+      "dob_year": 2006,                  # year only; full DOB never leaves.
+                                         # null if unknown or withheld (below)
       "handedness": "right" | "left",    # null if unknown
       "nation": "NZL",
       "current_club": "South Wellington Fencing Club",
@@ -23,12 +24,28 @@ Output schema (frontend/public/data/fencers.json) is a list of:
       "has_licence": true,               # absent if no licence on record
     }
 
+Anyone born in or after (this year - 18) may be under 18, so their birth
+year is withheld. Only the year is known, so that whole year counts as
+possibly under 18. In its place the record carries what the site needs,
+worked out here at build time:
+
+      "dob_year": null,
+      "dob_withheld": true,
+      "age_eligibility": {"season": 2026, "junior": true, "cadet": false},
+      "dob_implausible": true,           # only when the withheld year fails
+                                         # the activity check in fencerInfo.js
+
+`season` is the latest year in ingest/bouts.csv, the same "current year"
+the leaderboard uses. The flags are only valid for that season, so re-run
+this script when results from a new year arrive.
+
 Licence numbers and licence hashes never appear in the output.
 
 Usage:
     python ingest/fencerinfo_ingest.py
 """
 
+import csv
 import json
 import re
 import sys
@@ -45,6 +62,14 @@ XML_DIR = ROOT / "Fencerinfo" / "uploads"
 # both into frontend/public/data/ at build time, so this file ships with
 # every Vercel deploy.
 OUT_PATH = ROOT / "ingest" / "fencers.json"
+BOUTS_PATH = ROOT / "ingest" / "bouts.csv"
+
+# Leaderboard age bands, mirroring Leaderboard.jsx: Junior (U20) is born
+# season - 20 or later, Cadet (U17) season - 17 or later.
+JUNIOR_SPAN = 20
+CADET_SPAN = 17
+# Mirrors MIN_PLAUSIBLE_AGE in frontend/src/data/fencerInfo.js.
+MIN_PLAUSIBLE_AGE = 8
 
 
 def parse_date(s: str):
@@ -187,6 +212,59 @@ def finalize(rec):
     return entry
 
 
+def dataset_season() -> int:
+    """Latest year in ingest/bouts.csv: the leaderboard's "current year"."""
+    latest = 0
+    try:
+        with BOUTS_PATH.open(newline="", encoding="utf-8") as fh:
+            for row in csv.DictReader(fh):
+                year = (row.get("date") or "")[:4]
+                if year.isdigit():
+                    latest = max(latest, int(year))
+    except FileNotFoundError:
+        pass
+    return latest or datetime.now().year
+
+
+def withhold_from_year() -> int:
+    """Birth years from here on may belong to someone under 18."""
+    return datetime.now().year - 18
+
+
+def dob_implausible(entry) -> bool:
+    # Same rule as implausibleDob() in frontend/src/data/fencerInfo.js: the
+    # fencer would be younger than MIN_PLAUSIBLE_AGE at their earliest ranking.
+    years = []
+    for r in (entry.get("rankings") or {}).values():
+        y = ((r or {}).get("as_of") or "")[:4]
+        if y.isdigit():
+            years.append(int(y))
+    return bool(years) and min(years) - entry["dob_year"] < MIN_PLAUSIBLE_AGE
+
+
+def withhold_minor_dob(entry, season: int, withhold_from: int):
+    """Replace a possibly-under-18 birth year with what the site needs from it.
+
+    Keeps buildEnrichmentIndex choosing the same record (the +10 for a known
+    DOB and the implausible-DOB demotion) and keeps the Cadet/Junior
+    leaderboards listing the same fencers, without publishing the year.
+    """
+    dob = entry.get("dob_year")
+    if dob is None or dob < withhold_from:
+        return entry
+    implausible = dob_implausible(entry)
+    entry["dob_year"] = None
+    entry["dob_withheld"] = True
+    entry["age_eligibility"] = {
+        "season": season,
+        "junior": dob >= season - JUNIOR_SPAN,
+        "cadet": dob >= season - CADET_SPAN,
+    }
+    if implausible:
+        entry["dob_implausible"] = True
+    return entry
+
+
 def main():
     if not XML_DIR.exists():
         print(f"ERROR: {XML_DIR} does not exist", file=sys.stderr)
@@ -300,6 +378,11 @@ def main():
     output.extend(finalize(rec) for rec in name_only.values())
     output.sort(key=lambda x: x["display_name"].lower())
 
+    season = dataset_season()
+    withhold_from = withhold_from_year()
+    for entry in output:
+        withhold_minor_dob(entry, season, withhold_from)
+
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(
         json.dumps(output, indent=2, ensure_ascii=False) + "\n",
@@ -307,6 +390,7 @@ def main():
     )
 
     with_lic = sum(1 for x in output if x.get("has_licence"))
+    withheld = sum(1 for x in output if x.get("dob_withheld"))
     try:
         rel = OUT_PATH.relative_to(Path.cwd())
     except ValueError:
@@ -314,6 +398,8 @@ def main():
     print(f"Parsed {parsed}/{len(files)} files, {fencer_rows} fencer rows")
     print(f"Wrote {len(output)} fencers -> {rel}")
     print(f"  {with_lic} fencers with a licence on record")
+    print(f"  {withheld} birth years withheld (born {withhold_from} or later), "
+          f"Cadet/Junior flags for the {season} season")
 
 
 if __name__ == "__main__":

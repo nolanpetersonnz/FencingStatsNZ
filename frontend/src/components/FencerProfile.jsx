@@ -4,6 +4,7 @@ import { ArrowLeft, Flag } from 'lucide-react';
 import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating, fmtInterval } from '../utils/formatters.js';
 import { boutFingerprint, submitEdit } from '../data/edits.js';
 import { fieldOverview, matchups } from '../data/pipeline.js';
+import { displayBirthYear } from '../data/fencerInfo.js';
 import EditPanel from './EditPanel.jsx';
 import DifficultyStrip from './DifficultyStrip.jsx';
 
@@ -55,6 +56,14 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
 
   if (!f) return <div style={{ padding: 60, textAlign: 'center' }} className="fl-italic">Fencer not found.</div>;
 
+  // Registry facts under the name. No birth year for anyone possibly under 18.
+  const birthYear = displayBirthYear(info);
+  const infoParts = info ? [
+    birthYear && `Born ${birthYear}`,
+    info.handedness && `${info.handedness}-handed`,
+    info.nation && info.nation !== 'NZL' && info.nation,
+  ].filter(Boolean) : [];
+
   const poolWinRate = w && w.pool.bouts > 0 ? (w.pool.wins / w.pool.bouts * 100).toFixed(0) : '—';
   const deWinRate = w && w.de.bouts > 0 ? (w.de.wins / w.de.bouts * 100).toFixed(0) : '—';
   const totalBouts = w ? w.pool.bouts + w.de.bouts : 0;
@@ -79,11 +88,9 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
             </span>
           )}
         </h2>
-        {info && (info.dob_year || info.handedness || (info.nation && info.nation !== 'NZL')) && (
+        {infoParts.length > 0 && (
           <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginTop: 12, fontSize: '0.95rem', display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
-            {info.dob_year && <span>Born {info.dob_year}</span>}
-            {info.handedness && <span>· {info.handedness}-handed</span>}
-            {info.nation && info.nation !== 'NZL' && <span>· {info.nation}</span>}
+            {infoParts.map((part, i) => <span key={part}>{i > 0 ? '· ' : ''}{part}</span>)}
           </div>
         )}
       </div>

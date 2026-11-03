@@ -7,7 +7,8 @@ frontend/public/data/
 
 # Raw Fencing Time XML — contains full DOBs and licence numbers.
 # Stays local; only the derived ingest/fencers.json (no licence numbers or
-# hashes, DOB year only) is shipped to visitors.
+# hashes; DOB year only, and none for anyone possibly under 18) is shipped
+# to visitors.
 Fencerinfo/
 
 # Python

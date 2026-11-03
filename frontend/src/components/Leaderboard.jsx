@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRD, fmtRating, fmtConservativeRating, conservativeRating, fmtInterval } from '../utils/formatters.js';
 import { pressable } from '../utils/a11y.js';
+import { ageEligible } from '../data/fencerInfo.js';
 
 export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategory, settings, enrichment, onSelectFencer, onSelectClub }) {
   const [minBouts, setMinBouts] = useState(1);
@@ -37,28 +38,27 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
         // who fenced a senior event would slip into the Junior leaderboard via
         // downward inclusion of senior bouts into the junior stream.
         if (age !== 'all') {
-          // DOB-based eligibility takes priority when we know the fencer's
-          // birth year (from the Fencing Time XML registry). Junior is
-          // U20 — born `currentYear - 20` or later (so 2006+ in the 2026
-          // season). Cadet is U17 — born `currentYear - 17` or later
-          // (2009+ in 2026). Veteran has no DOB cutoff defined in NZ; fall
-          // back to event-tag inference for it.
-          const dob = enrichment?.[f.key]?.dob_year;
+          // Registry eligibility takes priority when the Fencing Time XML
+          // registry knows the fencer's age band. Junior is U20, born
+          // `currentYear - 20` or later (2006+ in the 2026 season); Cadet is
+          // U17, born `currentYear - 17` or later (2009+ in 2026). For anyone
+          // possibly under 18 the public file has no birth year, only these
+          // two flags worked out when it was built (see ageEligible). Veteran
+          // has no DOB cutoff defined in NZ; fall back to event-tag inference.
           const native = f.nativeCategories?.[weapon];
           const years = f.nativeLatestYear?.[weapon] || {};
 
           if (age === 'junior' || age === 'cadet') {
-            const cutoff = age === 'junior' ? currentYear - 20 : currentYear - 17;
-            if (dob != null) {
-              // DOB-based filter alone — being age-eligible is enough.
-              // No "fenced this year" gate, since juniors who haven't
-              // competed in the current year (Joel Ball-La Hood, Nolan
-              // Peterson) are still current juniors by age and deserve
-              // a place on the list. The minBouts slider handles the
-              // very-stale case.
-              if (dob < cutoff) return null;
+            const eligible = ageEligible(enrichment?.[f.key], age, currentYear);
+            if (eligible !== null) {
+              // Age eligibility alone is enough. No "fenced this year" gate,
+              // since juniors who haven't competed in the current year are
+              // still current juniors by age and deserve a place on the list.
+              // The minBouts slider handles the very-stale case.
+              if (!eligible) return null;
             } else {
-              // Fallback: rely on event tagging for fencers without DOB.
+              // Fallback: rely on event tagging when the registry can't say
+              // (no DOB, or withheld-year flags built for another season).
               // Junior view also includes cadet entrants (cadet => junior).
               const eligibleNative = age === 'junior' ? ['junior', 'cadet'] : ['cadet'];
               if (!native || !eligibleNative.some((c) => native.has(c))) return null;

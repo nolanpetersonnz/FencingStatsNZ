@@ -5,7 +5,11 @@
 //
 // The public file carries no licence data beyond a `has_licence` flag.
 // Licence numbers and their hashes never leave the machine the ingest
-// script runs on.
+// script runs on. Nor does the birth year of anyone who may be under 18:
+// their record has `dob_year: null` and `dob_withheld: true`, plus the
+// facts the site needs from the year, worked out when the file was built
+// (`age_eligibility` for one season, `dob_implausible` when it applies).
+// See ingest/fencerinfo_ingest.py.
 
 import { nameKey } from './pipeline.js';
 
@@ -44,11 +48,14 @@ export async function loadFencerInfo() {
 const MIN_PLAUSIBLE_AGE = 8;
 export function buildEnrichmentIndex(info) {
   if (!Array.isArray(info)) return {};
+  // A withheld year still counts as a known DOB, and its implausibility was
+  // decided at build time with the same rule, so records score as before.
   const signal = (r) =>
     (r.has_licence ? 100 : 0) +
-    (r.dob_year ? 10 : 0) +
+    (r.dob_year || r.dob_withheld ? 10 : 0) +
     (r.clubs?.length || 0);
   const implausibleDob = (r) => {
+    if (r.dob_withheld) return r.dob_implausible === true;
     if (!r.dob_year) return false;
     const asOf = Object.values(r.rankings || {})
       .map((x) => parseInt((x.as_of || '').slice(0, 4), 10))
@@ -69,6 +76,31 @@ export function buildEnrichmentIndex(info) {
     }
   }
   return idx;
+}
+
+// Junior (U20) and Cadet (U17) eligibility for `season`, the leaderboard's
+// current year: born `season - 20` or later for Junior, `season - 17` or later
+// for Cadet. Returns true/false when the registry knows, null when it can't
+// say: no DOB on record, or withheld-year flags built for another season.
+// Callers fall back to event tagging on null.
+export function ageEligible(rec, category, season) {
+  if (!rec || (category !== 'junior' && category !== 'cadet')) return null;
+  if (rec.dob_year != null) {
+    return rec.dob_year >= season - (category === 'junior' ? 20 : 17);
+  }
+  const flags = rec.age_eligibility;
+  if (flags && flags.season === season && typeof flags[category] === 'boolean') return flags[category];
+  return null;
+}
+
+// The birth year to show on a profile, or null. Hidden for anyone born in or
+// after (this year - 18): only the year is known, so that whole year counts
+// as possibly under 18. The public registry already withholds those years;
+// this also covers an older or locally imported registry file.
+export function displayBirthYear(rec, year = new Date().getFullYear()) {
+  const dob = rec?.dob_year;
+  if (dob == null || dob >= year - 18) return null;
+  return dob;
 }
 
 // Infer a fencer's gender from their registry record when the bout data

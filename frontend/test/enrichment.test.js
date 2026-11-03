@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { buildEnrichmentIndex, genderFromEnrichment } from '../src/data/fencerInfo.js';
+import { buildEnrichmentIndex, genderFromEnrichment, ageEligible, displayBirthYear } from '../src/data/fencerInfo.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const info = JSON.parse(readFileSync(resolve(__dirname, '../../ingest/fencers.json'), 'utf8'));
@@ -11,14 +11,16 @@ const idx = buildEnrichmentIndex(info);
 
 // Each key must resolve to the record actually named that way — not a sibling
 // whose record carries the key as a stray alias (licence mix-ups in the source
-// XML). Values are the correct person + DOB year.
+// XML). Values are the correct person plus their DOB year or, for anyone
+// possibly under 18 (the public file withholds their year), the Cadet/Junior
+// eligibility that replaced it.
 const expected = {
   'daniel gourley': ['Daniel Gourley', 2007],
   'craig chong': ['Craig Chong', 2006],
   'milo henshaw': ['Milo Henshaw', 2006],
-  'luke boyd': ['Luke Boyd', null],
+  'luke boyd': ['Luke Boyd', { season: 2026, junior: true, cadet: false }],
   'tim wang': ['Tim Wang', 2004],
-  'stacy chong': ['Stacy Chong', null],
+  'stacy chong': ['Stacy Chong', { season: 2026, junior: true, cadet: false }],
 };
 
 for (const [key, [name, dob]] of Object.entries(expected)) {
@@ -26,9 +28,39 @@ for (const [key, [name, dob]] of Object.entries(expected)) {
     const rec = idx[key];
     assert.ok(rec, `${key} present`);
     assert.equal(rec.display_name, name);
-    assert.equal(rec.dob_year, dob);
+    if (typeof dob === 'number') {
+      assert.equal(rec.dob_year, dob);
+    } else {
+      assert.equal(rec.dob_year, null);
+      assert.equal(rec.dob_withheld, true);
+      assert.deepEqual(rec.age_eligibility, dob);
+    }
   });
 }
+
+test('ageEligible: a published year, else withheld flags for the same season, else null', () => {
+  // Junior is born season - 20 or later, Cadet season - 17 or later.
+  assert.equal(ageEligible({ dob_year: 2006 }, 'junior', 2026), true);
+  assert.equal(ageEligible({ dob_year: 2005 }, 'junior', 2026), false);
+  assert.equal(ageEligible({ dob_year: 2009 }, 'cadet', 2026), true);
+  assert.equal(ageEligible({ dob_year: 2008 }, 'cadet', 2026), false);
+  const withheld = { dob_year: null, dob_withheld: true, age_eligibility: { season: 2026, junior: true, cadet: false } };
+  assert.equal(ageEligible(withheld, 'junior', 2026), true);
+  assert.equal(ageEligible(withheld, 'cadet', 2026), false);
+  // Flags built for another season can't be trusted: fall back (null).
+  assert.equal(ageEligible(withheld, 'cadet', 2027), null);
+  assert.equal(ageEligible({ dob_year: null }, 'junior', 2026), null);
+  assert.equal(ageEligible(null, 'junior', 2026), null);
+  assert.equal(ageEligible({ dob_year: 1980 }, 'veteran', 2026), null);
+});
+
+test('displayBirthYear hides anyone born in or after this year minus 18', () => {
+  assert.equal(displayBirthYear({ dob_year: 2007 }, 2026), 2007);
+  assert.equal(displayBirthYear({ dob_year: 2008 }, 2026), null); // the whole year counts
+  assert.equal(displayBirthYear({ dob_year: 2012 }, 2026), null);
+  assert.equal(displayBirthYear({ dob_year: null, dob_withheld: true }, 2026), null);
+  assert.equal(displayBirthYear(null, 2026), null);
+});
 
 // Same person split into two records by a data-entry typo on one DOB. The
 // impossible year (Chantelle May as 2018 — she holds a national foil ranking,
