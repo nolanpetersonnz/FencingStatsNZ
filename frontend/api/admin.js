@@ -7,6 +7,17 @@
 
 import { redis, isAdmin, readJsonBody } from './_lib.js';
 
+// Edit records written before sign-in was paused (3 Nov 2026) carry the
+// submitter's licence hash, which the old, public pepper can reverse. The
+// admin view never used it, so it is left out of every response and
+// dropped whenever an admin action re-saves a record.
+// scripts/purge-licence-hashes.mjs strips it from storage.
+export function withoutLicenceHash(edit) {
+  if (!edit || typeof edit !== 'object') return edit;
+  const { licence_hash: _omit, ...rest } = edit;
+  return rest;
+}
+
 async function listEdits(db) {
   // Newest first.
   const ids = await db.zrange('edits', 0, 199, { rev: true });
@@ -15,7 +26,8 @@ async function listEdits(db) {
   const docs = await db.mget(...keys);
   return docs
     .map((d) => (typeof d === 'string' ? JSON.parse(d) : d))
-    .filter(Boolean);
+    .filter(Boolean)
+    .map(withoutLicenceHash);
 }
 
 async function updateOverridesAfterRevert(db, edit) {
@@ -205,7 +217,7 @@ export default async function handler(req, res) {
     res.status(404).json({ error: 'edit not found' });
     return;
   }
-  const edit = typeof raw === 'string' ? JSON.parse(raw) : raw;
+  const edit = withoutLicenceHash(typeof raw === 'string' ? JSON.parse(raw) : raw);
   const now = new Date().toISOString();
 
   if (action === 'approve') {

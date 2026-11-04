@@ -38,7 +38,7 @@ export function rateLimiter() {
   if (_rl) return _rl;
   _rl = new Ratelimit({
     redis: redis(),
-    limiter: Ratelimit.fixedWindow(20, '1 h'),  // 20 edits / hour / hash
+    limiter: Ratelimit.fixedWindow(20, '1 h'),  // 20 edits / hour / fencer
     prefix: 'fl_rl_edit',
   });
   return _rl;

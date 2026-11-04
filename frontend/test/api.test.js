@@ -20,7 +20,7 @@ import { boutFingerprint as serverFingerprint, nameKey as serverNameKey, isAdmin
 import { boutFingerprint as clientFingerprint } from '../src/data/edits.js';
 import { nameKey as pipelineNameKey } from '../src/data/pipeline.js';
 import editHandler, { validatePayload, resolveFencerKey } from '../api/edit.js';
-import adminHandler, { validateMergeRequest, applyMergeFencers, normaliseWebsite } from '../api/admin.js';
+import adminHandler, { validateMergeRequest, applyMergeFencers, normaliseWebsite, withoutLicenceHash } from '../api/admin.js';
 import { safeHttpUrl } from '../src/utils/url.js';
 import overridesHandler from '../api/overrides.js';
 import refreshHandler from '../api/refresh.js';
@@ -340,6 +340,21 @@ test('safeHttpUrl (club page) agrees with normaliseWebsite (server) on every cas
     assert.equal(normaliseWebsite(input).value ?? null, safeHttpUrl(input), input);
   }
   for (const v of [null, undefined, 42, {}, '']) assert.equal(safeHttpUrl(v), null);
+});
+
+// Security #8: stored edit records may still carry a licence hash until
+// scripts/purge-licence-hashes.mjs runs; the admin API never returns it.
+test('withoutLicenceHash drops the hash, keeps every other field, leaves the input alone', () => {
+  const rec = {
+    id: '1-a', kind: 'display_name', fencer_key: 'alice example', licence_hash: 'f'.repeat(64),
+    payload: { display_name: 'Alice Example' }, status: 'applied',
+  };
+  assert.deepEqual(withoutLicenceHash(rec), {
+    id: '1-a', kind: 'display_name', fencer_key: 'alice example',
+    payload: { display_name: 'Alice Example' }, status: 'applied',
+  });
+  assert.equal(rec.licence_hash, 'f'.repeat(64));
+  assert.equal(withoutLicenceHash(null), null);
 });
 
 // ---------------------------------------------------------------------------

@@ -2,7 +2,8 @@
 //
 // Accepts an edit submission from a signed-in fencer. The licence hash
 // is verified against fencers.json (bundled into the function image),
-// the edit is rate-limited per hash, then persisted to Upstash. Name
+// the edit is rate-limited per fencer, then persisted to Upstash without
+// the hash (security #8: stored hashes outlive the pepper's secrecy). Name
 // and club edits go live immediately by writing to the `overrides`
 // document; merge and dispute edits stay in a `pending` queue for the
 // admin to review.
@@ -101,11 +102,12 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Rate limit by licence hash. Errors here are non-fatal — Upstash
+  // Rate limit per fencer, keyed by fencer key rather than the hash so no
+  // hash ends up in a key name. Errors here are non-fatal — Upstash
   // outage shouldn't block edits — but we log them.
   try {
     const r = rateLimiter();
-    const { success, remaining } = await r.limit(licence_hash);
+    const { success, remaining } = await r.limit(fkey);
     if (!success) {
       res.status(429).json({ error: 'rate limit exceeded; try again later' });
       return;
@@ -124,7 +126,6 @@ export default async function handler(req, res) {
     id,
     kind,
     fencer_key: fkey,
-    licence_hash,
     payload,
     status,
     created_at: now,

@@ -4,6 +4,17 @@ The login + edit features run on Vercel Functions backed by Upstash Redis. Readi
 
 **Sign-in is paused (November 2026).** The public `fencers.json` no longer carries licence hashes and the site has no sign-in button, so `/api/edit` rejects every request with 401 (503 while `EDITS_FROZEN=1` is set in Vercel). The edit flow below describes how it worked; it will change when sign-in is rebuilt with a server-side check and a new server-only pepper.
 
+**Clean-up after the pause (run once).** Edit records saved before the pause still hold the submitter's licence hash, and the old pepper is public, so strip them with `scripts/purge-licence-hashes.mjs` (security #8). From `frontend/`:
+
+```
+vercel env pull .env.production.local --environment=production
+node --env-file=.env.production.local scripts/purge-licence-hashes.mjs           # report only
+node --env-file=.env.production.local scripts/purge-licence-hashes.mjs --apply   # strip
+rm .env.production.local
+```
+
+It removes the `licence_hash` field from every `edit:<id>` record (the admin queue keeps working), deletes any rate-limit key named after a hash, then checks every key for anything hash-like. It never prints a hash and is safe to re-run. If the pulled file has no Upstash values, put `KV_REST_API_URL` and `KV_REST_API_TOKEN` from the Upstash console in it instead. The file holds production secrets, hence the `rm`; `*.local` is gitignored. New edit records no longer store the hash.
+
 ## 1. Provision Upstash Redis
 
 1. In Vercel, open your `fencingstatsnz` project.
