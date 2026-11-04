@@ -20,7 +20,8 @@ import { boutFingerprint as serverFingerprint, nameKey as serverNameKey, isAdmin
 import { boutFingerprint as clientFingerprint } from '../src/data/edits.js';
 import { nameKey as pipelineNameKey } from '../src/data/pipeline.js';
 import editHandler, { validatePayload, resolveFencerKey } from '../api/edit.js';
-import adminHandler, { validateMergeRequest, applyMergeFencers } from '../api/admin.js';
+import adminHandler, { validateMergeRequest, applyMergeFencers, normaliseWebsite } from '../api/admin.js';
+import { safeHttpUrl } from '../src/utils/url.js';
 import overridesHandler from '../api/overrides.js';
 import refreshHandler from '../api/refresh.js';
 
@@ -296,6 +297,52 @@ test('applyMergeFencers: empty target name is stored as null', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Club websites (security #7): the one admin input the public site turns
+// into a link. The server stores only http(s) URLs and the club page checks
+// again before rendering, so both sides must agree on every case.
+// ---------------------------------------------------------------------------
+
+const WEBSITE_CASES = [
+  // [input, the href stored and rendered, or null for no link]
+  ['https://club.example.nz', 'https://club.example.nz/'],
+  ['http://club.example.nz/join?x=1', 'http://club.example.nz/join?x=1'],
+  ['club.example.nz', 'https://club.example.nz/'],
+  ['  https://club.example.nz/about  ', 'https://club.example.nz/about'],
+  ['javascript:alert(1)', null],
+  ['JavaScript:alert(1)', null],
+  ['java\nscript:alert(1)', null],
+  ['\u0001javascript:alert(1)', null],
+  ['data:text/html,<script>alert(1)</script>', null],
+  ['vbscript:msgbox(1)', null],
+  ['mailto:secretary@club.example.nz', null],
+  ['localhost', null],
+  ['not a url', null],
+];
+
+test('normaliseWebsite stores only http(s) links', () => {
+  for (const [input, href] of WEBSITE_CASES) {
+    const r = normaliseWebsite(input);
+    if (href) assert.deepEqual(r, { value: href, error: null }, input);
+    else assert.equal(r.error, 'website must be an http(s) link', input);
+  }
+});
+
+test('normaliseWebsite: an empty field clears the website; an overlong one is refused', () => {
+  assert.deepEqual(normaliseWebsite(''), { value: null, error: null });
+  assert.deepEqual(normaliseWebsite('   '), { value: null, error: null });
+  assert.deepEqual(normaliseWebsite(undefined), { value: null, error: null });
+  assert.match(normaliseWebsite(`https://club.example.nz/${'a'.repeat(300)}`).error, /under 300/);
+});
+
+test('safeHttpUrl (club page) agrees with normaliseWebsite (server) on every case', () => {
+  for (const [input, href] of WEBSITE_CASES) {
+    assert.equal(safeHttpUrl(input), href, input);
+    assert.equal(normaliseWebsite(input).value ?? null, safeHttpUrl(input), input);
+  }
+  for (const v of [null, undefined, 42, {}, '']) assert.equal(safeHttpUrl(v), null);
+});
+
+// ---------------------------------------------------------------------------
 // Handler-level gates. Only the paths that return before any Redis or
 // network call are exercised; the storage layer itself would need infra
 // mocking that this suite deliberately avoids.
@@ -418,5 +465,21 @@ test('POST /api/admin merge_fencers wires validation into the response', async (
     }, res);
     assert.equal(res.statusCode, 400);
     assert.match(res.body.error, /must differ/);
+  });
+});
+
+// Also after the fake-credential test above, for the same reason: the
+// refusal happens before any Redis call.
+test('POST /api/admin set_club_meta refuses a website that is not an http(s) link', async () => {
+  process.env.KV_REST_API_URL = 'https://fake.upstash.example';
+  process.env.KV_REST_API_TOKEN = 'fake-token';
+  await withAdminToken('t0ken', async () => {
+    const res = mockRes();
+    await adminHandler({
+      method: 'POST', ...bearer('t0ken'),
+      body: { action: 'set_club_meta', payload: { club_name: 'Test Club', website: 'javascript:alert(document.cookie)' } },
+    }, res);
+    assert.equal(res.statusCode, 400);
+    assert.match(res.body.error, /http\(s\) link/);
   });
 });

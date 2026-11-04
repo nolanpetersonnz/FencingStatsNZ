@@ -45,6 +45,32 @@ async function applyMerge(db, edit) {
   await db.set('merges', JSON.stringify(parsed));
 }
 
+// A club website is published as a link on the club page, so only an
+// http(s) URL is stored; a bare domain ("club.nz") is read as https and
+// anything else (javascript:, data:, mailto:) is refused. Returns the
+// normalised href, null for an empty field, or an error. Pure, exported
+// for the test suite; keep in step with safeHttpUrl in src/utils/url.js.
+export function normaliseWebsite(input) {
+  const s = String(input ?? '').trim();
+  if (!s) return { value: null, error: null };
+  if (s.length > 300) return { error: 'website must be under 300 characters' };
+  let url;
+  try {
+    url = new URL(s);
+  } catch {
+    try {
+      url = new URL(`https://${s}`);
+    } catch {
+      url = null;
+    }
+    if (url && !url.hostname.includes('.')) url = null;
+  }
+  if (!url || (url.protocol !== 'https:' && url.protocol !== 'http:')) {
+    return { error: 'website must be an http(s) link' };
+  }
+  return { value: url.href, error: null };
+}
+
 // Admin-direct merge: rewrite all future reads of `source_key` to
 // `target_key`. Pass target_key === '' (or omit) to undo a merge.
 // `target_name` is stored so the client can render the merged fencer
@@ -113,11 +139,16 @@ export default async function handler(req, res) {
       res.status(400).json({ error: 'club_name required' });
       return;
     }
+    const website = action === 'set_club_meta' ? normaliseWebsite(payload?.website) : null;
+    if (website?.error) {
+      res.status(400).json({ error: website.error });
+      return;
+    }
     const cur = (await db.get('club_meta')) || {};
     const parsed = typeof cur === 'string' ? JSON.parse(cur) : cur;
     if (action === 'set_club_meta') {
       parsed[club] = {
-        website: String(payload?.website || '').trim() || null,
+        website: website.value,
         location: String(payload?.location || '').trim() || null,
         affiliated: payload?.affiliated === true ? true : payload?.affiliated === false ? false : null,
         updated_at: new Date().toISOString(),

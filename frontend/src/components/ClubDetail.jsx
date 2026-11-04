@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtRD, fmtConservativeRating, conservativeRating } from '../utils/formatters.js';
 import { pressable } from '../utils/a11y.js';
+import { safeHttpUrl } from '../utils/url.js';
 import { strengthTier } from '../data/pipeline.js';
 
 const median = (xs) => {
@@ -107,6 +108,7 @@ export default function ClubDetail({ clubName, fencers, settings, clubMeta, onBa
 
   const overallDeMedian = median(members.flatMap(f => ['foil', 'epee', 'sabre'].map(w => f.byWeapon[w]?.de).filter(d => d && d.bouts > 0).map(d => d.rating)));
   const tier = overallDeMedian != null ? strengthTier(overallDeMedian) : { label: '—', color: 'var(--ink-faint)' };
+  const website = safeHttpUrl(clubMeta?.website);
 
   return (
     <div className="fl-fade-in">
@@ -120,18 +122,18 @@ export default function ClubDetail({ clubName, fencers, settings, clubMeta, onBa
           <h2 className="fl-display" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 700, margin: '6px 0 0', letterSpacing: '-0.02em', lineHeight: 1 }}>
             {clubName}
           </h2>
-          {clubMeta && (clubMeta.location || clubMeta.website || clubMeta.affiliated != null) && (
+          {clubMeta && (clubMeta.location || website || clubMeta.affiliated != null) && (
             <div className="fl-italic" style={{ color: 'var(--ink-soft)', marginTop: 12, fontSize: '0.95rem', display: 'flex', flexWrap: 'wrap', gap: '4px 16px' }}>
               {clubMeta.location && <span>{clubMeta.location}</span>}
-              {clubMeta.website && (
+              {website && (
                 <a
-                  href={clubMeta.website}
+                  href={website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="fl-link"
                   style={{ color: 'var(--ox)' }}
                 >
-                  {clubMeta.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  {website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                 </a>
               )}
               {clubMeta.affiliated === true && (
