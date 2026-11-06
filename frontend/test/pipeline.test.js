@@ -1,18 +1,25 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
   parseCSV, processBouts, parseAgeCategory, withdrawalSide, dedupeBouts, deFinish,
   difficultyTier, fieldOverview, predictiveAccuracy, buildTableau,
-  lineDifficulty, matchups, makeDemoBouts,
+  lineDifficulty, matchups, makeDemoBouts, boutHash, normDate, normWeapon,
 } from '../src/data/pipeline.js';
 import { decayRD, winProbability } from '../src/engine/glicko2.js';
 import { DEFAULT_SETTINGS } from '../src/constants.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const S = DEFAULT_SETTINGS;
+
+// Every committed bouts file, as the site loads them: copy-data.mjs ships each
+// ingest/*.csv and the app concatenates their rows (bouts.csv from the old FeNZ
+// API, bouts_portal.csv from the new results portal).
+const INGEST_DIR = resolve(__dirname, '../../ingest');
+const CSV_FILES = readdirSync(INGEST_DIR).filter((f) => f.toLowerCase().endsWith('.csv')).sort();
+const readCsv = (f) => parseCSV(readFileSync(resolve(INGEST_DIR, f), 'utf8'));
 
 // ---- Age-category classification (Phase 0: secondary-schools leak) ----------
 test('secondary-schools events classify as cadet, not senior', () => {
@@ -341,12 +348,19 @@ test('matchups splits opponents by actual minus expected wins', () => {
 });
 
 // ---- Real dataset smoke test ------------------------------------------------
-test('committed bouts.csv processes cleanly with withdrawal flags', () => {
-  const raw = parseCSV(readFileSync(resolve(__dirname, '../../ingest/bouts.csv'), 'utf8'));
+test('committed bouts files (bouts.csv and bouts_portal.csv together) process cleanly with withdrawal flags', () => {
+  assert.ok(CSV_FILES.includes('bouts.csv') && CSV_FILES.includes('bouts_portal.csv'), `bouts files: ${CSV_FILES}`);
+  const raw = CSV_FILES.flatMap(readCsv);
   const flagged = raw.filter(b => withdrawalSide(b));
   assert.ok(flagged.length >= 1, 'dataset carries at least one withdrawal flag');
 
-  const { fencers, bouts } = processBouts(raw, S);
+  const { fencers, bouts, competitions } = processBouts(raw, S);
+
+  // The portal's mixed veteran foil event is written once per gender, the way
+  // the old data has mixed events, and the dedupe pass folds it into one.
+  const vetFoil = competitions.filter((c) => c.date === '2026-10-24' && c.weapon === 'foil'
+    && c.name.startsWith('NZL National Veteran Championships 2026'));
+  assert.deepEqual(vetFoil.map((c) => [c.name, c.bouts.length]), [['NZL National Veteran Championships 2026', 35]]);
 
   // No NaN / Infinity ratings anywhere.
   for (const k in fencers) {
@@ -369,6 +383,31 @@ test('committed bouts.csv processes cleanly with withdrawal flags', () => {
   for (const b of wdBouts) {
     assert.equal(b.deltaA, 0);
     assert.equal(b.deltaB, 0);
+  }
+});
+
+// Each competition comes from exactly one bouts file. The refresh workflow
+// rebuilds bouts.csv from the old FeNZ API and the portal ingest writes its
+// own file, so an event in both would count every bout twice. Checked by the
+// (date, competition, weapon) key, and by physical bout, which also catches
+// the same event arriving under two different names.
+test('no competition or bout appears in two committed bouts files', () => {
+  assert.ok(CSV_FILES.length >= 2, `bouts files: ${CSV_FILES}`);
+  const keyOwner = new Map();
+  const boutOwner = new Map();
+  for (const f of CSV_FILES) {
+    for (const r of readCsv(f)) {
+      const weapon = normWeapon(r.weapon);
+      const date = normDate(r.date);
+      const key = `${date}|${(r.competition || '').trim().toLowerCase()}|${weapon}`;
+      const prevKey = keyOwner.get(key);
+      assert.ok(!prevKey || prevKey === f, `${key} is in both ${prevKey} and ${f}`);
+      keyOwner.set(key, f);
+      const bout = `${date}|${boutHash(r, weapon)}`;
+      const prevBout = boutOwner.get(bout);
+      assert.ok(!prevBout || prevBout === f, `bout ${bout} (${r.competition}) is in both ${prevBout} and ${f}`);
+      boutOwner.set(bout, f);
+    }
   }
 });
 
