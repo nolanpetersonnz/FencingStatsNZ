@@ -50,7 +50,8 @@ Rows follow bouts.csv:
     same registry record (one licence holder) already has bouts under, when
     there is exactly one, and each such case is listed for review; close
     matches (rapidfuzz WRatio 88 or more, same weapon or club) are listed for
-    review, never merged
+    review and never merged automatically; ones decided by hand go in
+    NAME_DECISIONS
   - only these 15 columns are written: no birth dates, licence numbers or
     other personal fields, whatever the portal shows
 
@@ -94,6 +95,14 @@ UA_TOKEN = "FencingStatsNZ-Ingest"
 MIN_GAP_SECONDS = 2.5
 CACHE_DIR = INGEST_DIR / "cache" / "portal"
 FUZZY_THRESHOLD = 88
+
+# Close matches Nolan decided are the same fencer (6 Nov 2026): the portal
+# spelling's site key, then the spelling the site already uses for them.
+NAME_DECISIONS = {
+    "chien an lin": "Chien-An Lin",
+    "kwan yat zeng": "Kwun Yat Zeng",
+    "quinn downs": "Quin Downs",
+}
 
 # Phase A: the two 2026 Nationals (24 to 26 Oct 2026, Christchurch).
 NATIONALS_2026 = [
@@ -428,13 +437,17 @@ class Resolver:
     exact: dict[str, str] = field(default_factory=dict)      # raw -> resolved
     new: dict[str, dict] = field(default_factory=dict)       # resolved -> info for review
     aliased: dict[str, str] = field(default_factory=dict)    # portal spelling -> site spelling
+    decided: dict[str, str] = field(default_factory=dict)    # portal spelling -> site spelling
 
     def resolve(self, raw: str, weapon: str, club: str, event: str) -> str:
         if raw in self.exact:
             return self.exact[raw]
         display = title_name(raw)
         key = name_key(display)
-        if key in self.known.spelling:
+        if key in NAME_DECISIONS:
+            resolved = NAME_DECISIONS[key]
+            self.decided[display] = f"{resolved} ({event})"
+        elif key in self.known.spelling:
             resolved = self.known.spelling[key] or display
             if self.known.source.get(key, "").startswith("fencers.json alias"):
                 self.aliased[display] = f"{resolved} ({event})"
@@ -608,6 +621,10 @@ def review(events: list[EventResult], resolver: Resolver, known: KnownNames, cli
     out.append(f"## Suspicious bouts ({len(sus)})")
     out.append("")
     out += [f"- {s}" for s in sus] or ["None: no 0-0, missing scores, ties, or winners with fewer touches."]
+    out.append("")
+    out.append(f"## Names merged by decision (NAME_DECISIONS, {len(resolver.decided)})")
+    out.append("")
+    out += [f"- {portal} -> {site}" for portal, site in sorted(resolver.decided.items())] or ["None."]
     out.append("")
     out.append(f"## Names written under the site's existing spelling via a fencers.json alias ({len(resolver.aliased)})")
     out.append("")

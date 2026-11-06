@@ -16,10 +16,11 @@ export const DEFAULT_SETTINGS = {
   inactivityDecayC: 0,
 };
 
-// Shown in the header under "Last Update" while new results can't come in:
-// FeNZ moved to a new results portal in 2026 and the old API refuses requests.
-// Set to null once the refresh works again; the Last Update line stays.
-export const DATA_FEED_NOTE = 'Updates resume once new FeNZ system connected';
+// Shown in the header under "Last Update" when set. FeNZ moved to a new results
+// portal in 2026 and the old API refuses requests; with the 2026 Nationals now
+// read from the portal (ingest/portal_ingest.py) the note is off. Set a string
+// here to show one again; the Last Update line stays either way.
+export const DATA_FEED_NOTE = null;
 
 export const CSV_HEADER = 'date,competition,weapon,bout_type,fencer_a,club_a,fencer_b,club_b,score_a,score_b,de_round';
 export const CSV_TEMPLATE = `${CSV_HEADER}
