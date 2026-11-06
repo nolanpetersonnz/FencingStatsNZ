@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { fmtRD, fmtRating, fmtConservativeRating, conservativeRating, fmtInterval } from '../utils/formatters.js';
 import { pressable } from '../utils/a11y.js';
-import { ageEligible } from '../data/fencerInfo.js';
+import { ageEligible, vetBandOf, veteranListed } from '../data/fencerInfo.js';
+import { AGE_OPTIONS } from './Header.jsx';
+
+const AGE_LABELS = Object.fromEntries(AGE_OPTIONS);
 
 export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategory, settings, enrichment, onSelectFencer, onSelectClub }) {
   const [minBouts, setMinBouts] = useState(1);
@@ -9,10 +12,13 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
   const [sort, setSort] = useState('de');
   const k = settings?.displayK ?? 1;
   const age = ageCategory || 'all';
+  // A veteran band ('vet40' to 'vet70') shows the one veteran rating stream
+  // and only narrows who is listed.
+  const band = vetBandOf(age);
+  const stream = band ? 'veteran' : age;
 
-  // For age-category leaderboards, require the fencer to have competed in
-  // that category in the dataset's most recent year — keeps aged-out fencers
-  // out of the Junior/Cadet rankings.
+  // The dataset's most recent year: the season the age rules use, and the
+  // year an event-tag fallback can require (see the membership rules below).
   const currentYear = useMemo(() => {
     let max = 0;
     for (const b of bouts) {
@@ -30,7 +36,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
         // Pick which rating stream to display: 'all' = the canonical
         // everything-counts rating; otherwise the downward-inclusive
         // per-age-category stream populated in processBouts.
-        const streams = age === 'all' ? { pool: w.pool, de: w.de } : w.byAge?.[age];
+        const streams = age === 'all' ? { pool: w.pool, de: w.de } : w.byAge?.[stream];
         if (!streams) return null;
         // Leaderboard membership: when a specific category is selected, only
         // include fencers who have natively competed in that category (an
@@ -44,7 +50,8 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
           // U17, born `currentYear - 17` or later (2009+ in 2026). For anyone
           // possibly under 18 the public file has no birth year, only these
           // two flags worked out when it was built (see ageEligible). Veteran
-          // has no DOB cutoff defined in NZ; fall back to event-tag inference.
+          // is 40 and over by registry age, with event tagging as the
+          // fallback (see veteranListed).
           const native = f.nativeCategories?.[weapon];
           const years = f.nativeLatestYear?.[weapon] || {};
 
@@ -64,8 +71,20 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
               if (!native || !eligibleNative.some((c) => native.has(c))) return null;
               if (!eligibleNative.some((c) => years[c] === currentYear)) return null;
             }
+          } else if (stream === 'veteran') {
+            // Veteran, all of them or one band. Registry age 40 and over is
+            // enough, with no current-year gate: that gate hid every veteran
+            // without a vet bout in the latest year (I-13).
+            const listed = veteranListed({
+              rec: enrichment?.[f.key],
+              season: currentYear,
+              band: band ?? 'all',
+              fencedVetEvent: !!native?.has('veteran'),
+              vetBouts: streams.pool.bouts + streams.de.bouts,
+            });
+            if (!listed) return null;
           } else {
-            // Veteran (and any future categories).
+            // Any future category: event tagging, fenced this season.
             if (!native || !native.has(age)) return null;
             if (years[age] !== currentYear) return null;
           }
@@ -93,7 +112,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
       return 0;
     });
     return list;
-  }, [fencers, weapon, gender, age, minBouts, club, sort, k, currentYear, enrichment]);
+  }, [fencers, weapon, gender, age, band, stream, minBouts, club, sort, k, currentYear, enrichment]);
 
   const clubs = useMemo(() => {
     const s = new Set();
@@ -103,7 +122,7 @@ export default function Leaderboard({ fencers, bouts, weapon, gender, ageCategor
 
   const genderLabel = gender === 'W' ? 'Womens' : 'Mens';
   const weaponLabel = weapon === 'epee' ? 'Épée' : weapon.charAt(0).toUpperCase() + weapon.slice(1);
-  const ageLabel = age === 'all' ? '' : age.charAt(0).toUpperCase() + age.slice(1);
+  const ageLabel = age === 'all' ? '' : (AGE_LABELS[age] ?? age.charAt(0).toUpperCase() + age.slice(1));
 
   if (ranked.length === 0) {
     return (

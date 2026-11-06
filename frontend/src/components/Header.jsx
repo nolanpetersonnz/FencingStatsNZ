@@ -3,12 +3,17 @@ import { Search, User } from 'lucide-react';
 import { pressable } from '../utils/a11y.js';
 import { fmtDateLong } from '../utils/formatters.js';
 import { DATA_FEED_NOTE } from '../constants.js';
+import { VET_BANDS, vetBandCategory } from '../data/fencerInfo.js';
 
-const AGE_OPTIONS = [
+// Age menu values and labels; the Leaderboard heading uses the same labels.
+// Veteran lists every veteran; the bands after it (Vet 40 to Vet 70) read the
+// same veteran rating and only filter by age (vetBand in fencerInfo.js).
+export const AGE_OPTIONS = [
   ['all', 'All ages'],
   ['cadet', 'Cadet'],
   ['junior', 'Junior'],
   ['veteran', 'Veteran'],
+  ...VET_BANDS.map((b) => [vetBandCategory(b), `Vet ${b}`]),
 ];
 
 export default function Header({ view, setView, weapon, setWeapon, gender, setGender, ageCategory, setAgeCategory, fencers, onSelectFencer, hasData, latestBoutDate }) {

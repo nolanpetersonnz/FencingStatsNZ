@@ -93,6 +93,61 @@ export function ageEligible(rec, category, season) {
   return null;
 }
 
+// Veteran age bands, named by their lowest age: 40 to 49, 50 to 59, 60 to 69,
+// and 70 and over. NZ vet events are not split by band, so every vet bout
+// feeds the one veteran rating; a band only filters who is listed.
+export const VET_BANDS = [40, 50, 60, 70];
+
+// Age-menu value for a band ('vet40' to 'vet70'), and back: vetBandOf returns
+// the band for a band value and null for anything else, including 'veteran'
+// (all veterans).
+export const vetBandCategory = (band) => `vet${band}`;
+export function vetBandOf(category) {
+  const m = /^vet(\d+)$/.exec(category || '');
+  const band = m ? Number(m[1]) : null;
+  return VET_BANDS.includes(band) ? band : null;
+}
+
+// The veteran band for `season` (40, 50, 60 or 70), or null for anyone under
+// 40 or without a published birth year (none on record, or withheld because
+// they may be under 18). This is the one place the veteran age rule lives.
+// Age is season minus birth year, so the age reached during the season,
+// because the registry only holds birth years. FeNZ's exact rule (age on a
+// set date, or age reached during the year) is unconfirmed; if it differs,
+// change it here.
+export function vetBand(rec, season) {
+  if (rec?.dob_year == null || !Number.isFinite(season)) return null;
+  const age = season - rec.dob_year;
+  if (age < VET_BANDS[0]) return null;
+  return Math.min(Math.floor(age / 10) * 10, VET_BANDS[VET_BANDS.length - 1]);
+}
+
+// Veteran (40 and over) eligibility for `season`: true/false when the registry
+// knows, null when it can't say (no record, or no birth year on record), and
+// callers fall back to event tagging. A withheld year means the fencer may be
+// under 18, so not a veteran, unless that year failed the activity check (a
+// data-entry error), which leaves the age unknown.
+export function vetEligible(rec, season) {
+  if (!rec) return null;
+  if (rec.dob_year != null) return vetBand(rec, season) !== null;
+  if (rec.dob_withheld) return rec.dob_implausible === true ? null : false;
+  return null;
+}
+
+// Whether a fencer belongs on a Veteran leaderboard for `season`. `band` is
+// 'all' for every veteran, or one of VET_BANDS. The registry decides when it
+// knows the age, with no "fenced this year" gate: the same reasoning as Junior
+// and Cadet, and the minBouts slider handles stale fencers. With no birth
+// year, having fenced any vet-tagged event, in any year, is enough for the
+// all-veterans list, but a band needs a birth year. Either way the fencer
+// needs bouts in the vet stream, since that is the rating shown.
+export function veteranListed({ rec, season, band = 'all', fencedVetEvent = false, vetBouts = 0 }) {
+  if (!(vetBouts > 0)) return false;
+  if (band !== 'all') return vetBand(rec, season) === band;
+  const eligible = vetEligible(rec, season);
+  return eligible !== null ? eligible : fencedVetEvent;
+}
+
 // The birth year to show on a profile, or null. Hidden for anyone born in or
 // after (this year - 18): only the year is known, so that whole year counts
 // as possibly under 18. The public registry already withholds those years;
