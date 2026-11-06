@@ -45,9 +45,12 @@ Rows follow bouts.csv:
     bouts (missing scores, a tie, a winner with fewer touches) are listed in
     the review instead of guessed
   - names go from "SURNAME, Given" to "Given Surname" with title_name; a name
-    whose site key (nameKey in pipeline.js) matches bouts.csv or a fencers.json
-    name key takes the existing spelling; close matches (rapidfuzz WRatio 88
-    or more, same weapon or club) are listed for review, never merged
+    whose site key (nameKey in pipeline.js) matches bouts.csv takes that
+    spelling; one that matches a fencers.json name key takes the spelling the
+    same registry record (one licence holder) already has bouts under, when
+    there is exactly one, and each such case is listed for review; close
+    matches (rapidfuzz WRatio 88 or more, same weapon or club) are listed for
+    review, never merged
   - only these 15 columns are written: no birth dates, licence numbers or
     other personal fields, whatever the portal shows
 
@@ -394,16 +397,28 @@ class KnownNames:
             k.spelling[key] = c.most_common(1)[0][0]
             k.source[key] = "bouts.csv"
         if fencers_json.exists():
-            for rec in json.loads(fencers_json.read_text(encoding="utf-8")):
+            records = json.loads(fencers_json.read_text(encoding="utf-8"))
+            owners: dict[str, int] = Counter(name_key(nk) for rec in records for nk in rec.get("name_keys") or [])
+            for rec in records:
                 display = rec.get("display_name") or ""
-                for nk in rec.get("name_keys") or []:
-                    key = name_key(nk)
-                    if key and key not in k.spelling:
-                        k.spelling[key] = display if name_key(display) == key else title_name(nk)
-                        k.source[key] = "fencers.json"
+                keys = [name_key(nk) for nk in rec.get("name_keys") or [] if name_key(nk)]
+                # Names this registry record (one licence holder) already has
+                # bouts under. With exactly one, that is the site's spelling.
+                on_site = sorted({x for x in keys if k.source.get(x) == "bouts.csv"})
+                for key in keys:
                     for club in [*(rec.get("clubs") or []), rec.get("current_club") or ""]:
                         if club:
                             k.clubs[key].add(str(club).lower())
+                    if key in k.spelling:
+                        continue
+                    if owners[key] == 1 and len(on_site) == 1:
+                        k.spelling[key] = k.spelling[on_site[0]]
+                        k.source[key] = f"fencers.json alias of {k.spelling[on_site[0]]}"
+                    else:
+                        # Known to the registry only: keep the portal's own
+                        # spelling unless the record's display name is this key.
+                        k.spelling[key] = display if name_key(display) == key else None
+                        k.source[key] = "fencers.json"
         return k
 
 
@@ -412,6 +427,7 @@ class Resolver:
     known: KnownNames
     exact: dict[str, str] = field(default_factory=dict)      # raw -> resolved
     new: dict[str, dict] = field(default_factory=dict)       # resolved -> info for review
+    aliased: dict[str, str] = field(default_factory=dict)    # portal spelling -> site spelling
 
     def resolve(self, raw: str, weapon: str, club: str, event: str) -> str:
         if raw in self.exact:
@@ -419,7 +435,9 @@ class Resolver:
         display = title_name(raw)
         key = name_key(display)
         if key in self.known.spelling:
-            resolved = self.known.spelling[key]
+            resolved = self.known.spelling[key] or display
+            if self.known.source.get(key, "").startswith("fencers.json alias"):
+                self.aliased[display] = f"{resolved} ({event})"
         else:
             resolved = display
             hits = process.extract(key, list(self.known.spelling.keys()), scorer=fuzz.WRatio,
@@ -590,6 +608,12 @@ def review(events: list[EventResult], resolver: Resolver, known: KnownNames, cli
     out.append(f"## Suspicious bouts ({len(sus)})")
     out.append("")
     out += [f"- {s}" for s in sus] or ["None: no 0-0, missing scores, ties, or winners with fewer touches."]
+    out.append("")
+    out.append(f"## Names written under the site's existing spelling via a fencers.json alias ({len(resolver.aliased)})")
+    out.append("")
+    out.append("The registry lists both names for one licence holder, and only the second has bouts on the site, so the portal's bouts join that fencer instead of starting a new one.")
+    out.append("")
+    out += [f"- {portal} -> {site}" for portal, site in sorted(resolver.aliased.items())] or ["None."]
     out.append("")
     unmatched = {k: v for k, v in resolver.new.items() if not v["close"]}
     near = {k: v for k, v in resolver.new.items() if v["close"]}
