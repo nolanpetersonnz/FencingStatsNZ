@@ -26,6 +26,9 @@ export default function App() {
   const [view, setView] = useState('leaderboard');
   const [selectedFencer, setSelectedFencer] = useState(null);
   const [selectedComp, setSelectedComp] = useState(null);
+  // The Competitions search, kept here so it survives opening a competition
+  // and coming back (the list unmounts in between).
+  const [compQuery, setCompQuery] = useState('');
   const [selectedClub, setSelectedClub] = useState(null);
   const [history, setHistory] = useState([]);
   const [serverSourced, setServerSourced] = useState(false);
@@ -286,7 +289,7 @@ export default function App() {
         ) : view === 'leaderboard' ? (
           <Leaderboard fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} ageCategory={ageCategory} settings={settings} enrichment={enrichment} onSelectFencer={goFencer} onSelectClub={goClub} />
         ) : view === 'competitions' ? (
-          <Competitions competitions={competitions} weapon={weapon} gender={gender} onSelectComp={goComp} />
+          <Competitions competitions={competitions} weapon={weapon} gender={gender} onSelectComp={goComp} query={compQuery} onQueryChange={setCompQuery} />
         ) : view === 'clubs' ? (
           <Clubs fencers={fencers} gender={gender} weapon={weapon} onSelectClub={goClub} />
         ) : view === 'h2h' ? (

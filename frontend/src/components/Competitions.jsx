@@ -1,13 +1,19 @@
 import React, { useState, useMemo } from 'react';
+import { Search } from 'lucide-react';
 import { fmtRating, fmtDate } from '../utils/formatters.js';
 import { strengthTier } from '../data/pipeline.js';
 import { pressable } from '../utils/a11y.js';
+import { competitionMatches } from '../utils/search.js';
 
-export default function Competitions({ competitions, weapon, gender, onSelectComp }) {
-  const filtered = competitions.filter(c =>
+// `query` lives in App, so a search survives opening a competition and coming
+// back (v1.1, I-22).
+export default function Competitions({ competitions, weapon, gender, onSelectComp, query = '', onQueryChange }) {
+  const onRecord = competitions.filter(c =>
     c.weapon === weapon
     && (!gender || c.genders?.has(gender))
   );
+  const searching = query.trim() !== '';
+  const filtered = searching ? onRecord.filter((c) => competitionMatches(c, query)) : onRecord;
   const [sort, setSort] = useState('date');
   const [dir, setDir] = useState('desc');
 
@@ -44,7 +50,7 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
   const genderLabel = gender === 'W' ? 'Womens' : 'Mens';
   const weaponLabel = weapon === 'epee' ? 'Épée' : weapon.charAt(0).toUpperCase() + weapon.slice(1);
 
-  if (filtered.length === 0) {
+  if (onRecord.length === 0) {
     return <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--ink-soft)' }} className="fl-italic">
       No {genderLabel} {weaponLabel} competitions on record.
     </div>;
@@ -57,10 +63,32 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
       <div style={{ marginBottom: 20 }}>
         <div className="fl-smallcaps">Field strength · {genderLabel} {weaponLabel}</div>
         <h2 className="fl-display" style={{ fontSize: '2rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
-          {filtered.length} competitions on record
+          {searching ? `${filtered.length} of ${onRecord.length} competitions` : `${onRecord.length} competitions on record`}
         </h2>
       </div>
 
+      <div role="search" style={{ display: 'flex', alignItems: 'center', gap: 8, maxWidth: 440, marginBottom: 20 }}>
+        <Search size={16} color="var(--ink-soft)" aria-hidden="true" />
+        <input
+          className="fl-input"
+          aria-label="Search competitions"
+          placeholder="Search competitions, e.g. Nationals 2025"
+          value={query}
+          onChange={(e) => onQueryChange?.(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Escape') onQueryChange?.(''); }}
+        />
+        {searching && (
+          <button type="button" className="fl-link fl-smallcaps" onClick={() => onQueryChange?.('')} style={{ whiteSpace: 'nowrap' }}>
+            Clear
+          </button>
+        )}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div role="status" className="fl-italic" style={{ padding: '40px 0', textAlign: 'center', color: 'var(--ink-soft)', borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
+          No {genderLabel} {weaponLabel} competitions match "{query.trim()}".
+        </div>
+      ) : (
       <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: gridCols, columnGap: 20, alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid var(--rule)' }} className="fl-smallcaps">
           <button type="button" className="fl-link" onClick={() => toggleSort('date')} style={{ color: sort === 'date' ? 'var(--ink)' : 'var(--ink-soft)' }}>
@@ -107,6 +135,7 @@ export default function Competitions({ competitions, weapon, gender, onSelectCom
           );
         })}
       </div>
+      )}
     </div>
   );
 }
