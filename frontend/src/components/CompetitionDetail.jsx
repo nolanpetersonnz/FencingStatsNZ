@@ -2,48 +2,45 @@ import React, { useMemo, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { fmtRating, fmtDelta, fmtDate, fmtSweepOdds } from '../utils/formatters.js';
 import { pressable } from '../utils/a11y.js';
-import { strengthTier, deFinish, fieldOverview, buildTableau, lineDifficulty } from '../data/pipeline.js';
+import { strengthTier, deFinish, fieldOverview, buildTableau, lineDifficulty, headlineChange } from '../data/pipeline.js';
 import DifficultyStrip from './DifficultyStrip.jsx';
 import DeTableau from './DeTableau.jsx';
 
-export default function CompetitionDetail({ compId, competitions, fencers, bouts, onBack, onSelectFencer, onSelectClub }) {
+export default function CompetitionDetail({ compId, competitions, fencers, bouts, settings, onBack, onSelectFencer, onSelectClub }) {
   const c = competitions.find(x => x.id === compId);
+  const k = settings?.displayK ?? 1;
 
   const fencerStats = useMemo(() => {
     if (!c) return [];
     // The whole field's DE bouts: lineDifficulty traces each fencer's full path
     // to the title, which needs the bracket beyond their own elimination.
     const allDeBouts = c.bouts.filter(b => b.type === 'de');
-    return c.fencerKeys.map(k => {
-      const f = fencers[k];
-      const myBouts = c.bouts.filter(b => b.keyA === k || b.keyB === k);
-      const wins = myBouts.filter(b => b.winnerKey === k).length;
-      const losses = myBouts.filter(b => b.winnerKey && b.winnerKey !== k).length;
+    return c.fencerKeys.map(key => {
+      const f = fencers[key];
+      const myBouts = c.bouts.filter(b => b.keyA === key || b.keyB === key);
+      const wins = myBouts.filter(b => b.winnerKey === key).length;
+      const losses = myBouts.filter(b => b.winnerKey && b.winnerKey !== key).length;
       const poolBouts = myBouts.filter(b => b.type !== 'de');
       const deBouts = myBouts.filter(b => b.type === 'de');
-      const streamRange = (list) => {
-        if (list.length === 0) return { before: null, after: null };
-        const before = list[0].keyA === k ? list[0].ratingABefore : list[0].ratingBBefore;
-        const last = list[list.length - 1];
-        const after = last.keyA === k ? last.ratingAAfter : last.ratingBAfter;
-        return { before, after };
-      };
-      const pool = streamRange(poolBouts);
-      const de = streamRange(deBouts);
-      const poolDelta = pool.before !== null ? pool.after - pool.before : null;
-      const deDelta = de.before !== null ? de.after - de.before : null;
+      // The headline rating before and after, the same number as the
+      // fencer's profile and the leaderboard, not the raw middle.
+      const pool = headlineChange(poolBouts, key, k);
+      const de = headlineChange(deBouts, key, k);
+      // From the rounded ends, so the shown sum adds up (1865 to 1892 is +27).
+      const poolDelta = pool ? Math.round(pool.after) - Math.round(pool.before) : null;
+      const deDelta = de ? Math.round(de.after) - Math.round(de.before) : null;
       const totalDelta = (poolDelta ?? 0) + (deDelta ?? 0);
       return {
-        f, key: k, wins, losses, bouts: myBouts.length,
-        poolBefore: pool.before, poolAfter: pool.after, poolDelta,
-        deBefore: de.before, deAfter: de.after, deDelta,
-        totalDelta, finish: deFinish(deBouts, k),
-        field: fieldOverview(myBouts, k, fencers),
-        line: lineDifficulty(allDeBouts, k, fencers),
+        f, key, wins, losses, bouts: myBouts.length,
+        poolBefore: pool?.before ?? null, poolAfter: pool?.after ?? null, poolDelta,
+        deBefore: de?.before ?? null, deAfter: de?.after ?? null, deDelta,
+        totalDelta, finish: deFinish(deBouts, key),
+        field: fieldOverview(myBouts, key, fencers),
+        line: lineDifficulty(allDeBouts, key, fencers),
         hasAnyDelta: poolDelta !== null || deDelta !== null,
       };
     });
-  }, [c, fencers]);
+  }, [c, fencers, k]);
 
   // Field overview rows: most-over-expectation pool performance first.
   const fieldRows = useMemo(

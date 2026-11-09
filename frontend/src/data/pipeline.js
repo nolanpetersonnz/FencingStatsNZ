@@ -534,6 +534,10 @@ export function processBouts(rawBouts, settings) {
       const wd = withdrawalSide(b);
       const ratingAAfter = wd ? snap[kA].rating : wepA.rating;
       const ratingBAfter = wd ? snap[kB].rating : wepB.rating;
+      // The RD after the competition too, so the record can show the headline
+      // (rating minus displayK x RD) before and after: see headlineChange.
+      const rdAAfter = wd ? snap[kA].rd : wepA.rd;
+      const rdBAfter = wd ? snap[kB].rd : wepB.rd;
       const winnerKey = wd
         ? (wd === 'a' ? kB : wd === 'b' ? kA : null)
         : (sA > sB ? kA : sB > sA ? kB : null);
@@ -547,6 +551,7 @@ export function processBouts(rawBouts, settings) {
         ratingABefore: snap[kA].rating, ratingBBefore: snap[kB].rating,
         rdABefore: snap[kA].rd, rdBBefore: snap[kB].rd,
         ratingAAfter, ratingBAfter,
+        rdAAfter, rdBAfter,
         deltaA: ratingAAfter - snap[kA].rating, deltaB: ratingBAfter - snap[kB].rating,
         winnerKey,
         ...(wd ? { withdrawal: wd } : {}),
@@ -655,6 +660,29 @@ export function deFinish(myDeBouts, key) {
   if (size === 4) return { rank: 3, label: '3rd tied' };   // two bronzes, no 4th
   const low = size / 2 + 1;
   return { rank: low, label: `${low}–${size}` };           // 5–8, 9–16, 17–32, …
+}
+
+// A fencer's headline rating before and after one competition, in one stream:
+// the conservative low end, rating minus k x RD (k = settings.displayK), the
+// same number as the profile's big figure, its chart and the leaderboard, so
+// the competition record matches them. `bouts` are that fencer's bouts at the
+// competition in one stream (pool or DE). The whole competition is one rating
+// period, so every bout shares the before and after, except a withdrawal,
+// which moves nothing; the first other bout is used. Null for no bouts.
+export function headlineChange(bouts, key, k = 1) {
+  if (!bouts || bouts.length === 0) return null;
+  const b = bouts.find((x) => !x.withdrawal) || bouts[0];
+  const isA = b.keyA === key;
+  const before = (isA ? b.ratingABefore : b.ratingBBefore) - k * (isA ? b.rdABefore : b.rdBBefore);
+  const after = (isA ? b.ratingAAfter : b.ratingBAfter) - k * (isA ? b.rdAAfter : b.rdBAfter);
+  return { before, after, delta: after - before };
+}
+
+// A fencer's headline rating going into a bout (the opponent's number in a
+// bout list), on the same footing as headlineChange.
+export function headlineBefore(b, key, k = 1) {
+  const isA = b.keyA === key;
+  return (isA ? b.ratingABefore : b.ratingBBefore) - k * (isA ? b.rdABefore : b.rdBBefore);
 }
 
 // Difficulty tier of a matchup from a fencer's point of view, keyed on their

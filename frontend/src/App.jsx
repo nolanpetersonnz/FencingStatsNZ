@@ -316,6 +316,7 @@ export default function App() {
             competitions={competitions}
             fencers={fencers}
             bouts={bouts}
+            settings={settings}
             onBack={goBack}
             onSelectFencer={goFencer}
             onSelectClub={goClub}

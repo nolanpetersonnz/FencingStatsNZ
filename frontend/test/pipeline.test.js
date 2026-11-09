@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  parseCSV, processBouts, parseAgeCategory, withdrawalSide, dedupeBouts, deFinish,
+  parseCSV, processBouts, parseAgeCategory, withdrawalSide, dedupeBouts, deFinish, headlineChange, headlineBefore,
   difficultyTier, fieldOverview, predictiveAccuracy, buildTableau,
   lineDifficulty, matchups, makeDemoBouts, boutHash, normDate, normWeapon,
 } from '../src/data/pipeline.js';
@@ -113,6 +113,33 @@ test('mixed-event dedup keeps a withdrawal flag carried only by the later copy',
   assert.equal(bouts[0].withdrawal, 'b');
   assert.equal(fencers['alice a'].byWeapon.epee.de.rating, S.initialRating);
   assert.equal(fencers['bob b'].byWeapon.epee.de.rating, S.initialRating);
+});
+
+// ---- The competition record shows the headline rating --------------------------
+// The profile's big number is the conservative low end (rating minus displayK x
+// RD); the record showed the raw middle, so its latest "after" sat one RD above
+// the headline. headlineChange puts the record on the headline's footing.
+test('the competition record runs on the headline rating and ends at it, past a withdrawal', () => {
+  const rows = [
+    mkBout({ competition: 'Cup A 2025', date: '2025-01-01' }),
+    mkBout({ competition: 'Cup A 2025', date: '2025-01-01', fencer_b: 'Cara C', score_a: '10', score_b: '15', de_round: 'SF' }),
+    mkBout({ competition: 'Cup B 2025', date: '2025-03-01', flag: 'wd_b', score_a: '0', score_b: '0' }),
+    mkBout({ competition: 'Cup B 2025', date: '2025-03-01', fencer_b: 'Cara C' }),
+  ];
+  const { fencers, bouts } = processBouts(rows, S);
+  const at = (comp) => bouts.filter((b) => b.competition === comp);
+  const first = headlineChange(at('Cup A 2025'), 'alice a', 1);
+  const second = headlineChange(at('Cup B 2025'), 'alice a', 1);
+  assert.equal(first.before, S.initialRating - S.initialRD, 'starts at the starting headline, 1500 minus 200');
+  assert.equal(second.before, first.after, 'one competition picks up where the last left off');
+  assert.ok(at('Cup B 2025')[0].withdrawal, 'the withdrawal comes first in Cup B');
+  const de = fencers['alice a'].byWeapon.epee.de;
+  assert.equal(second.after, de.rating - de.rd, 'the latest after is the profile headline');
+  assert.notEqual(second.after, second.before, 'the withdrawal (no movement) is passed over');
+  assert.equal(headlineChange(at('Cup B 2025').slice(0, 1), 'alice a', 1).delta, 0, 'a withdrawal alone moves nothing');
+  const b = at('Cup A 2025')[0];
+  assert.equal(headlineBefore(b, 'bob b', 1), b.ratingBBefore - b.rdBBefore);
+  assert.equal(headlineChange([], 'alice a', 1), null);
 });
 
 // ---- DE finish derivation (Phase 1 Results view) ----------------------------
@@ -409,6 +436,33 @@ test('no competition or bout appears in two committed bouts files', () => {
       boutOwner.set(bout, f);
     }
   }
+});
+
+// The mismatch reported on 9 Nov: on every profile, the latest competition on
+// the record must end at the headline rating, for every weapon and stream.
+test('committed data: the latest competition on every record ends at the headline rating', () => {
+  const { fencers, bouts } = processBouts(CSV_FILES.flatMap(readCsv), S);
+  const k = S.displayK;
+  const latest = new Map(); // fencer, weapon, stream -> their bouts at their latest competition
+  for (const b of bouts) { // in rating order, so the last competition seen is the latest
+    for (const key of [b.keyA, b.keyB]) {
+      const id = [key, b.weapon, b.type === 'de' ? 'de' : 'pool'].join('\t');
+      const comp = `${b.date}\t${b.competition}`;
+      const cur = latest.get(id);
+      if (!cur || cur.comp !== comp) latest.set(id, { comp, bouts: [b] });
+      else cur.bouts.push(b);
+    }
+  }
+  let checked = 0;
+  for (const [id, { bouts: list }] of latest) {
+    const [key, weapon, type] = id.split('\t');
+    const stream = fencers[key].byWeapon[weapon][type];
+    const headline = stream.rating - k * stream.rd;
+    const after = headlineChange(list, key, k).after;
+    assert.ok(Math.abs(after - headline) < 1e-9, `${id}: record ends at ${after}, headline ${headline}`);
+    checked += 1;
+  }
+  assert.ok(checked > 1000, `checked ${checked}`);
 });
 
 test('predictiveAccuracy on the real dataset reproduces the cited calibration', () => {

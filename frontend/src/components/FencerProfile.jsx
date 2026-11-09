@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceL
 import { ArrowLeft, Flag } from 'lucide-react';
 import { fmtRating, fmtRD, fmtDelta, fmtDate, fmtDateShort, fmtConservativeRating, conservativeRating, fmtInterval } from '../utils/formatters.js';
 import { boutFingerprint, submitEdit } from '../data/edits.js';
-import { fieldOverview, matchups } from '../data/pipeline.js';
+import { fieldOverview, matchups, headlineChange, headlineBefore } from '../data/pipeline.js';
 import { displayBirthYear } from '../data/fencerInfo.js';
 import EditPanel from './EditPanel.jsx';
 import DifficultyStrip from './DifficultyStrip.jsx';
@@ -227,30 +227,26 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                   seen[gKey] = {
                     key: gKey, competition: b.competition, date: b.date,
                     weapon: b.weapon,
-                    poolBefore: null, poolAfter: null,
-                    deBefore: null, deAfter: null,
                     bouts: [],
                   };
                   groups.push(seen[gKey]);
                 }
-                const g = seen[gKey];
-                const isA = b.keyA === fencerKey;
-                const before = isA ? b.ratingABefore : b.ratingBBefore;
-                const after = isA ? b.ratingAAfter : b.ratingBAfter;
-                if (b.type === 'de') {
-                  if (g.deBefore === null) g.deBefore = before;
-                  g.deAfter = after;
-                } else {
-                  if (g.poolBefore === null) g.poolBefore = before;
-                  g.poolAfter = after;
-                }
-                g.bouts.push(b);
+                seen[gKey].bouts.push(b);
               }
               return groups.map(g => {
                 const wins = g.bouts.filter(b => b.winnerKey === fencerKey).length;
                 const losses = g.bouts.filter(b => b.winnerKey && b.winnerKey !== fencerKey).length;
-                const poolDelta = g.poolBefore !== null ? g.poolAfter - g.poolBefore : null;
-                const deDelta = g.deBefore !== null ? g.deAfter - g.deBefore : null;
+                // The headline rating before and after, the same number as the
+                // big figure above and the chart, not the raw middle.
+                const poolChange = headlineChange(g.bouts.filter(b => b.type !== 'de'), fencerKey, k);
+                const deChange = headlineChange(g.bouts.filter(b => b.type === 'de'), fencerKey, k);
+                g.poolBefore = poolChange?.before ?? null;
+                g.poolAfter = poolChange?.after ?? null;
+                g.deBefore = deChange?.before ?? null;
+                g.deAfter = deChange?.after ?? null;
+                // From the rounded ends, so the shown sum adds up (1865 to 1892 is +27).
+                const poolDelta = poolChange ? Math.round(poolChange.after) - Math.round(poolChange.before) : null;
+                const deDelta = deChange ? Math.round(deChange.after) - Math.round(deChange.before) : null;
                 const fo = fieldOverview(g.bouts, fencerKey, fencers);
                 return (
                   <div key={g.key}>
@@ -327,7 +323,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
                       const oppKey = isA ? b.keyB : b.keyA;
                       const opp = fencers[oppKey];
                       const won = b.winnerKey === fencerKey;
-                      const oppBefore = isA ? b.ratingBBefore : b.ratingABefore;
+                      const oppBefore = headlineBefore(b, oppKey, k);
                       const fingerprint = boutFingerprint({
                         fencer_a: f.name, fencer_b: opp ? opp.name : oppKey,
                         score_a: isA ? myScore : oppScore, score_b: isA ? oppScore : myScore,
