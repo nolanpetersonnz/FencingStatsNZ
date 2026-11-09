@@ -251,7 +251,7 @@ export function statusText(status, rec) {
 
 // A profile's international results for one weapon: the International
 // tab's list for that fencer (approved results, FeNZ portal ones included),
-// each with the same two answers.
+// each with the same answers.
 export function profileResults(records, fencer, weapon, today) {
   return fencerResults(records, fencer, today).results.filter(({ rec }) => rec.weapon === weapon);
 }
@@ -365,15 +365,14 @@ export function applyMerges(records, merges) {
   });
 }
 
-// The two answers in words (visitor-facing; wording picked by Nolan, 9 Nov 2026).
-// The second answer is "Ranking: Yes" or "No" where FeNZ's own ranking
-// handles the result (Nolan, 9 Nov 2026), else the points this panel gives.
+// The answers in words (visitor-facing; wording and layout picked by Nolan,
+// 9 Nov 2026). Where FeNZ's own ranking handles a result (FIE and
+// Australian), one answer: { ranking: 'Yes' | 'No' }, shown as "Ranking:
+// Yes". Otherwise two: is the event on FeNZ's list, and the points this
+// panel gives.
 export function verdictText(v, rec) {
-  const event = v.why === 'listed' ? "Yes, on FeNZ's list"
-    : v.why === 'fie' ? "Yes, FIE: in FeNZ's ranking"
-    : v.why === 'australian' ? "Australian: FeNZ's ranking decides"
-    : "No, not on FeNZ's list";
-  if (v.points === null) return { event, ranking: v.ranked ? 'Yes' : 'No' };
+  if (v.points === null) return { ranking: v.ranked ? 'Yes' : 'No' };
+  const event = v.why === 'listed' ? "Yes, on FeNZ's list" : "No, not on FeNZ's list";
   const points = v.note === 'small_field' ? `0 (fewer than ${rec.min_field} fencers)`
     : v.note === 'expired' ? `0 (older than ${rec.window_months} months)`
     : String(v.points);

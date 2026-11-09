@@ -7,9 +7,9 @@ import { safeHttpUrl } from '../utils/url.js';
 // International results on a profile (PANELS.md 2.4, screen 3): the list the
 // International tab shows for this fencer, for the weapon in view. Results
 // from FeNZ's results portal (`shipped`), plus approved ones the prototype
-// keeps in this browser (data/intlStore.js), each with the tab's two answers:
-// is it an event FeNZ counts, and the points. Renders nothing when there are
-// none.
+// keeps in this browser (data/intlStore.js), each with the tab's answers:
+// "Ranking: Yes" or "No" where FeNZ's ranking handles it, else is the event on
+// FeNZ's list, and the points. Renders nothing when there are none.
 export default function IntlResults({ fencerKey, weapon, shipped = [] }) {
   const rows = useMemo(() => {
     const st = loadIntl();
@@ -36,14 +36,23 @@ export default function IntlResults({ fencerKey, weapon, shipped = [] }) {
               </div>
               <div className="fl-mono" style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{placingText(rec)}</div>
               <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '4px 24px', flexWrap: 'wrap', fontSize: '0.88rem' }}>
-                <span>
-                  <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>FeNZ event</span>
-                  <span style={{ color: verdict.fenz ? 'var(--ink)' : 'var(--ink-soft)' }}>{said.event}</span>
-                </span>
-                <span>
-                  <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>{said.ranking ? 'Ranking' : 'Points'}</span>
-                  <span className="fl-mono" style={{ fontWeight: verdict.points || said.ranking === 'Yes' ? 600 : 400 }}>{said.ranking ?? said.points}</span>
-                </span>
+                {said.ranking ? (
+                  <span>
+                    <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>Ranking</span>
+                    <span className="fl-mono" style={{ fontWeight: said.ranking === 'Yes' ? 600 : 400 }}>{said.ranking}</span>
+                  </span>
+                ) : (
+                  <>
+                    <span>
+                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>FeNZ event</span>
+                      <span style={{ color: verdict.fenz ? 'var(--ink)' : 'var(--ink-soft)' }}>{said.event}</span>
+                    </span>
+                    <span>
+                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>Points</span>
+                      <span className="fl-mono" style={{ fontWeight: verdict.points ? 600 : 400 }}>{said.points}</span>
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           );

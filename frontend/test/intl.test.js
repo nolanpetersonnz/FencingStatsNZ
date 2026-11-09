@@ -180,7 +180,7 @@ test('a fencer\'s results say whether FeNZ counts the event and how many points 
   assert.deepEqual(verdictText(hamish.results[1].verdict, hamish.results[1].rec), { event: "Yes, on FeNZ's list", points: '0 (fewer than 32 fencers)' });
   assert.equal(words('charlotte reeves').points, '0 (older than 12 months)');
   assert.deepEqual(words('aroha williams'), { event: "No, not on FeNZ's list", points: '0' });
-  assert.deepEqual(words('sophie marlow'), { event: "Australian: FeNZ's ranking decides", ranking: 'Yes' }, 'Ranking: Yes or No, not points');
+  assert.deepEqual(words('sophie marlow'), { ranking: 'Yes' }, 'one answer, Ranking: Yes or No');
 });
 
 
@@ -254,9 +254,9 @@ test('Ranking: Yes for FIE results and FeNZ\'s listed Australian competitions, e
   const [youthCircuit] = shippedResults({ results: [portalRow({ id: 'y', level: 'national_circuit', country: 'AUS',
     event: 'Australian Youth Circuit #3', fenz_ranking: false })] });
   assert.equal(inFenzRanking(youthCircuit), false);
-  assert.deepEqual(verdictText(eventVerdict(youthCircuit, TODAY), youthCircuit), { event: "Australian: FeNZ's ranking decides", ranking: 'No' });
+  assert.deepEqual(verdictText(eventVerdict(youthCircuit, TODAY), youthCircuit), { ranking: 'No' });
   const [fie] = shippedResults({ results: [portalRow()] });
-  assert.deepEqual(verdictText(eventVerdict(fie, TODAY), fie), { event: "Yes, FIE: in FeNZ's ranking", ranking: 'Yes' });
+  assert.deepEqual(verdictText(eventVerdict(fie, TODAY), fie), { ranking: 'Yes' });
   // Without it (a result entered here): FIE yes; Australian national events yes; anything else no.
   const [unsure] = shippedResults({ results: [portalRow({ id: 'u', fenz_ranking: 'maybe' })] });
   assert.equal(unsure.fenz_ranking, null);

@@ -156,16 +156,26 @@ export default function IntlPage({ fencers = {}, shipped = [], picked, onPick, o
                   <div className="fl-mono" style={{ gridColumn: '1 / -1', fontSize: '0.76rem', color: 'var(--ink-soft)' }}>
                     {[rec.place || rec.country, fmtDate(rec.date), WEAPON_LABEL[rec.weapon], categoryText(rec)].filter(Boolean).join(' · ')}
                   </div>
-                  {/* 3. Is it a FeNZ event, and how many points */}
+                  {/* 3. Does it count: "Ranking: Yes" or "No" where FeNZ's ranking
+                      handles it (FIE, Australian), else FeNZ's list and the points */}
                   <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '4px 24px', flexWrap: 'wrap', marginTop: 4, fontSize: '0.9rem' }}>
-                    <span>
-                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>FeNZ event</span>
-                      <span style={{ color: verdict.fenz ? 'var(--ink)' : 'var(--ink-soft)' }}>{said.event}</span>
-                    </span>
-                    <span>
-                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>{said.ranking ? 'Ranking' : 'Points'}</span>
-                      <span className="fl-mono" style={{ fontWeight: verdict.points || said.ranking === 'Yes' ? 600 : 400 }}>{said.ranking ?? said.points}</span>
-                    </span>
+                    {said.ranking ? (
+                      <span>
+                        <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>Ranking</span>
+                        <span className="fl-mono" style={{ fontWeight: said.ranking === 'Yes' ? 600 : 400 }}>{said.ranking}</span>
+                      </span>
+                    ) : (
+                      <>
+                        <span>
+                          <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>FeNZ event</span>
+                          <span style={{ color: verdict.fenz ? 'var(--ink)' : 'var(--ink-soft)' }}>{said.event}</span>
+                        </span>
+                        <span>
+                          <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>Points</span>
+                          <span className="fl-mono" style={{ fontWeight: verdict.points ? 600 : 400 }}>{said.points}</span>
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               );
