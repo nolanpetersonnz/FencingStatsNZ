@@ -411,6 +411,24 @@ test('no competition or bout appears in two committed bouts files', () => {
   }
 });
 
+// The 2025 Senior Nationals ran as the Oceania and NZ National Open, which the
+// old ingest skipped as international (its men's foil was missing at the
+// 7 Nov demo), so the portal ingest supplies them, with the 2024 Oceania
+// veterans skipped the same way. That event's foil final is a 0-0 walkover.
+test('committed data: the 2025 Senior Nationals are in, and the 2024 Oceania veterans foil final is a walkover', () => {
+  const { bouts, competitions } = processBouts(CSV_FILES.flatMap(readCsv), S);
+  const nat25 = competitions.filter((c) => c.date === '2025-10-26' && c.name.startsWith('Oceania and NZ National Open 2025'));
+  assert.deepEqual(nat25.map((c) => `${c.weapon} ${c.name.split(' - ').pop()}`).sort(),
+    ['epee Mens', 'epee Womens', 'foil Mens', 'foil Womens', 'sabre Mens', 'sabre Womens']);
+  const final = bouts.filter((b) => b.competition.startsWith('Oceania Veterans Championship 2024')
+    && b.weapon === 'foil' && b.deRound === 'Final');
+  assert.equal(final.length, 1);
+  assert.equal(final[0].withdrawal, 'a');
+  assert.equal(final[0].winnerKey, 'colin bosnic');
+  assert.equal(final[0].deltaA, 0);
+  assert.equal(final[0].deltaB, 0);
+});
+
 test('predictiveAccuracy on the real dataset reproduces the cited calibration', () => {
   const raw = parseCSV(readFileSync(resolve(__dirname, '../../ingest/bouts.csv'), 'utf8'));
   const { bouts } = processBouts(raw, S);
