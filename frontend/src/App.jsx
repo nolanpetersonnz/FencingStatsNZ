@@ -27,6 +27,9 @@ export default function App() {
   const [view, setView] = useState('leaderboard');
   const [selectedFencer, setSelectedFencer] = useState(null);
   const [selectedComp, setSelectedComp] = useState(null);
+  // The fencer chosen on the International tab, kept here so it survives
+  // opening their profile and coming back (the tab unmounts in between).
+  const [intlFencer, setIntlFencer] = useState(null);
   const [selectedClub, setSelectedClub] = useState(null);
   const [history, setHistory] = useState([]);
   const [serverSourced, setServerSourced] = useState(false);
@@ -295,7 +298,7 @@ export default function App() {
         ) : view === 'intl' ? (
           // The International tab (prototype). Its demo button loads the demo
           // fencers without leaving the page, unlike the admin import.
-          <IntlPage fencers={fencers} weapon={weapon} gender={gender} onSelectFencer={goFencer} onLoadDemo={() => setRawBouts(makeDemoBouts())} />
+          <IntlPage fencers={fencers} picked={intlFencer} onPick={setIntlFencer} onSelectFencer={goFencer} onLoadDemo={() => setRawBouts(makeDemoBouts())} />
         ) : view === 'method' ? (
           <Method bouts={bouts} settings={settings} />
         ) : view === 'faq' ? (

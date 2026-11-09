@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   CATEGORIES, CATEGORY_LABELS, GENDERS, LEVELS, LEVEL_LABELS, RESIDENCES, WEAPONS,
   PLACEHOLDER_POLICY, initialLog, validateResult, newRecord, reviewResult, changePolicy,
@@ -26,7 +26,15 @@ const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).sli
 
 export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
   const [state, setState] = useState(() => loadIntl() || fresh());
-  const [tab, setTab] = useState('queue'); // queue | add | table | list | log
+  // The International tab's "Submit an event for <fencer>" lands here with
+  // the form ready for that fencer. Read once; cleared after mount.
+  const [submitFor] = useState(() => {
+    try { return sessionStorage.getItem('fl_intl_submit_for'); } catch { return null; }
+  });
+  useEffect(() => {
+    try { sessionStorage.removeItem('fl_intl_submit_for'); } catch { /* storage blocked */ }
+  }, []);
+  const [tab, setTab] = useState(submitFor ? 'add' : 'queue'); // queue | add | table | list | log
   const [who, setWho] = useState('');       // reviewer or author, for the log
   const [clause, setClause] = useState(''); // policy clause behind a table or list change
   const [note, setNote] = useState(null);   // transient confirmation line
@@ -58,10 +66,11 @@ export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
   return (
     <div>
       <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 6 }}>
-        FeNZ's side of the international results prototype (PANELS.md section 2): the review queue, results
-        entered from email, the points table and the event list. Fencers see what counts, the submission form
-        and the results on the International tab. Records stay in this browser and are never sent anywhere; the
-        table and list are placeholders until FeNZ sets them, and only made-up results belong here.
+        FeNZ's side of the international results prototype (PANELS.md section 2): submitting a result (from
+        email, or a fencer's "Submit an event" on the International tab), the review queue, the points table and
+        the event list. Anyone can look a fencer up on the International tab. Records stay in this browser and are
+        never sent anywhere; the table and list are placeholders until FeNZ sets them, and only made-up results
+        belong here.
       </p>
       <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 14 }}>
         Points table v{state.policy.version}. {state.records.length} result{state.records.length === 1 ? '' : 's'} stored.
@@ -99,7 +108,7 @@ export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
       )}
 
       {tab === 'queue' && <Queue state={state} who={who} today={today} persist={persist} fail={fail} />}
-      {tab === 'add' && <AddResult fencers={fencers} today={today} onAdd={(rec) => { persist({ ...state, records: [rec, ...state.records] }, `Added ${rec.fencer_name}'s result to the review queue.`); setTab('queue'); }} fail={fail} />}
+      {tab === 'add' && <AddResult fencers={fencers} today={today} defaults={submitFor ? { fencer: submitFor } : {}} onAdd={(rec) => { persist({ ...state, records: [rec, ...state.records] }, `Added ${rec.fencer_name}'s result to the review queue.`); setTab('queue'); }} fail={fail} />}
       {tab === 'table' && <PointsTable state={state} who={who} clause={clause} persist={persist} fail={fail} />}
       {tab === 'list' && <EventList state={state} who={who} clause={clause} persist={persist} fail={fail} />}
       {tab === 'log' && <ChangeLog log={state.log} />}
@@ -198,9 +207,9 @@ function Queue({ state, who, today, persist, fail }) {
   );
 }
 
-// ---- A result's form (PANELS.md 2.4, screen 1). The International tab uses it
-// for a fencer's own submission; here, FeNZ enters one sent by email while
-// sign-in is paused. Both go to the review queue. -----------------------------
+// ---- A result's form (PANELS.md 2.4, screen 1), behind FeNZ's sign-in while
+// fencer sign-in is paused: a result sent by email, or one started from the
+// International tab's "Submit an event". It goes to the review queue. ---------
 
 const blank = {
   fencer: '', weapon: 'epee', gender: 'mens', category: 'senior', event: '', organiser: '', country: '', city: '',

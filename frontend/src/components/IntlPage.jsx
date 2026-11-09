@@ -1,58 +1,86 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Search } from 'lucide-react';
 import {
-  INTL_HEADING, INTL_PAGE_NOTE, LEVEL_LABELS, PLACEHOLDER_POLICY, initialLog,
-  publicResults, waitingCount, describePlaces, statusText, ordinal,
+  INTL_HEADING, INTL_PAGE_NOTE, PLACEHOLDER_POLICY, initialLog,
+  fencerResults, verdictText, ordinal,
 } from '../data/intl.js';
 import { loadIntl, saveIntl, clearIntl, todayIso } from '../data/intlStore.js';
 import { testIntlState } from '../data/intlTestData.js';
 import { fmtDate } from '../utils/formatters.js';
 import { safeHttpUrl } from '../utils/url.js';
-import { AddResult } from './IntlPanel.jsx';
+import { pressable } from '../utils/a11y.js';
 
-// The International tab: the public side of the international results
-// prototype (PANELS.md 2.4: what counts, a fencer's submission, the results).
-// Review, and the points table and event list, stay with FeNZ in /#admin.
-// Records live in this browser only (data/intlStore.js).
+// The International tab (prototype of PANELS.md section 2), built as Nolan
+// asked on 9 Nov: search a fencer, see their international results, each
+// marked whether FeNZ counts the event and how many points it earns, then
+// submit an event, which stays behind FeNZ's admin sign-in. Review, the
+// points table and the event list stay with FeNZ in /#admin. Records live in
+// this browser only (data/intlStore.js).
 
 const fresh = () => ({ records: [], policy: PLACEHOLDER_POLICY, log: initialLog(new Date().toISOString()) });
-const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-const sentence = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) + '.' : s);
+const WEAPON_LABEL = { foil: 'Foil', epee: 'Épée', sabre: 'Sabre' };
 
-function Section({ title, children }) {
-  return (
-    <section style={{ marginBottom: 36 }}>
-      <h3 className="fl-smallcaps" style={{ margin: '0 0 12px' }}>{title}</h3>
-      {children}
-    </section>
-  );
+// The submit step stays behind the admin sign-in, as before: it opens
+// /#admin, International, with the form ready for this fencer.
+function submitFor(key) {
+  try {
+    sessionStorage.setItem('fl_admin_return', 'intl');
+    sessionStorage.setItem('fl_intl_submit_for', key);
+  } catch { /* the admin page opens on its first section instead */ }
+  window.location.hash = 'admin';
 }
 
-export default function IntlPage({ fencers = {}, weapon, gender, onSelectFencer, onLoadDemo }) {
+export default function IntlPage({ fencers = {}, picked, onPick, onSelectFencer, onLoadDemo }) {
   const [state, setState] = useState(() => loadIntl() || fresh());
-  const [note, setNote] = useState(null);
-  const [error, setError] = useState(null);
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
   const today = todayIso();
-  const p = state.policy;
+
+  // Close the suggestions on a click elsewhere, as the header search does.
+  useEffect(() => {
+    function onClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
 
   const persist = (next) => { setState(next); saveIntl(next); };
-  const tryIt = () => { persist(testIntlState(today)); onLoadDemo?.(); setNote(null); setError(null); };
-  const removeTest = () => { clearIntl(); setState(fresh()); setNote(null); setError(null); };
+  const tryIt = () => { persist(testIntlState(today)); onLoadDemo?.(); };
+  const removeTest = () => { clearIntl(); setState(fresh()); onPick?.(null); };
 
-  const genderLabel = gender === 'W' ? 'Womens' : 'Mens';
-  const weaponLabel = weapon === 'epee' ? 'Épée' : weapon.charAt(0).toUpperCase() + weapon.slice(1);
-  const rows = publicResults(state.records, { weapon, gender, today });
-  const waiting = waitingCount(state.records, { weapon, gender });
+  // Fencers on the site, plus anyone with an international result but no
+  // NZ bouts yet (an overseas-based fencer, say).
+  const people = useMemo(() => {
+    const m = new Map(Object.values(fencers).map((f) => [f.key, { key: f.key, name: f.name, club: f.club || '' }]));
+    for (const r of state.records) if (!m.has(r.fencer)) m.set(r.fencer, { key: r.fencer, name: r.fencer_name, club: '' });
+    return [...m.values()];
+  }, [fencers, state.records]);
+  // Suggestions as in the header search: the name or club contains what's
+  // typed, eight at most; anyone with an international result comes first.
+  const hasResults = useMemo(
+    () => new Set(state.records.filter((r) => r.status === 'approved').map((r) => r.fencer)),
+    [state.records],
+  );
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return people
+      .filter((f) => f.name.toLowerCase().includes(q) || f.club.toLowerCase().includes(q))
+      .sort((a, b) => (hasResults.has(b.key) - hasResults.has(a.key)) || a.name.localeCompare(b.name))
+      .slice(0, 8);
+  }, [people, query, hasResults]);
+
+  const person = picked ? (people.find((f) => f.key === picked) || { key: picked, name: picked, club: '' }) : null;
+  const mine = picked ? fencerResults(state.records, picked, today) : null;
+  const pick = (key) => { onPick?.(key); setQuery(''); setOpen(false); };
   const muted = { color: 'var(--ink-soft)', fontSize: '0.92rem' };
 
   return (
-    <div className="fl-fade-in">
-      <div style={{ marginBottom: 28 }}>
-        <div className="fl-smallcaps">{genderLabel} {weaponLabel}</div>
-        <h2 className="fl-display" style={{ fontSize: '2rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
-          {INTL_HEADING}
-        </h2>
-        <p className="fl-italic" style={{ ...muted, fontSize: '1rem', margin: '8px 0 0', maxWidth: 720 }}>{INTL_PAGE_NOTE}</p>
-        <div style={{ marginTop: 14, padding: '10px 12px', border: '1px solid var(--rule)', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', maxWidth: 720 }}>
+    <div className="fl-fade-in" style={{ maxWidth: 760 }}>
+      <div style={{ marginBottom: 24 }}>
+        <h2 className="fl-display" style={{ fontSize: '2rem', fontWeight: 700, margin: 0, letterSpacing: '-0.02em' }}>{INTL_HEADING}</h2>
+        <p className="fl-italic" style={{ ...muted, fontSize: '1rem', margin: '8px 0 0' }}>{INTL_PAGE_NOTE}</p>
+        <div style={{ marginTop: 14, padding: '10px 12px', border: '1px solid var(--rule)', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <span className="fl-italic" style={{ ...muted, flex: '1 1 320px' }}>
             Prototype: placeholder points and event list; results stay in this browser.
             {state.test_data ? ' Sample results loaded.' : ''}
@@ -63,84 +91,94 @@ export default function IntlPage({ fencers = {}, weapon, gender, onSelectFencer,
         </div>
       </div>
 
-      <Section title="What counts">
-        <p style={{ ...muted, margin: '0 0 12px', maxWidth: 720 }}>
-          Results from events on FeNZ's list count if the field is big enough. FIE and Australian events already
-          count through FeNZ's own ranking.
-        </p>
-        <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', marginBottom: 12, maxWidth: 720 }}>
-          <div className="fl-smallcaps" style={{ display: 'grid', gridTemplateColumns: '52px minmax(0, 1.5fr) minmax(0, 1fr)', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--rule)', fontSize: '0.62rem' }}>
-            <span>Country</span><span>Event</span><span>Level</span>
-          </div>
-          {p.list.length === 0 && <div className="fl-italic" style={{ ...muted, padding: '12px 0' }}>No events on the list yet.</div>}
-          {p.list.map((e) => (
-            <div key={e.id} style={{ display: 'grid', gridTemplateColumns: '52px minmax(0, 1.5fr) minmax(0, 1fr)', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--rule-soft)', alignItems: 'baseline' }}>
-              <span className="fl-mono" style={{ fontSize: '0.85rem' }}>{e.country}</span>
-              <span className="fl-display" style={{ fontWeight: 600 }}>{e.event}</span>
-              <span className="fl-italic" style={muted}>{LEVEL_LABELS[e.level]}</span>
-            </div>
-          ))}
+      {/* 1. Search fencer: type a name, suggestions drop down, as in the header */}
+      <div ref={ref} role="search" style={{ position: 'relative', maxWidth: 440, marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Search size={16} color="var(--ink-soft)" aria-hidden="true" />
+          <input
+            className="fl-input"
+            aria-label="Search fencers"
+            placeholder="Search fencers…"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+            onFocus={() => setOpen(true)}
+          />
         </div>
-        <p style={{ ...muted, margin: 0, maxWidth: 720 }}>
-          Most points: {p.max_points.national_championship} at a national championship, {p.max_points.national_circuit} at a
-          national circuit event. Share of those by place: {describePlaces(p.placing_shares).join(', ')}. Fields under {p.min_field} fencers
-          don't count, and a result counts for {p.window_months} months after the event. Points table v{p.version}.
-        </p>
-      </Section>
-
-      <Section title="Submit a result">
-        <AddResult
-          key={state.records.length}
-          fencers={fencers}
-          today={today}
-          defaults={{ weapon, gender: gender === 'W' ? 'womens' : 'mens' }}
-          intro="Copy each field from the official results page. Sign-in is paused, so pick the fencer."
-          submitLabel="Send to FeNZ"
-          fail={(msg) => { setNote(null); setError(sentence(msg)); }}
-          onAdd={(rec) => {
-            persist({ ...state, records: [rec, ...state.records] });
-            setError(null);
-            setNote('Sent. FeNZ will check it before it appears.');
-          }}
-        />
-        {(note || error) && (
-          <div role="status" className="fl-italic" style={{ marginTop: 12, padding: 10, border: `1px solid ${error ? 'var(--red-light)' : 'var(--rule)'}`, color: error ? 'var(--red-light)' : 'var(--ink)', fontSize: '0.92rem', maxWidth: 720 }}>
-            {error || note}
-          </div>
-        )}
-      </Section>
-
-      <Section title="Results">
-        <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)', maxWidth: 720 }}>
-          {rows.length === 0 && (
-            <div className="fl-italic" style={{ ...muted, padding: '20px 0' }}>No {genderLabel} {weaponLabel} results yet.</div>
-          )}
-          {rows.map(({ rec, status }) => {
-            const href = safeHttpUrl(rec.results_url);
-            const known = Boolean(fencers[rec.fencer]);
-            return (
-              <div key={rec.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--rule-soft)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2px 16px', alignItems: 'baseline' }}>
-                <div style={{ minWidth: 0 }}>
-                  {known
-                    ? <button type="button" className="fl-link fl-display" style={{ fontWeight: 600 }} onClick={() => onSelectFencer?.(rec.fencer)}>{rec.fencer_name}</button>
-                    : <span className="fl-display" style={{ fontWeight: 600 }}>{rec.fencer_name}</span>}
-                </div>
-                <div className="fl-mono" style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{ordinal(rec.placing)} of {rec.field_size}</div>
-                <div style={{ gridColumn: '1 / -1', fontSize: '0.92rem' }}>
-                  {href ? <a className="fl-link" href={href} target="_blank" rel="noopener noreferrer">{rec.event}</a> : rec.event}
-                  <span className="fl-mono" style={{ fontSize: '0.76rem', color: 'var(--ink-soft)', marginLeft: 10, whiteSpace: 'nowrap' }}>{rec.country} · {fmtDate(rec.date)}</span>
-                </div>
-                <div className="fl-italic" style={{ gridColumn: '1 / -1', fontSize: '0.88rem', color: status.counts ? 'var(--ink)' : 'var(--ink-soft)' }}>
-                  {statusText(status, rec)}
-                </div>
+        {open && matches.length > 0 && (
+          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--paper)', border: '1px solid var(--rule)', marginTop: 8, zIndex: 50, boxShadow: '0 8px 24px rgba(17,20,24,0.10)' }}>
+            {matches.map((f) => (
+              <div
+                key={f.key}
+                className="fl-link fl-row-hover"
+                style={{ padding: '10px 14px', borderBottom: '1px solid var(--rule-soft)' }}
+                {...pressable(() => pick(f.key))}
+              >
+                <div className="fl-display" style={{ fontWeight: 600, fontSize: '1rem' }}>{f.name}</div>
+                {f.club && <div className="fl-italic" style={{ fontSize: '0.85rem', color: 'var(--ink-soft)' }}>{f.club}</div>}
               </div>
-            );
-          })}
-        </div>
-        {waiting > 0 && (
-          <p className="fl-italic" style={{ ...muted, margin: '10px 0 0' }}>{waiting} waiting to be checked.</p>
+            ))}
+          </div>
         )}
-      </Section>
+      </div>
+
+      {person && (
+        <>
+          {/* 2. Their international results */}
+          <div style={{ marginBottom: 12 }}>
+            <div className="fl-smallcaps">International results</div>
+            <h3 className="fl-display" style={{ fontSize: '1.6rem', fontWeight: 700, margin: '4px 0 0', letterSpacing: '-0.02em' }}>
+              {fencers[person.key]
+                ? <button type="button" className="fl-link" onClick={() => onSelectFencer?.(person.key)}>{person.name}</button>
+                : person.name}
+            </h3>
+            {person.club && <div className="fl-italic" style={muted}>{person.club}</div>}
+          </div>
+          <div style={{ borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' }}>
+            {mine.results.length === 0 && (
+              <div className="fl-italic" style={{ ...muted, padding: '20px 0' }}>No international results for {person.name} yet.</div>
+            )}
+            {mine.results.map(({ rec, verdict }) => {
+              const href = safeHttpUrl(rec.results_url);
+              const said = verdictText(verdict, rec);
+              return (
+                <div key={rec.id} style={{ padding: '12px 0', borderBottom: '1px solid var(--rule-soft)', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '2px 16px', alignItems: 'baseline' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <span className="fl-display" style={{ fontWeight: 600 }}>
+                      {href ? <a className="fl-link" href={href} target="_blank" rel="noopener noreferrer">{rec.event}</a> : rec.event}
+                    </span>
+                  </div>
+                  <div className="fl-mono" style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{ordinal(rec.placing)} of {rec.field_size}</div>
+                  <div className="fl-mono" style={{ gridColumn: '1 / -1', fontSize: '0.76rem', color: 'var(--ink-soft)' }}>
+                    {rec.country} · {fmtDate(rec.date)} · {WEAPON_LABEL[rec.weapon]}
+                  </div>
+                  {/* 3. Is it a FeNZ event, and how many points */}
+                  <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '4px 24px', flexWrap: 'wrap', marginTop: 4, fontSize: '0.9rem' }}>
+                    <span>
+                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>FeNZ event</span>
+                      <span style={{ color: verdict.fenz ? 'var(--ink)' : 'var(--ink-soft)' }}>{said.event}</span>
+                    </span>
+                    <span>
+                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>Points</span>
+                      <span className="fl-mono" style={{ fontWeight: verdict.points ? 600 : 400 }}>{said.points}</span>
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {mine.waiting > 0 && (
+            <p className="fl-italic" style={{ ...muted, margin: '10px 0 0' }}>
+              {mine.results.length > 0 ? `${mine.waiting} more waiting to be checked.` : `${mine.waiting} waiting to be checked.`}
+            </p>
+          )}
+
+          {/* 4. Submit event: behind FeNZ's sign-in */}
+          <div style={{ marginTop: 28, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button type="button" className="fl-pill" onClick={() => submitFor(person.key)}>Submit an event for {person.name}</button>
+            <span className="fl-italic" style={muted}>FeNZ sign-in needed while fencer sign-in is paused.</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }

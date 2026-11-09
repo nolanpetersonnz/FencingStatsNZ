@@ -241,32 +241,51 @@ export function profileResults(records, fencer, weapon, today) {
     .sort((a, b) => b.rec.date.localeCompare(a.rec.date));
 }
 
-// The International tab's results: every approved result this panel scores,
-// for the weapon and gender the header has selected ('M' or 'W'), newest first.
-const GENDER_OF = { M: 'mens', W: 'womens' };
-const forView = (r, weapon, gender) => r.weapon === weapon && (!gender || r.gender === GENDER_OF[gender]);
-
-export function publicResults(records, { weapon, gender, today }) {
-  return (records || [])
-    .filter((r) => forView(r, weapon, gender))
-    .map((r) => ({ rec: r, status: publicStatus(r, today) }))
-    .filter((x) => x.status)
-    .sort((a, b) => b.rec.date.localeCompare(a.rec.date));
+// The International tab answers two things for each of a fencer's approved
+// results: is it an event FeNZ counts, and how many points it earns.
+//   fenz: true for an event on FeNZ's list or an FIE event (FeNZ's own
+//         ranking counts every FIE result); null for an Australian one, as
+//         FeNZ's ranking counts only the competitions it lists (PANELS.md 0)
+//   why:  'listed' | 'fie' | 'australian' | 'not_listed'
+//   points: the points, or null where FeNZ's own ranking sets them
+//   note: null | 'small_field' | 'expired', when a listed event earns 0
+export function eventVerdict(rec, today) {
+  if (rec.reason === 'fenz_portal') {
+    return rec.level === 'fie'
+      ? { fenz: true, why: 'fie', points: null, note: null }
+      : { fenz: null, why: 'australian', points: null, note: null };
+  }
+  if (rec.reason === 'not_on_list') return { fenz: false, why: 'not_listed', points: 0, note: null };
+  if (rec.reason === 'small_field') return { fenz: true, why: 'listed', points: 0, note: 'small_field' };
+  if (isExpired(rec, today)) return { fenz: true, why: 'listed', points: 0, note: 'expired' };
+  return { fenz: true, why: 'listed', points: rec.points, note: null };
 }
 
-export function waitingCount(records, { weapon, gender }) {
-  return (records || []).filter((r) => r.status === 'pending' && forView(r, weapon, gender)).length;
+// One fencer's approved results, newest first, each with its verdict, and
+// how many more are waiting to be checked.
+export function fencerResults(records, fencer, today) {
+  const mine = (records || []).filter((r) => r.fencer === fencer);
+  return {
+    results: mine.filter((r) => r.status === 'approved')
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .map((rec) => ({ rec, verdict: eventVerdict(rec, today) })),
+    waiting: mine.filter((r) => r.status === 'pending').length,
+  };
 }
 
-// The place bands in words: "1st 100%", "4th to 8th 50%".
-export function describePlaces(shares) {
-  let from = 1;
-  return shares.map(([upto, share]) => {
-    const places = from === upto ? ordinal(upto) : `${ordinal(from)} to ${ordinal(upto)}`;
-    from = upto + 1;
-    return `${places} ${Math.round(share * 100)}%`;
-  });
+// The two answers in words (visitor-facing; wording picked by Nolan, 9 Nov 2026).
+export function verdictText(v, rec) {
+  const event = v.why === 'listed' ? "Yes, on FeNZ's list"
+    : v.why === 'fie' ? "Yes, FIE: in FeNZ's ranking"
+    : v.why === 'australian' ? "Australian: FeNZ's ranking decides"
+    : "No, not on FeNZ's list";
+  const points = v.points === null ? "From FeNZ's ranking"
+    : v.note === 'small_field' ? `0 (fewer than ${rec.min_field} fencers)`
+    : v.note === 'expired' ? `0 (older than ${rec.window_months} months)`
+    : String(v.points);
+  return { event, points };
 }
+
 
 // Admin-side label for any status, including the ones the profile leaves off.
 export function adminStatusText(rec, today) {

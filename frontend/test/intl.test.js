@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   PLACEHOLDER_POLICY, initialLog, validateResult, newRecord, reviewResult, scoreResult, placingShare,
   publicStatus, statusText, profileResults, adminStatusText, softCapQualifier, coversAgeGroup, meetsSoftCap,
-  changePolicy, validatePolicy, addMonths, ordinal, publicResults, waitingCount, describePlaces,
+  changePolicy, validatePolicy, addMonths, ordinal, eventVerdict, fencerResults, verdictText,
 } from '../src/data/intl.js';
 import { testIntlState, TEST_FENCERS } from '../src/data/intlTestData.js';
 import { makeDemoBouts, nameKey } from '../src/data/pipeline.js';
@@ -153,21 +153,32 @@ test('a change to the table or list is a new version with a logged author and cl
   assert.equal(validatePolicy(P), null);
 });
 
-test('the International tab lists approved results for the weapon and gender selected, newest first', () => {
+test('a fencer\'s results say whether FeNZ counts the event and how many points it earns', () => {
   const st = testIntlState(TODAY);
-  const mensEpee = publicResults(st.records, { weapon: 'epee', gender: 'M', today: TODAY });
-  assert.deepEqual(mensEpee.map((x) => x.rec.event), ['National Championships (test)', 'National circuit, round 2 (test)']);
-  assert.deepEqual(publicResults(st.records, { weapon: 'epee', gender: 'W', today: TODAY }).map((x) => x.rec.fencer), ['charlotte reeves']);
-  // Women's foil: the Italian regional shows; the Australian one is FeNZ's own ranking's, so it doesn't.
-  assert.deepEqual(publicResults(st.records, { weapon: 'foil', gender: 'W', today: TODAY }).map((x) => x.rec.country), ['ITA']);
-  assert.equal(waitingCount(st.records, { weapon: 'epee', gender: 'M' }), 2);
-  assert.equal(waitingCount(st.records, { weapon: 'foil', gender: 'W' }), 0);
+  const hamish = fencerResults(st.records, 'hamish carter', TODAY);
+  assert.deepEqual(hamish.results.map((x) => [x.rec.country, x.verdict]), [
+    ['GBR', { fenz: true, why: 'listed', points: 50, note: null }],
+    ['FRA', { fenz: true, why: 'listed', points: 0, note: 'small_field' }],
+  ], 'newest first');
+  assert.equal(hamish.waiting, 0);
+  const one = (key) => fencerResults(st.records, key, TODAY).results[0];
+  assert.deepEqual(one('charlotte reeves').verdict, { fenz: true, why: 'listed', points: 0, note: 'expired' });
+  assert.deepEqual(one('aroha williams').verdict, { fenz: false, why: 'not_listed', points: 0, note: null });
+  assert.deepEqual(one('sophie marlow').verdict, { fenz: null, why: 'australian', points: null, note: null });
+  const tane = fencerResults(st.records, 'tane ngata', TODAY);
+  assert.deepEqual([tane.results.length, tane.waiting], [0, 1], 'pending: counted, not shown');
+  assert.deepEqual(fencerResults(st.records, "liam o'connell", TODAY).results, [], 'rejected: not shown');
+  const fie = approve(pending({ level: 'fie', made_de: true })).value;
+  assert.deepEqual(eventVerdict(fie, TODAY), { fenz: true, why: 'fie', points: null, note: null });
+  // In words.
+  const words = (key) => verdictText(one(key).verdict, one(key).rec);
+  assert.deepEqual(verdictText(hamish.results[0].verdict, hamish.results[0].rec), { event: "Yes, on FeNZ's list", points: '50' });
+  assert.deepEqual(verdictText(hamish.results[1].verdict, hamish.results[1].rec), { event: "Yes, on FeNZ's list", points: '0 (fewer than 32 fencers)' });
+  assert.equal(words('charlotte reeves').points, '0 (older than 12 months)');
+  assert.deepEqual(words('aroha williams'), { event: "No, not on FeNZ's list", points: '0' });
+  assert.deepEqual(words('sophie marlow'), { event: "Australian: FeNZ's ranking decides", points: "From FeNZ's ranking" });
 });
 
-test('the place bands read as words', () => {
-  assert.deepEqual(describePlaces(PLACEHOLDER_POLICY.placing_shares),
-    ['1st 100%', '2nd 80%', '3rd 65%', '4th to 8th 50%', '9th to 16th 35%', '17th to 32nd 20%', '33rd to 64th 10%']);
-});
 
 test('the test data uses only the demo fencers, and shows each rule', () => {
   const demo = new Set(makeDemoBouts().flatMap((b) => [nameKey(b.fencer_a), nameKey(b.fencer_b)]));
