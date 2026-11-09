@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  parseCSV, processBouts, parseAgeCategory, withdrawalSide, dedupeBouts, deFinish,
+  parseCSV, processBouts, parseAgeCategory, withdrawalSide, priorityWinner, dedupeBouts, deFinish,
   difficultyTier, fieldOverview, predictiveAccuracy, buildTableau,
   lineDifficulty, matchups, makeDemoBouts, boutHash, normDate, normWeapon,
 } from '../src/data/pipeline.js';
@@ -113,6 +113,44 @@ test('mixed-event dedup keeps a withdrawal flag carried only by the later copy',
   assert.equal(bouts[0].withdrawal, 'b');
   assert.equal(fencers['alice a'].byWeapon.epee.de.rating, S.initialRating);
   assert.equal(fencers['bob b'].byWeapon.epee.de.rating, S.initialRating);
+});
+
+// ---- Wins on priority ---------------------------------------------------------
+// Touches level when time ran out, the fencer with priority won: the scores
+// stay as fenced and the flag names the winner.
+test('priorityWinner parses the flag column, and leaves withdrawals alone', () => {
+  assert.equal(priorityWinner({ flag: 'pri_a' }), 'a');
+  assert.equal(priorityWinner({ flag: 'PRI_B' }), 'b');
+  assert.equal(priorityWinner({ flag: 'wd_a' }), null);
+  assert.equal(priorityWinner({ flag: '' }), null);
+  assert.equal(priorityWinner({}), null);
+  assert.equal(withdrawalSide({ flag: 'pri_a' }), null);
+});
+
+test('a win on priority with level touches is rated as a normal win, not a draw', () => {
+  const tied = mkBout({ score_a: '13', score_b: '13', de_round: 'T16' });
+  const plain = processBouts([tied], S);
+  assert.equal(plain.bouts[0].winnerKey, null, 'unflagged level touches read as a draw');
+  assert.equal(plain.fencers['bob b'].byWeapon.epee.de.ties, 1);
+
+  const { fencers, bouts } = processBouts([{ ...tied, flag: 'pri_b' }], S);
+  const a = fencers['alice a'].byWeapon.epee.de;
+  const b = fencers['bob b'].byWeapon.epee.de;
+  assert.equal(bouts[0].winnerKey, 'bob b');
+  assert.equal(bouts[0].priority, 'b');
+  assert.ok(b.rating > S.initialRating && a.rating < S.initialRating, 'ratings move as for a win');
+  assert.equal(b.rating - S.initialRating, processBouts([mkBout({ score_a: '10', score_b: '15', de_round: 'T16' })], S)
+    .fencers['bob b'].byWeapon.epee.de.rating - S.initialRating, 'same movement as a 15-10 win');
+  assert.deepEqual([a.wins, a.losses, a.ties, b.wins, b.losses, b.ties], [0, 1, 0, 1, 0, 0]);
+  assert.deepEqual(deFinish(bouts, 'alice a'), { rank: 9, label: '9–16' }, 'the loser is out in the T16');
+});
+
+test('mixed-event dedup keeps a priority flag carried only by the later copy', () => {
+  const pair = mixedPair(null, null).map((b) => ({ ...b, score_a: '13', score_b: '13' }));
+  pair[1].flag = 'pri_a';
+  const { bouts } = processBouts(pair, S);
+  assert.equal(bouts.length, 1);
+  assert.equal(bouts[0].winnerKey, 'alice a');
 });
 
 // ---- DE finish derivation (Phase 1 Results view) ----------------------------
@@ -409,6 +447,48 @@ test('no competition or bout appears in two committed bouts files', () => {
       boutOwner.set(bout, f);
     }
   }
+});
+
+// The 2025 Senior Nationals ran as the Oceania and NZ National Open, which the
+// old ingest skipped as international (its men's foil was missing at the
+// 7 Nov demo), so the portal ingest supplies them, with the 2024 Oceania
+// veterans skipped the same way. That event's foil final is a 0-0 walkover.
+test('committed data: the 2025 Senior Nationals are in, and the 2024 Oceania veterans foil final is a walkover', () => {
+  const { bouts, competitions } = processBouts(CSV_FILES.flatMap(readCsv), S);
+  const nat25 = competitions.filter((c) => c.date === '2025-10-26' && c.name.startsWith('Oceania and NZ National Open 2025'));
+  assert.deepEqual(nat25.map((c) => `${c.weapon} ${c.name.split(' - ').pop()}`).sort(),
+    ['epee Mens', 'epee Womens', 'foil Mens', 'foil Womens', 'sabre Mens', 'sabre Womens']);
+  const final = bouts.filter((b) => b.competition.startsWith('Oceania Veterans Championship 2024')
+    && b.weapon === 'foil' && b.deRound === 'Final');
+  assert.equal(final.length, 1);
+  assert.equal(final[0].withdrawal, 'a');
+  assert.equal(final[0].winnerKey, 'colin bosnic');
+  assert.equal(final[0].deltaA, 0);
+  assert.equal(final[0].deltaB, 0);
+});
+
+// Phase B: the NZ competitions between the old API's last data (19 Jul 2026)
+// and the Nationals. The Central Open ran one mixed foil pool and then men's
+// and women's DEs, so the pool is a competition of its own; a 13-13 at the
+// Mid-South Open was won on priority.
+test('committed data: the Aug to Oct 2026 opens are in, with the Central Open foil pool apart and a win on priority', () => {
+  const { bouts, competitions } = processBouts(CSV_FILES.flatMap(readCsv), S);
+  const held = competitions.map((c) => `${c.date} ${c.name}`);
+  for (const comp of ['2026-08-15 South Open Championship 2026', '2026-09-13 North Open Championships 2026',
+    '2026-09-19 Central Open Championship 2026', '2026-10-03 Mid-South Open Championships 2026',
+    '2026-10-17 Russell Towns Open 2026']) {
+    assert.ok(held.some((x) => x.startsWith(comp)), comp);
+  }
+  const foil = competitions.filter((c) => c.date === '2026-09-19' && c.weapon === 'foil').map((c) => c.name).sort();
+  assert.deepEqual(foil, ['Central Open Championship 2026 - Mens', 'Central Open Championship 2026 - Womens',
+    'Central Open Championship 2026 Mixed']);
+  const pri = bouts.filter((b) => b.priority);
+  assert.equal(pri.length, 1);
+  assert.equal(pri[0].winnerKey, 'tom eyre-walker');
+  const epee = competitions.find((c) => c.date === '2026-10-03' && c.weapon === 'epee'
+    && c.name === 'Mid-South Open Championships 2026 - Mens');
+  const dong = epee.bouts.filter((b) => b.type === 'de' && (b.keyA === 'alex dong' || b.keyB === 'alex dong'));
+  assert.deepEqual(deFinish(dong, 'alex dong'), { rank: 9, label: '9–16' });
 });
 
 test('predictiveAccuracy on the real dataset reproduces the cited calibration', () => {

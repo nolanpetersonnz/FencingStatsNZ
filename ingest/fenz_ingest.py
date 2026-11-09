@@ -237,7 +237,7 @@ class Bout:
     score_a: int
     score_b: int
     de_round: str = ""
-    flag: str = ""          # "" | "wd_a" | "wd_b" | "wd" (withdrawal / no-result)
+    flag: str = ""          # "" | "wd_a" | "wd_b" | "wd" (withdrawal / no-result) | "pri_a" | "pri_b" (won on priority, touches level)
 
     def csv_row(self):
         return [

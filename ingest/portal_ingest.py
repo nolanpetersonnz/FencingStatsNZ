@@ -27,9 +27,13 @@ Politeness, agreed with the portal's maintainer and not optional:
 
 Usage, from the repo root:
     pip install requests rapidfuzz          # fenz_ingest.py's dependencies
-    python ingest/portal_ingest.py --nationals-2026
-    python ingest/portal_ingest.py --comp UUID [UUID ...] --out ingest/bouts_portal.csv
-    python ingest/portal_ingest.py --nationals-2026 --offline   # cache only
+    python ingest/portal_ingest.py --old-ingest-skipped --phase-b --nationals-2026
+    python ingest/portal_ingest.py --old-ingest-skipped --phase-b --nationals-2026 --offline   # cache only
+    python ingest/portal_ingest.py --comp UUID [UUID ...] --out ingest/other.csv
+
+The first line rebuilds the committed bouts_portal.csv. Each run rewrites its
+--out file whole, so it refuses to drop a competition the file already holds
+unless given --replace.
 
 Rows follow bouts.csv:
   - date: the competition's start date, YYYY-MM-DD
@@ -43,15 +47,18 @@ Rows follow bouts.csv:
   - flag stays blank: the portal shows no abandonment, medical, exclusion or
     DNF markers, so fenz_ingest's WD_CODES have nothing to match; suspicious
     bouts (missing scores, a tie, a winner with fewer touches) are listed in
-    the review instead of guessed
+    the review instead of guessed; a DE bout decided by hand goes in
+    BOUT_DECISIONS with the flag to write
   - names go from "SURNAME, Given" to "Given Surname" with title_name; a name
     whose site key (nameKey in pipeline.js) matches bouts.csv takes that
     spelling; one that matches a fencers.json name key takes the spelling the
     same registry record (one licence holder) already has bouts under, when
     there is exactly one, and each such case is listed for review; close
     matches (rapidfuzz WRatio 88 or more, same weapon or club) are listed for
-    review and never merged automatically; ones decided by hand go in
-    NAME_DECISIONS
+    review and never merged automatically; a name the registry knows but the
+    site has no bouts for gets the same check, plus any site spelling its
+    registry record lists, and is also only listed; ones decided by hand go
+    in NAME_DECISIONS
   - only these 15 columns are written: no birth dates, licence numbers or
     other personal fields, whatever the portal shows
 
@@ -102,12 +109,57 @@ NAME_DECISIONS = {
     "chien an lin": "Chien-An Lin",
     "kwan yat zeng": "Kwun Yat Zeng",
     "quinn downs": "Quin Downs",
+    # 9 Nov 2026, on the 2025 Nationals review: names the registry knows but
+    # the site had no bouts under (same weapon and club, or a registry record
+    # listing both spellings).
+    "corey marc stephenson": "Corey Stephenson",
+    "lucas ziqian zhou": "Ziqian (Lucas) Zhou",
+    "mutian (tim) wang": "Mutian Wang",
+    "zining (steven) wang": "Steven Zining Wang",
+    "pierre bechet": "Pierre Béchet",  # also in the 2026 rows, live since 6 Nov
+    # 9 Nov 2026, on the Phase B review.
+    "joel ball-la-hood": "Joel Ball-La Hood",
+    "sera cox": "Seraphine Cox",
+    "zining wang": "Steven Zining Wang",
+}
+
+# DE bouts the portal records oddly, decided by hand: "<competition> /
+# <event> / <round>: <top name> v <bottom name>", names as the portal shows
+# them, mapped to the flag to write. wd_a or wd_b: that fencer withdrew, so
+# the other wins and neither rating moves (withdrawalSide in pipeline.js).
+# pri_a or pri_b: that fencer won on priority with the touches level, rated as
+# a normal win (priorityWinner in pipeline.js).
+BOUT_DECISIONS = {
+    # 0-0 with Bosnic marked the winner: a walkover in the final.
+    "Oceania Veterans Championship 2024 / Foil Men Veteran / Final: TYSHCENKO, Andrey v BOSNIC, Colin": "wd_a",
+    # 0-0 with Ustin marked the winner: a walkover.
+    "North Open Championships 2026 / Foil Men Senior / Semi-finals: PAYNE, Graham v USTIN, Nick": "wd_a",
+    # 13-13 with Eyre-Walker marked the winner: a win on priority.
+    "Mid-South Open Championships 2026 / Epee Men Senior / Tableau of 16: DONG, Alex v EYRE-WALKER, Tom": "pri_b",
 }
 
 # Phase A: the two 2026 Nationals (24 to 26 Oct 2026, Christchurch).
 NATIONALS_2026 = [
     "92242dc1-3e3f-4e76-bca8-c3cb77763600",  # NZL National Senior Championships
     "eaa26091-93c6-4d86-b53b-7cd8992f7df8",  # NZL National Veteran Championships
+]
+
+# NZ-hosted Oceania events that fenz_ingest.py never wrote to bouts.csv. Its
+# default --exclude-status (aus int fie) most likely skipped them as
+# international; the old API now errors, so the tag can't be checked.
+OLD_INGEST_SKIPPED = [
+    "4a52d856-edf8-4125-a2f0-7e7e71273078",  # Oceania Veterans Championship 2024, Feilding
+    "d1e64c8b-7508-43d1-abc2-23bc4b1438ab",  # Oceania and NZ National Open 2025 (the 2025 Senior Nationals), Auckland
+]
+
+# Phase B: the NZ competitions between the old API's last data (19 Jul 2026)
+# and the 2026 Nationals.
+PHASE_B = [
+    "ff422f0f-1424-4d23-84e4-3a954d8dbe32",  # South Open Championship 2026 (15 Aug)
+    "1e03593c-a777-4e4c-8464-655fef2fb270",  # North Open Championships 2026 (13 Sep), Auckland
+    "f886c754-fd95-42c8-976d-a3479237c4b6",  # Central Open Championship 2026 (19 to 20 Sep), Feilding
+    "5deb5efb-bb88-4a80-bd47-4ce840df1fe4",  # Mid-South Open Championships 2026 (3 Oct), Christchurch
+    "c385ca67-d8b3-4fb7-a990-29e11b77b0ea",  # Russell Towns Open 2026 (17 to 18 Oct), Dunedin
 ]
 
 UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
@@ -250,8 +302,9 @@ def parse_competition(page: str, comp_id: str) -> dict:
         raise ValueError(f"{comp_id}: no event tabs found")
     head = flat[: flat.find('hx-target="#event-shell"')]
     pieces = [p.strip() for p in re.split(r"<[^>]+>", head) if p.strip()]
-    # The range reads like 2026-10-24, an en dash, 2026-10-26, a middle dot, then the place.
-    date_re = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:\s*\S\s*(\d{4}-\d{2}-\d{2}))?\s*\N{MIDDLE DOT}\s*(.+)$")
+    # The range reads like 2026-10-24, an en dash, 2026-10-26, a middle dot, then
+    # the place. Some competitions list no place: then the date stands alone.
+    date_re = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:\s*\S\s*(\d{4}-\d{2}-\d{2}))?(?:\s*\N{MIDDLE DOT}\s*(.+))?$")
     for i, piece in enumerate(pieces):
         m = date_re.match(html.unescape(piece))
         if m and i > 0:
@@ -260,7 +313,7 @@ def parse_competition(page: str, comp_id: str) -> dict:
                 "name": html.unescape(pieces[i - 1]),
                 "start": m.group(1),
                 "end": m.group(2) or m.group(1),
-                "place": html.unescape(m.group(3)).strip(),
+                "place": html.unescape(m.group(3) or "").strip(),
                 "events": [(eid, html.unescape(label).strip()) for eid, label in events],
             }
     raise ValueError(f"{comp_id}: competition name and dates not found")
@@ -383,6 +436,9 @@ class KnownNames:
     weapons: dict[str, set] = field(default_factory=lambda: defaultdict(set))
     clubs: dict[str, set] = field(default_factory=lambda: defaultdict(set))
     latest_club: dict[str, tuple[str, str]] = field(default_factory=dict)  # key -> (date, club)
+    # Key with no bouts on the site -> site spellings that share a registry
+    # record with it. Listed for review only: the record may hold a stray alias.
+    registry_site: dict[str, set] = field(default_factory=lambda: defaultdict(set))
 
     @classmethod
     def load(cls, bouts_csv: Path, fencers_json: Path) -> "KnownNames":
@@ -418,6 +474,8 @@ class KnownNames:
                     for club in [*(rec.get("clubs") or []), rec.get("current_club") or ""]:
                         if club:
                             k.clubs[key].add(str(club).lower())
+                    if k.source.get(key) != "bouts.csv":
+                        k.registry_site[key].update(k.spelling[x] for x in on_site)
                     if key in k.spelling:
                         continue
                     if owners[key] == 1 and len(on_site) == 1:
@@ -438,6 +496,22 @@ class Resolver:
     new: dict[str, dict] = field(default_factory=dict)       # resolved -> info for review
     aliased: dict[str, str] = field(default_factory=dict)    # portal spelling -> site spelling
     decided: dict[str, str] = field(default_factory=dict)    # portal spelling -> site spelling
+    registry_new: dict[str, dict] = field(default_factory=dict)  # in fencers.json, no bouts on the site
+    _site_keys: list[str] | None = None
+
+    def _site_matches(self, key: str, weapon: str, club: str) -> list[dict]:
+        """Close matches among names with bouts on the site, same weapon or club."""
+        if self._site_keys is None:
+            self._site_keys = [x for x, s in self.known.source.items() if s == "bouts.csv"]
+        out = []
+        for cand, score, _ in process.extract(key, self._site_keys, scorer=fuzz.WRatio,
+                                              score_cutoff=FUZZY_THRESHOLD, limit=8):
+            same_weapon = weapon in self.known.weapons.get(cand, set())
+            same_club = bool(club) and club.lower() in self.known.clubs.get(cand, set())
+            if same_weapon or same_club:
+                out.append({"name": self.known.spelling[cand], "score": round(score, 1),
+                            "same_weapon": same_weapon, "same_club": same_club, "source": "bouts.csv"})
+        return out
 
     def resolve(self, raw: str, weapon: str, club: str, event: str) -> str:
         if raw in self.exact:
@@ -451,6 +525,14 @@ class Resolver:
             resolved = self.known.spelling[key] or display
             if self.known.source.get(key, "").startswith("fencers.json alias"):
                 self.aliased[display] = f"{resolved} ({event})"
+            elif self.known.source.get(key) == "fencers.json":
+                # New to the site although the registry knows the name: check
+                # it against the site's names, as an unknown name is.
+                self.registry_new[resolved] = {
+                    "raw": raw, "club": club, "event": event,
+                    "registry": sorted(self.known.registry_site.get(key, ())),
+                    "close": self._site_matches(key, weapon, club),
+                }
         else:
             resolved = display
             hits = process.extract(key, list(self.known.spelling.keys()), scorer=fuzz.WRatio,
@@ -486,6 +568,8 @@ class EventResult:
     bouts: list[Bout] = field(default_factory=list)       # one copy (no mixed duplicate)
     checks: dict = field(default_factory=dict)
     suspicious: list[str] = field(default_factory=list)
+    decided: list[tuple[str, str]] = field(default_factory=list)  # (BOUT_DECISIONS key, note)
+    comp_name: str = ""                                   # the CSV's competition, before " - Mens|Womens"
 
 
 def competition_name(comp: dict) -> str:
@@ -494,7 +578,20 @@ def competition_name(comp: dict) -> str:
     return name if re.search(r"\b(19|20)\d{2}\b", name) else f"{name} {year}"
 
 
-def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, resolver: Resolver) -> EventResult:
+def name_events(events: list[EventResult]) -> None:
+    """Set each event's CSV competition name. A mixed event that shares its
+    weapon with a men's or women's event of the same competition gets "Mixed"
+    added: written once per gender, its rows would otherwise take the gendered
+    event's competition key, and the site would fold the events together."""
+    gendered = {(ev.comp["id"], ev.weapon) for ev in events if len(ev.genders) == 1}
+    for ev in events:
+        ev.comp_name = competition_name(ev.comp)
+        if len(ev.genders) > 1 and (ev.comp["id"], ev.weapon) in gendered:
+            ev.comp_name += " Mixed"
+
+
+def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, resolver: Resolver,
+                 comp_clubs: dict[str, str] | None = None) -> EventResult:
     base = f"{BASE_URL}/competitions/{comp['id']}/events/{event_id}"
     weapon, genders, _category = parse_event_label(label)
     ev_date, standings = parse_standings(client.get(base))
@@ -502,12 +599,15 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
     rounds = parse_bracket(client.get(base + "/bracket"))
     ev = EventResult(comp, event_id, label, weapon, genders, ev_date, standings, pools, rounds)
     club_of = {r["raw"]: r["club"] for r in standings}
+    comp_clubs = comp_clubs or {}
     tag = f"{comp['name']} / {label}"
 
     def person(raw: str) -> tuple[str, str]:
-        club = club_of.get(raw, "")
-        if raw not in club_of:
-            ev.suspicious.append(f"{tag}: {raw!r} fenced but is not in the final standings (no club)")
+        # A pool-only event can have no standings of its own; the fencer's
+        # club then comes from another event of the same competition.
+        club = club_of.get(raw) or comp_clubs.get(raw, "")
+        if raw not in club_of and raw not in comp_clubs:
+            ev.suspicious.append(f"{tag}: {raw!r} fenced but is in no standings of this competition (no club)")
         return resolver.resolve(raw, weapon, club, tag), club
 
     # Pools: one row per pair, the lower pool position as fencer A.
@@ -553,19 +653,26 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
                 ev.suspicious.append(f"{tag} {rnd['title']}: {names[0]} v {names[1]} has scores {scores}; left out")
                 continue
             sa, sb = int(scores[0]), int(scores[1])
-            if win is None:
+            dkey = f"{tag} / {rnd['title']}: {names[0]} v {names[1]}"
+            decision = BOUT_DECISIONS.get(dkey, "")
+            if decision:
+                ev.decided.append((dkey, f"{tag} {rnd['title']}: {names[0]} {sa} v {names[1]} {sb}: written with flag {decision}"))
+                marked = {"wd_a": 1, "wd_b": 0, "pri_a": 0, "pri_b": 1}.get(decision)  # card index of the winner
+                if marked is not None and win != marked:
+                    ev.suspicious.append(f"{dkey}: flag {decision} disagrees with the winner the portal marks")
+            elif win is None:
                 ev.suspicious.append(f"{tag} {rnd['title']}: {names[0]} {sa} v {names[1]} {sb}: no winner marked")
             elif (win == 0 and sa <= sb) or (win == 1 and sb <= sa):
                 ev.suspicious.append(f"{tag} {rnd['title']}: {names[0]} {sa} v {names[1]} {sb}: the marked winner "
                                      f"({names[win]}) does not have more touches")
-            if sa == 0 and sb == 0:
+            if sa == 0 and sb == 0 and not decision:
                 ev.suspicious.append(f"{tag} {rnd['title']}: {names[0]} v {names[1]} is 0-0")
             a_name, a_club = person(names[0])
             b_name, b_club = person(names[1])
             ev.bouts.append(Bout(date=comp["start"], competition="", weapon=weapon, gender="",
                                  bout_type="de", a_name=a_name, a_club=a_club, a_uid=None,
                                  b_name=b_name, b_club=b_club, b_uid=None, score_a=sa, score_b=sb,
-                                 de_round=label_round))
+                                 de_round=label_round, flag=decision))
             de_rows += 1
 
     entrants = len(standings)
@@ -573,7 +680,7 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
     ev.checks = {
         "entrants": entrants, "pool_entrants": pool_entrants, "pools": len(pools),
         "pool_expected": expected_pool, "pool_rows": pool_rows, "pool_gaps": gaps,
-        "de_expected": entrants - 1, "de_rows": de_rows,
+        "de_expected": max(entrants - 1, 0), "de_rows": de_rows,
         "rounds": [f"{r['title']}:{len(r['cards'])}" for r in rounds],
     }
     return ev
@@ -582,7 +689,7 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
 def write_rows(events: list[EventResult], out_path: Path) -> int:
     rows = []
     for ev in events:
-        comp_name = competition_name(ev.comp)
+        comp_name = ev.comp_name or competition_name(ev.comp)
         for gender in ev.genders:  # a mixed event: once per gender, identical rows
             for b in ev.bouts:
                 b2 = Bout(**{**b.__dict__, "competition": f"{comp_name} - {gender}", "gender": gender})
@@ -602,25 +709,46 @@ def review(events: list[EventResult], resolver: Resolver, known: KnownNames, cli
     out.append("")
     out.append("| Event | Entrants | Pools | Pool bouts (expected) | DE bouts (entrants minus 1) | Rounds |")
     out.append("|---|---|---|---|---|---|")
-    all_ok = True
+    def balanced(evs: list[EventResult]) -> bool:
+        s = lambda k: sum(e.checks[k] for e in evs)  # noqa: E731
+        return (s("pool_rows") + s("pool_gaps") == s("pool_expected") and s("de_rows") == s("de_expected")
+                and s("entrants") == s("pool_entrants"))
+
+    # A competition can run one mixed pool and then separate men's and women's
+    # DEs, so the counts are also checked over each competition and weapon.
+    by_weapon: dict[tuple, list] = defaultdict(list)
+    for ev in events:
+        by_weapon[(ev.comp["id"], ev.weapon)].append(ev)
+    all_ok, together = True, 0
     for ev in events:
         c = ev.checks
         ok_pool = c["pool_rows"] + c["pool_gaps"] == c["pool_expected"]
         ok_de = c["de_rows"] == c["de_expected"]
         ok_ent = c["entrants"] == c["pool_entrants"]
-        all_ok &= ok_pool and ok_de and ok_ent
+        group_ok = balanced(by_weapon[(ev.comp["id"], ev.weapon)])
+        alone_ok = ok_pool and ok_de and ok_ent
+        all_ok &= alone_ok or group_ok
+        together += (not alone_ok and group_ok)
         out.append(f"| {ev.comp['name']} / {ev.label} | {c['entrants']}"
                    f"{'' if ok_ent else ' (pools: ' + str(c['pool_entrants']) + ')'} | {c['pools']} | "
                    f"{c['pool_rows']} ({c['pool_expected']}{', gaps ' + str(c['pool_gaps']) if c['pool_gaps'] else ''})"
                    f"{'' if ok_pool else ' MISMATCH'} | {c['de_rows']} ({c['de_expected']}){'' if ok_de else ' MISMATCH'} | "
-                   f"{' '.join(c['rounds'])} |")
+                   f"{' '.join(c['rounds'])}{' (balances with the other ' + ev.weapon + ' events)' if not alone_ok and group_ok else ''} |")
     out.append("")
-    out.append("All counts match." if all_ok else "**Some counts do not match: see above.**")
+    out.append(("All counts match" + (f", {together} of them only with the competition's other events in the same weapon." if together else "."))
+               if all_ok else "**Some counts do not match: see above.**")
     out.append("")
     sus = [s for ev in events for s in ev.suspicious]
     out.append(f"## Suspicious bouts ({len(sus)})")
     out.append("")
     out += [f"- {s}" for s in sus] or ["None: no 0-0, missing scores, ties, or winners with fewer touches."]
+    out.append("")
+    decided = [d for ev in events for d in ev.decided]
+    unused = sorted(set(BOUT_DECISIONS) - {k for k, _ in decided})
+    out.append(f"## Bouts decided by hand (BOUT_DECISIONS, {len(decided)})")
+    out.append("")
+    out += [f"- {note}" for _, note in decided] or ["None."]
+    out += [f"- Not found in this run: {k}" for k in unused]
     out.append("")
     out.append(f"## Names merged by decision (NAME_DECISIONS, {len(resolver.decided)})")
     out.append("")
@@ -651,20 +779,50 @@ def review(events: list[EventResult], resolver: Resolver, known: KnownNames, cli
         for name, info in sorted(unmatched.items()):
             out.append(f"- {name} ({info['club'] or 'no club'}, {info['event']})")
         out.append("")
-    # Existing fencers whose club differs from their latest club in bouts.csv.
-    changes = {}
+    reg = resolver.registry_new
+    likely = {k: v for k, v in reg.items() if v["registry"] or v["close"]}
+    out.append(f"## New to the site, known to fencers.json ({len(reg)}): {len(likely)} may already be on the site")
+    out.append("")
+    out.append("These names have no bouts on the site yet, so each starts a new fencer. Nothing was merged. "
+               "A registry link means a fencers.json record lists this name and a spelling that has bouts on the site; "
+               "close matches are as above. Add a confirmed one to NAME_DECISIONS.")
+    out.append("")
+    for name, info in sorted(likely.items()):
+        bits = []
+        if info["registry"]:
+            bits.append("registry link to " + ", ".join(info["registry"]))
+        if info["close"]:
+            bits.append("close: " + "; ".join(
+                f"{c['name']} ({c['score']}, {'weapon' if c['same_weapon'] else ''}"
+                f"{' and ' if c['same_weapon'] and c['same_club'] else ''}{'club' if c['same_club'] else ''})"
+                for c in info["close"]))
+        out.append(f"- **{name}** ({info['club'] or 'no club'}, {info['event']}): {'; '.join(bits)}")
+    rest = sorted(k for k in reg if k not in likely)
+    if rest:
+        out.append("")
+        out.append(f"No likely match ({len(rest)}): " + ", ".join(
+            f"{k} ({reg[k]['club'] or 'no club'})" for k in rest))
+    out.append("")
+    # Existing fencers whose club differs from their latest club in bouts.csv,
+    # when this run holds their latest bout, so the site's shown club changes.
+    latest_run: dict[str, tuple] = {}
     for ev in events:
         for r in ev.standings:
             resolved = resolver.exact.get(r["raw"])
-            if not resolved:
+            if not resolved or not r["club"]:
                 continue
             key = name_key(resolved)
-            prev = known.latest_club.get(key)
-            if prev and r["club"] and r["club"].lower() != prev[1].lower():
-                changes[resolved] = (prev[1], r["club"], ev.label)
+            if key not in latest_run or ev.comp["start"] >= latest_run[key][0]:
+                latest_run[key] = (ev.comp["start"], resolved, r["club"], f"{ev.comp_name or competition_name(ev.comp)} / {ev.label}")
+    changes = {}
+    for key, (start, resolved, club, tag) in latest_run.items():
+        prev = known.latest_club.get(key)
+        if prev and start >= prev[0] and club.lower() != prev[1].lower():
+            changes[resolved] = (prev[1], club, tag)
     out.append(f"## Club differs from the latest club in bouts.csv ({len(changes)})")
     out.append("")
-    out.append("The site shows each fencer's most recent club, so these would change on the site (unless an alias in pipeline.js maps them together).")
+    out.append("The site shows each fencer's most recent club, so these would change on the site (unless an alias in pipeline.js maps them together). "
+               "A fencer with later bouts in bouts.csv keeps that club and is not listed.")
     out.append("")
     out += [f"- {n}: {a} -> {b} ({ev})" for n, (a, b, ev) in sorted(changes.items())] or ["None."]
     out.append("")
@@ -675,14 +833,22 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--comp", nargs="*", default=[], help="portal competition UUIDs")
     ap.add_argument("--nationals-2026", action="store_true", help="Phase A: both 2026 Nationals")
+    ap.add_argument("--old-ingest-skipped", action="store_true",
+                    help="the NZ-hosted Oceania events the old ingest skipped (OLD_INGEST_SKIPPED)")
+    ap.add_argument("--phase-b", action="store_true",
+                    help="NZ competitions from 19 Jul 2026 to the 2026 Nationals (PHASE_B)")
     ap.add_argument("--out", default=str(INGEST_DIR / "bouts_portal.csv"))
     ap.add_argument("--offline", action="store_true", help="use the cache only; send no requests")
+    ap.add_argument("--replace", action="store_true",
+                    help="allow dropping competitions that --out already holds")
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-    comp_ids = list(args.comp) + (NATIONALS_2026 if args.nationals_2026 else [])
+    comp_ids = list(args.comp) + (OLD_INGEST_SKIPPED if args.old_ingest_skipped else []) \
+        + (PHASE_B if args.phase_b else []) + (NATIONALS_2026 if args.nationals_2026 else [])
+    comp_ids = list(dict.fromkeys(comp_ids))
     if not comp_ids:
-        ap.error("give --comp UUID ... or --nationals-2026")
+        ap.error("give --comp UUID ..., --old-ingest-skipped, --phase-b or --nationals-2026")
     if Path(args.out).resolve() == (INGEST_DIR / "bouts.csv").resolve():
         ap.error("refusing to write bouts.csv: the portal ingest writes its own file")
 
@@ -692,19 +858,41 @@ def main() -> int:
     events: list[EventResult] = []
     for cid in comp_ids:
         comp = parse_competition(client.get(f"{BASE_URL}/competitions/{cid}"), cid)
-        print(f"[portal] {comp['name']} ({comp['start']} to {comp['end']}, {comp['place']}): {len(comp['events'])} events")
+        print(f"[portal] {comp['name']} ({comp['start']} to {comp['end']}, {comp['place'] or 'no place listed'}): "
+              f"{len(comp['events'])} events")
+        # Clubs from every event's standings (the pages ingest_event reads
+        # next, so no extra requests), for a fencer an event doesn't list.
+        comp_clubs: dict[str, str] = {}
+        for eid, _label in comp["events"]:
+            for r in parse_standings(client.get(f"{BASE_URL}/competitions/{cid}/events/{eid}"))[1]:
+                if r["club"]:
+                    comp_clubs.setdefault(r["raw"], r["club"])
         for eid, label in comp["events"]:
-            ev = ingest_event(client, comp, eid, label, resolver)
+            ev = ingest_event(client, comp, eid, label, resolver, comp_clubs)
             c = ev.checks
             print(f"[portal]   {label}: {c['entrants']} entrants, {c['pool_rows']} pool + {c['de_rows']} DE bouts"
                   f"{' (mixed: written for Mens and Womens)' if len(ev.genders) > 1 else ''}")
             events.append(ev)
+    name_events(events)
 
-    n = write_rows(events, Path(args.out))
+    # write_rows replaces the whole file, so a run that leaves out a competition
+    # the file already holds would drop its rows without a word.
+    out_path = Path(args.out)
+    if out_path.exists() and not args.replace:
+        writing = {f"{ev.comp_name} - {g}" for ev in events for g in ev.genders}
+        with open(out_path, encoding="utf-8", newline="") as f:
+            held = {r["competition"] for r in csv.DictReader(f)}
+        dropped = sorted(held - writing)
+        if dropped:
+            print(f"[portal] {args.out} also holds {', '.join(dropped)}, which this run would drop. "
+                  "Add those competitions to the run (see OLD_INGEST_SKIPPED, PHASE_B and NATIONALS_2026), "
+                  "or pass --replace. Nothing written.", file=sys.stderr)
+            return 1
+    n = write_rows(events, out_path)
     print(f"[portal] wrote {n} rows to {args.out} ({client.requests_made} requests sent this run)")
 
     standings = [{
-        "competition": competition_name(ev.comp), "weapon": ev.weapon, "genders": ev.genders,
+        "competition": ev.comp_name, "weapon": ev.weapon, "genders": ev.genders,
         "date": ev.comp["start"], "event": ev.label, "event_date": ev.date,
         "standings": [{"rank": r["rank"], "name": resolver.exact.get(r["raw"], title_name(r["raw"])),
                        "club": r["club"], "nation": r["nation"]} for r in ev.standings],
