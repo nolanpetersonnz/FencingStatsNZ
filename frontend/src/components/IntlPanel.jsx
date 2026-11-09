@@ -58,9 +58,10 @@ export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
   return (
     <div>
       <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 6 }}>
-        Prototype of the international results panel (PANELS.md section 2). Records stay in this browser and
-        are never sent anywhere. The points table and event list are placeholders until FeNZ sets them, and only
-        made-up results belong here.
+        FeNZ's side of the international results prototype (PANELS.md section 2): the review queue, results
+        entered from email, the points table and the event list. Fencers see what counts, the submission form
+        and the results on the International tab. Records stay in this browser and are never sent anywhere; the
+        table and list are placeholders until FeNZ sets them, and only made-up results belong here.
       </p>
       <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 14 }}>
         Points table v{state.policy.version}. {state.records.length} result{state.records.length === 1 ? '' : 's'} stored.
@@ -197,15 +198,17 @@ function Queue({ state, who, today, persist, fail }) {
   );
 }
 
-// ---- Admin entry (PANELS.md 2.4, screen 1, entered by an admin while sign-in is paused) ----
+// ---- A result's form (PANELS.md 2.4, screen 1). The International tab uses it
+// for a fencer's own submission; here, FeNZ enters one sent by email while
+// sign-in is paused. Both go to the review queue. -----------------------------
 
 const blank = {
   fencer: '', weapon: 'epee', gender: 'mens', category: 'senior', event: '', organiser: '', country: '', city: '',
   level: 'national_championship', date: '', results_url: '', placing: '', field_size: '', made_de: '', residence: 'overseas',
 };
 
-function AddResult({ fencers, today, onAdd, fail }) {
-  const [form, setForm] = useState(blank);
+export function AddResult({ fencers, today, onAdd, fail, intro, submitLabel = 'Add to the review queue', defaults = {} }) {
+  const [form, setForm] = useState(() => ({ ...blank, ...defaults }));
   const [filter, setFilter] = useState('');
   const list = useMemo(() => Object.values(fencers)
     .map((f) => ({ key: f.key, name: f.name, club: f.club || '' }))
@@ -219,7 +222,7 @@ function AddResult({ fencers, today, onAdd, fail }) {
     const out = validateResult({ ...form, fencer_name: picked?.name, made_de: made }, { today });
     if (out.error) { fail(out.error); return; }
     onAdd(newRecord(out.value, { id: newId(), now: new Date().toISOString() }));
-    setForm(blank);
+    setForm({ ...blank, ...defaults });
   };
 
   const field = (k, l, el) => (
@@ -237,7 +240,7 @@ function AddResult({ fencers, today, onAdd, fail }) {
   return (
     <div style={{ maxWidth: 760 }}>
       <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 14 }}>
-        From a fencer's email or form, while sign-in is paused. Every field as published on the official results page.
+        {intro ?? 'From a fencer\'s email or form, while sign-in is paused. Every field as published on the official results page.'}
       </p>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
         {field('find', 'Find fencer', <input id="intl-find" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Type part of a name" style={input} />)}
@@ -272,7 +275,7 @@ function AddResult({ fencers, today, onAdd, fail }) {
         {form.level === 'fie' && field('made_de', 'Reached the DE?', select('made_de', ['', 'yes', 'no'], { '': 'Pick one', yes: 'Yes', no: 'No, out in the pools' }))}
         {field('residence', 'Lived at the time', select('residence', RESIDENCES, { overseas: 'Overseas', nz: 'In NZ' }))}
       </div>
-      <button onClick={submit} className="fl-pill">Add to the review queue</button>
+      <button onClick={submit} className="fl-pill">{submitLabel}</button>
     </div>
   );
 }

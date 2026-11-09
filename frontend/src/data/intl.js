@@ -224,6 +224,8 @@ export function publicStatus(rec, today) {
 // Visitor-facing wording, picked by Nolan on 9 Nov 2026 ("International results").
 export const INTL_HEADING = 'International results';
 export const INTL_NOTE = 'Placings at events overseas, checked by FeNZ against the official results.';
+// The International tab's heading line, picked by Nolan on 9 Nov 2026.
+export const INTL_PAGE_NOTE = 'Results at events overseas, checked by FeNZ against the official results, and whether each counts toward the FeNZ ranking.';
 export function statusText(status, rec) {
   if (status.counts) return `Counts toward the FeNZ ranking: ${status.points} pts`;
   if (status.reason === 'small_field') return `Not counted: fewer than ${rec.min_field} fencers`;
@@ -237,6 +239,33 @@ export function profileResults(records, fencer, weapon, today) {
     .map((r) => ({ rec: r, status: publicStatus(r, today) }))
     .filter((x) => x.status)
     .sort((a, b) => b.rec.date.localeCompare(a.rec.date));
+}
+
+// The International tab's results: every approved result this panel scores,
+// for the weapon and gender the header has selected ('M' or 'W'), newest first.
+const GENDER_OF = { M: 'mens', W: 'womens' };
+const forView = (r, weapon, gender) => r.weapon === weapon && (!gender || r.gender === GENDER_OF[gender]);
+
+export function publicResults(records, { weapon, gender, today }) {
+  return (records || [])
+    .filter((r) => forView(r, weapon, gender))
+    .map((r) => ({ rec: r, status: publicStatus(r, today) }))
+    .filter((x) => x.status)
+    .sort((a, b) => b.rec.date.localeCompare(a.rec.date));
+}
+
+export function waitingCount(records, { weapon, gender }) {
+  return (records || []).filter((r) => r.status === 'pending' && forView(r, weapon, gender)).length;
+}
+
+// The place bands in words: "1st 100%", "4th to 8th 50%".
+export function describePlaces(shares) {
+  let from = 1;
+  return shares.map(([upto, share]) => {
+    const places = from === upto ? ordinal(upto) : `${ordinal(from)} to ${ordinal(upto)}`;
+    from = upto + 1;
+    return `${places} ${Math.round(share * 100)}%`;
+  });
 }
 
 // Admin-side label for any status, including the ones the profile leaves off.

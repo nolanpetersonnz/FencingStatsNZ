@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   PLACEHOLDER_POLICY, initialLog, validateResult, newRecord, reviewResult, scoreResult, placingShare,
   publicStatus, statusText, profileResults, adminStatusText, softCapQualifier, coversAgeGroup, meetsSoftCap,
-  changePolicy, validatePolicy, addMonths, ordinal,
+  changePolicy, validatePolicy, addMonths, ordinal, publicResults, waitingCount, describePlaces,
 } from '../src/data/intl.js';
 import { testIntlState, TEST_FENCERS } from '../src/data/intlTestData.js';
 import { makeDemoBouts, nameKey } from '../src/data/pipeline.js';
@@ -151,6 +151,22 @@ test('a change to the table or list is a new version with a logged author and cl
   assert.match(validatePolicy({ ...P, list: [...P.list, { id: 'x', country: 'NZL', event: 'Nationals', level: 'national_championship' }] }), /NZL/);
   assert.match(validatePolicy({ ...P, list: [...P.list, P.list[0]] }), /own id/);
   assert.equal(validatePolicy(P), null);
+});
+
+test('the International tab lists approved results for the weapon and gender selected, newest first', () => {
+  const st = testIntlState(TODAY);
+  const mensEpee = publicResults(st.records, { weapon: 'epee', gender: 'M', today: TODAY });
+  assert.deepEqual(mensEpee.map((x) => x.rec.event), ['National Championships (test)', 'National circuit, round 2 (test)']);
+  assert.deepEqual(publicResults(st.records, { weapon: 'epee', gender: 'W', today: TODAY }).map((x) => x.rec.fencer), ['charlotte reeves']);
+  // Women's foil: the Italian regional shows; the Australian one is FeNZ's own ranking's, so it doesn't.
+  assert.deepEqual(publicResults(st.records, { weapon: 'foil', gender: 'W', today: TODAY }).map((x) => x.rec.country), ['ITA']);
+  assert.equal(waitingCount(st.records, { weapon: 'epee', gender: 'M' }), 2);
+  assert.equal(waitingCount(st.records, { weapon: 'foil', gender: 'W' }), 0);
+});
+
+test('the place bands read as words', () => {
+  assert.deepEqual(describePlaces(PLACEHOLDER_POLICY.placing_shares),
+    ['1st 100%', '2nd 80%', '3rd 65%', '4th to 8th 50%', '9th to 16th 35%', '17th to 32nd 20%', '33rd to 64th 10%']);
 });
 
 test('the test data uses only the demo fencers, and shows each rule', () => {

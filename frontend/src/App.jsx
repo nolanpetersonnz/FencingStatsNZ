@@ -10,6 +10,7 @@ import EmptyState from './components/EmptyState.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
 import FencerProfile from './components/FencerProfile.jsx';
 import Competitions from './components/Competitions.jsx';
+import IntlPage from './components/IntlPage.jsx';
 import CompetitionDetail from './components/CompetitionDetail.jsx';
 import Clubs from './components/Clubs.jsx';
 import ClubDetail from './components/ClubDetail.jsx';
@@ -291,6 +292,10 @@ export default function App() {
           <Clubs fencers={fencers} gender={gender} weapon={weapon} onSelectClub={goClub} />
         ) : view === 'h2h' ? (
           <HeadToHead fencers={fencers} bouts={bouts} weapon={weapon} gender={gender} settings={settings} onSelectFencer={goFencer} />
+        ) : view === 'intl' ? (
+          // The International tab (prototype). Its demo button loads the demo
+          // fencers without leaving the page, unlike the admin import.
+          <IntlPage fencers={fencers} weapon={weapon} gender={gender} onSelectFencer={goFencer} onLoadDemo={() => setRawBouts(makeDemoBouts())} />
         ) : view === 'method' ? (
           <Method bouts={bouts} settings={settings} />
         ) : view === 'faq' ? (

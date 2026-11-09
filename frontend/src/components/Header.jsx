@@ -108,6 +108,7 @@ export default function Header({ view, setView, weapon, setWeapon, gender, setGe
             <button type="button" className={`fl-tab ${view === 'competitions' ? 'active' : ''}`} aria-current={view === 'competitions' ? 'page' : undefined} onClick={() => setView('competitions')}>Competitions</button>
             <button type="button" className={`fl-tab ${view === 'clubs' ? 'active' : ''}`} aria-current={view === 'clubs' ? 'page' : undefined} onClick={() => setView('clubs')}>Clubs</button>
             <button type="button" className={`fl-tab ${view === 'h2h' ? 'active' : ''}`} aria-current={view === 'h2h' ? 'page' : undefined} onClick={() => setView('h2h')}>Head-to-Head</button>
+            <button type="button" className={`fl-tab ${view === 'intl' ? 'active' : ''}`} aria-current={view === 'intl' ? 'page' : undefined} onClick={() => setView('intl')}>International</button>
             <button type="button" className={`fl-tab ${view === 'method' ? 'active' : ''}`} aria-current={view === 'method' ? 'page' : undefined} onClick={() => setView('method')}>Method</button>
             <button type="button" className={`fl-tab ${view === 'faq' ? 'active' : ''}`} aria-current={view === 'faq' ? 'page' : undefined} onClick={() => setView('faq')}>FAQ</button>
           </nav>
