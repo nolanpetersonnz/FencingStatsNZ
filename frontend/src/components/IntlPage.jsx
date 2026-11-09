@@ -163,8 +163,8 @@ export default function IntlPage({ fencers = {}, shipped = [], picked, onPick, o
                       <span style={{ color: verdict.fenz ? 'var(--ink)' : 'var(--ink-soft)' }}>{said.event}</span>
                     </span>
                     <span>
-                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>Points</span>
-                      <span className="fl-mono" style={{ fontWeight: verdict.points ? 600 : 400 }}>{said.points}</span>
+                      <span className="fl-smallcaps" style={{ fontSize: '0.6rem', marginRight: 6 }}>{said.ranking ? 'Ranking' : 'Points'}</span>
+                      <span className="fl-mono" style={{ fontWeight: verdict.points || said.ranking === 'Yes' ? 600 : 400 }}>{said.ranking ?? said.points}</span>
                     </span>
                   </div>
                 </div>

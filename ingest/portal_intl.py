@@ -42,6 +42,8 @@ Each record:
   - results_url: the event's page on the portal
   - status approved, reason fenz_portal: FeNZ's own record, so there is
     nothing to review here, and any points come from FeNZ's ranking
+  - fenz_ranking: whether FeNZ's ranking recognises the result, by the rule
+    its ranking portal publishes (in_fenz_ranking, below)
 Only these fields are written: no clubs, birth dates, licence numbers or age
 bands, whatever the portal shows.
 """
@@ -70,6 +72,20 @@ PLACE_CODES = {
     "Hong Kong": "HKG", "India": "IND", "Indonesia": "INA", "Singapore": "SGP",
 }
 NZ_NATIONS = {"NZL", "NZ", "NEW ZEALAND"}
+
+# FeNZ's ranking "recognises listed Australian Competitions, and all FIE
+# results" (FeNZ ranking portal, dev.fencing.org.nz, The Ranking System, read
+# 9 Nov 2026). Its points table names the Australian ones: AFC #1 to #4
+# (Senior and Veteran), the Australian Championships (Senior and Veteran) and
+# the Australian U20, U17 and U15 Championships. On the results portal those
+# are the AFC rounds (also "Australian Fencing Circuit #2", "D.H. Mckenzie
+# (AFC#1)"), the Robyn Chaplin Championships (read as the Australian
+# Championships: Senior and Veteran, end of May), and the Australian Junior,
+# Cadet and Youth (U15) Championships. Not listed: the Australian Youth
+# Circuit.
+AUS_LISTED = re.compile(
+    r"(?i)\bAFC\s*#?\s*[1-4]\b|\bAustralian Fencing Circuit\s*#?\s*[1-4]\b|\bRobyn Chaplin\b"
+    r"|\bAustralian (Junior|Cadet|Youth) Championships\b")
 GENDER_WORDS = re.compile(r"(?i)^(foil|epee|épée|sabre|saber|men|mens|women|womens|ladies|male|female|mixed)$")
 
 
@@ -166,6 +182,12 @@ def level_of(comp: dict) -> str:
     return "national_championship" if re.search(r"(?i)championship", comp["name"]) else "national_circuit"
 
 
+def in_fenz_ranking(comp: dict) -> bool:
+    """FeNZ's published rule: every FIE result, and the listed Australian
+    competitions (AUS_LISTED)."""
+    return level_of(comp) == "fie" or bool(AUS_LISTED.search(comp["name"]))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--refresh-list", action="store_true", help="fetch the competitions list again")
@@ -254,6 +276,7 @@ def main() -> int:
             "made_de": None,
             "status": "approved",
             "reason": "fenz_portal",
+            "fenz_ranking": in_fenz_ranking(comp),
         })
 
     dupes = [k for k, n in Counter(r["id"] for r in records).items() if n > 1]

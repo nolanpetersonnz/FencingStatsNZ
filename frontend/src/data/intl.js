@@ -256,19 +256,35 @@ export function profileResults(records, fencer, weapon, today) {
   return fencerResults(records, fencer, today).results.filter(({ rec }) => rec.weapon === weapon);
 }
 
+// FeNZ's ranking "recognises listed Australian Competitions, and all FIE
+// results" (its ranking portal, The Ranking System, read 9 Nov 2026); the
+// listed Australian ones are AFC #1 to #4, the Australian Championships and
+// the Australian U20, U17 and U15 Championships. A portal result carries the
+// answer from the ingest (fenz_ranking, ingest/portal_intl.py). For one
+// entered here: FIE yes; Australian yes for a national championship or
+// national circuit event (the Australian Championships, the AFC), else no.
+export function inFenzRanking(rec) {
+  if (typeof rec.fenz_ranking === 'boolean') return rec.fenz_ranking;
+  if (rec.level === 'fie') return true;
+  return rec.country === 'AUS' && (rec.level === 'national_championship' || rec.level === 'national_circuit');
+}
+
 // The International tab answers two things for each of a fencer's approved
-// results: is it an event FeNZ counts, and how many points it earns.
+// results: is it an event FeNZ counts, and how many points it earns, or, for
+// a result FeNZ's own ranking handles, whether that ranking recognises it.
 //   fenz: true for an event on FeNZ's list or an FIE event (FeNZ's own
 //         ranking counts every FIE result); null for an Australian one, as
 //         FeNZ's ranking counts only the competitions it lists (PANELS.md 0)
 //   why:  'listed' | 'fie' | 'australian' | 'not_listed'
 //   points: the points, or null where FeNZ's own ranking sets them
+//   ranked: where points is null, whether FeNZ's ranking recognises it
 //   note: null | 'small_field' | 'expired', when a listed event earns 0
 export function eventVerdict(rec, today) {
   if (rec.reason === 'fenz_portal') {
+    const ranked = inFenzRanking(rec);
     return rec.level === 'fie'
-      ? { fenz: true, why: 'fie', points: null, note: null }
-      : { fenz: null, why: 'australian', points: null, note: null };
+      ? { fenz: true, why: 'fie', points: null, ranked, note: null }
+      : { fenz: null, why: 'australian', points: null, ranked, note: null };
   }
   if (rec.reason === 'not_on_list') return { fenz: false, why: 'not_listed', points: 0, note: null };
   if (rec.reason === 'small_field') return { fenz: true, why: 'listed', points: 0, note: 'small_field' };
@@ -331,6 +347,7 @@ export function shippedResults(json) {
       status: 'approved',
       reason: 'fenz_portal',
       source: 'fenz_portal',
+      fenz_ranking: typeof r.fenz_ranking === 'boolean' ? r.fenz_ranking : null,
       counts: null,
       points: null,
     });
@@ -349,13 +366,15 @@ export function applyMerges(records, merges) {
 }
 
 // The two answers in words (visitor-facing; wording picked by Nolan, 9 Nov 2026).
+// The second answer is "Ranking: Yes" or "No" where FeNZ's own ranking
+// handles the result (Nolan, 9 Nov 2026), else the points this panel gives.
 export function verdictText(v, rec) {
   const event = v.why === 'listed' ? "Yes, on FeNZ's list"
     : v.why === 'fie' ? "Yes, FIE: in FeNZ's ranking"
     : v.why === 'australian' ? "Australian: FeNZ's ranking decides"
     : "No, not on FeNZ's list";
-  const points = v.points === null ? "From FeNZ's ranking"
-    : v.note === 'small_field' ? `0 (fewer than ${rec.min_field} fencers)`
+  if (v.points === null) return { event, ranking: v.ranked ? 'Yes' : 'No' };
+  const points = v.note === 'small_field' ? `0 (fewer than ${rec.min_field} fencers)`
     : v.note === 'expired' ? `0 (older than ${rec.window_months} months)`
     : String(v.points);
   return { event, points };

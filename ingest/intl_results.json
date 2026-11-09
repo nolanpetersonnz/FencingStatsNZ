@@ -22,7 +22,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:015b9abc-8fbc-45c8-bb9b-a28989488917:stuart campbell",
@@ -44,7 +45,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:015b9abc-8fbc-45c8-bb9b-a28989488917:timothy shires",
@@ -66,7 +68,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:97af0f07-db3f-4bcd-9b65-3631e3810577:helen wang",
@@ -88,7 +91,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b767c8cf-dd3c-49aa-908d-12f163719c3c:jacob takuira-mita",
@@ -110,7 +114,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:bf049bdf-21f8-4b58-aefd-2b98325e2aad:sophia tweddle",
@@ -132,7 +137,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:65a9a2a5-078a-419b-9cea-5082d18f27e4:joel ball-la hood",
@@ -154,7 +160,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:65a9a2a5-078a-419b-9cea-5082d18f27e4:jacob takuira-mita",
@@ -176,7 +183,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:65a9a2a5-078a-419b-9cea-5082d18f27e4:matthew baker",
@@ -198,7 +206,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:65a9a2a5-078a-419b-9cea-5082d18f27e4:daniel gourley",
@@ -220,7 +229,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:65a9a2a5-078a-419b-9cea-5082d18f27e4:jonathan shih",
@@ -242,7 +252,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:maia smith",
@@ -264,7 +275,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:nicole zhou",
@@ -286,7 +298,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:ting xuan hu",
@@ -308,7 +321,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:laika stafford",
@@ -330,7 +344,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:alice yan",
@@ -352,7 +367,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:emily yan",
@@ -374,7 +390,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:ivy liu",
@@ -396,7 +413,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:jackie wu",
@@ -418,7 +436,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e15d45b0-7312-4ae9-9b35-9212913218fd:olivia hanqi fu",
@@ -440,7 +459,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2cd1ad97-e89c-4a0d-9e0a-13c4634ef2fa:emily yan",
@@ -462,7 +482,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2cd1ad97-e89c-4a0d-9e0a-13c4634ef2fa:ivy liu",
@@ -484,7 +505,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2cd1ad97-e89c-4a0d-9e0a-13c4634ef2fa:ting xuan hu",
@@ -506,7 +528,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2cd1ad97-e89c-4a0d-9e0a-13c4634ef2fa:olivia hanqi fu",
@@ -528,7 +551,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2cd1ad97-e89c-4a0d-9e0a-13c4634ef2fa:jackie wu",
@@ -550,7 +574,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2cd1ad97-e89c-4a0d-9e0a-13c4634ef2fa:alice yan",
@@ -572,7 +597,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:57f137e1-4d4e-4bc0-aedc-2a0049aaf5aa:jeremy lin",
@@ -594,7 +620,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:57f137e1-4d4e-4bc0-aedc-2a0049aaf5aa:shawn yuchen li",
@@ -616,7 +643,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:57f137e1-4d4e-4bc0-aedc-2a0049aaf5aa:tiger zhong",
@@ -638,7 +666,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:57f137e1-4d4e-4bc0-aedc-2a0049aaf5aa:zhiyuan aiden qin",
@@ -660,7 +689,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:57f137e1-4d4e-4bc0-aedc-2a0049aaf5aa:gavin chen",
@@ -682,7 +712,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:4df78979-ceae-4bb6-850b-b65250c3bbdc:jeremy lin",
@@ -704,7 +735,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:4df78979-ceae-4bb6-850b-b65250c3bbdc:shawn yuchen li",
@@ -726,7 +758,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:4df78979-ceae-4bb6-850b-b65250c3bbdc:gavin chen",
@@ -748,7 +781,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cd41b1b2-1ff5-463a-b4ab-befb09a12414:tiger zhong",
@@ -770,7 +804,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:33cec685-11ea-457f-a48e-586ef5a68635:benedict simpson",
@@ -792,7 +827,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:23d3b387-05ba-4fce-a6a1-ac3e391e1931:stephen peterson",
@@ -814,7 +850,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:71356f87-d0cd-493d-b792-5981b54e7bc5:mary black",
@@ -836,7 +873,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:5bc18d84-6341-43aa-9599-748f142d227d:stephen peterson",
@@ -858,7 +896,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:5bc18d84-6341-43aa-9599-748f142d227d:paul hentschel",
@@ -880,7 +919,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fe0a155d-77ad-424e-8993-99346f7658f7:timothy shires",
@@ -902,7 +942,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fe0a155d-77ad-424e-8993-99346f7658f7:benedict simpson",
@@ -924,7 +965,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:c8cd60e5-1dab-4900-b08e-681f758a5b36:helen wang",
@@ -946,7 +988,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cb6ebc1-451d-4056-9d5b-9a2b79849463:jacob takuira-mita",
@@ -968,7 +1011,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cb6ebc1-451d-4056-9d5b-9a2b79849463:peter kell",
@@ -990,7 +1034,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:352d9922-ec53-487a-9618-d5d653204cda:sophia tweddle",
@@ -1012,7 +1057,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:352d9922-ec53-487a-9618-d5d653204cda:mary black",
@@ -1034,7 +1080,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e8c86127-8a83-4e0a-b774-277aa2fabd07:joel wilson",
@@ -1056,7 +1103,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e8c86127-8a83-4e0a-b774-277aa2fabd07:charlie bioletti",
@@ -1078,7 +1126,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e8c86127-8a83-4e0a-b774-277aa2fabd07:joel ball-la hood",
@@ -1100,7 +1149,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e8c86127-8a83-4e0a-b774-277aa2fabd07:nolan peterson",
@@ -1122,7 +1172,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e8c86127-8a83-4e0a-b774-277aa2fabd07:stephen peterson",
@@ -1144,7 +1195,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e8c86127-8a83-4e0a-b774-277aa2fabd07:jacob takuira-mita",
@@ -1166,7 +1218,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e8c86127-8a83-4e0a-b774-277aa2fabd07:paul hentschel",
@@ -1188,7 +1241,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:40bf1c15-1407-4000-adf0-d5fece25919c:hamish bulmer",
@@ -1210,7 +1264,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:40bf1c15-1407-4000-adf0-d5fece25919c:casper howell",
@@ -1232,7 +1287,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:40bf1c15-1407-4000-adf0-d5fece25919c:detroit evans",
@@ -1254,7 +1310,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:40bf1c15-1407-4000-adf0-d5fece25919c:tommy leigh",
@@ -1276,7 +1333,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3eebac66-35c7-4414-970e-9e2bfd1978a5:ruby ho ting chan",
@@ -1298,7 +1356,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3eebac66-35c7-4414-970e-9e2bfd1978a5:chantelle may",
@@ -1320,7 +1379,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:9dafd587-7c63-48f0-9df8-ff2e5594ebdd:claire cooper",
@@ -1342,7 +1402,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:9dafd587-7c63-48f0-9df8-ff2e5594ebdd:elsie lins",
@@ -1364,7 +1425,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:9dafd587-7c63-48f0-9df8-ff2e5594ebdd:izabella solomon",
@@ -1386,7 +1448,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:9dafd587-7c63-48f0-9df8-ff2e5594ebdd:sophia tweddle",
@@ -1408,7 +1471,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:450fbdf9-c8e5-45fe-bdad-0322a08fcf69:cooper gouge",
@@ -1430,7 +1494,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:450fbdf9-c8e5-45fe-bdad-0322a08fcf69:nolan peterson",
@@ -1452,7 +1517,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:450fbdf9-c8e5-45fe-bdad-0322a08fcf69:matthew baker",
@@ -1474,7 +1540,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:450fbdf9-c8e5-45fe-bdad-0322a08fcf69:sam mcarthur",
@@ -1496,7 +1563,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:bec60156-e504-4fa0-ae20-01a5ccba074e:jiuqing michael yan",
@@ -1518,7 +1586,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:bec60156-e504-4fa0-ae20-01a5ccba074e:samuel li",
@@ -1540,7 +1609,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:bec60156-e504-4fa0-ae20-01a5ccba074e:murphy wang",
@@ -1562,7 +1632,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:bec60156-e504-4fa0-ae20-01a5ccba074e:desmond lin",
@@ -1584,7 +1655,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:emily yan",
@@ -1606,7 +1678,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:yilia chenyi wang",
@@ -1628,7 +1701,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:xiya wang",
@@ -1650,7 +1724,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:ting xuan hu",
@@ -1672,7 +1747,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:ivy liu",
@@ -1694,7 +1770,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:olivia hanqi fu",
@@ -1716,7 +1793,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:alice yan",
@@ -1738,7 +1816,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:yiran guo",
@@ -1760,7 +1839,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:8bc552be-9945-4453-8556-8dd788681e32:chloe kwon",
@@ -1782,7 +1862,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:austin yang",
@@ -1804,7 +1885,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:jeremy lin",
@@ -1826,7 +1908,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:ruihan li",
@@ -1848,7 +1931,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:shawn yuchen li",
@@ -1870,7 +1954,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:victor hao shan",
@@ -1892,7 +1977,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:walter scott",
@@ -1914,7 +2000,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:steven zining wang",
@@ -1936,7 +2023,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:gavin chen",
@@ -1958,7 +2046,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:mason ma",
@@ -1980,7 +2069,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:735ccb56-35a5-4181-8d22-6408ce477ff3:pranav jokhun",
@@ -2002,7 +2092,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:eaeaad47-bafe-4679-9f01-9542d0ef7e42:emmanuel zhang",
@@ -2024,7 +2115,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:eaeaad47-bafe-4679-9f01-9542d0ef7e42:dean yu",
@@ -2046,7 +2138,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:5f506e05-2c23-47a6-a792-bd0275ec98d7:xinrui yuan",
@@ -2068,7 +2161,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:5f506e05-2c23-47a6-a792-bd0275ec98d7:victoria yan",
@@ -2090,7 +2184,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:5f506e05-2c23-47a6-a792-bd0275ec98d7:amelia ho",
@@ -2112,7 +2207,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:56e27c2a-50af-45f5-99cc-8d0dfc576d81:samuel li",
@@ -2134,7 +2230,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:56e27c2a-50af-45f5-99cc-8d0dfc576d81:finley diorio",
@@ -2156,7 +2253,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:56e27c2a-50af-45f5-99cc-8d0dfc576d81:jiuqing michael yan",
@@ -2178,7 +2276,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:56e27c2a-50af-45f5-99cc-8d0dfc576d81:david jokuti",
@@ -2200,7 +2299,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:56e27c2a-50af-45f5-99cc-8d0dfc576d81:desmond lin",
@@ -2222,7 +2322,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:56e27c2a-50af-45f5-99cc-8d0dfc576d81:murphy wang",
@@ -2244,7 +2345,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:56e27c2a-50af-45f5-99cc-8d0dfc576d81:boshu zeng",
@@ -2266,7 +2368,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:emily yan",
@@ -2288,7 +2391,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:yilia chenyi wang",
@@ -2310,7 +2414,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:cassandra gibson",
@@ -2332,7 +2437,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:xiya wang",
@@ -2354,7 +2460,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:olivia hanqi fu",
@@ -2376,7 +2483,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:ivy liu",
@@ -2398,7 +2506,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:alice yan",
@@ -2420,7 +2529,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:chloe kwon",
@@ -2442,7 +2552,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:emily burt",
@@ -2464,7 +2575,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07b107e4-2a8c-4c5d-be0d-a418e7b684f9:ting xuan hu",
@@ -2486,7 +2598,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:tom eyre-walker",
@@ -2508,7 +2621,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:steven zining wang",
@@ -2530,7 +2644,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:corey stephenson",
@@ -2552,7 +2667,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:josh li",
@@ -2574,7 +2690,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:jeremy lin",
@@ -2596,7 +2713,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:shawn yuchen li",
@@ -2618,7 +2736,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:tiger zhong",
@@ -2640,7 +2759,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:mason ma",
@@ -2662,7 +2782,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:finley diorio",
@@ -2684,7 +2805,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:walter scott",
@@ -2706,7 +2828,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:victor hao shan",
@@ -2728,7 +2851,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:austin yang",
@@ -2750,7 +2874,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:gavin chen",
@@ -2772,7 +2897,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:jasper smartt",
@@ -2794,7 +2920,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:matias ureta",
@@ -2816,7 +2943,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:ruihan li",
@@ -2838,7 +2966,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e4a956fc-c043-4764-9a73-4cc38aadd9d3:pranav jokhun",
@@ -2860,7 +2989,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:9c2bbc5d-5cfb-443b-bc7d-0fdee81f6228:daniel ko",
@@ -2882,7 +3012,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:9c2bbc5d-5cfb-443b-bc7d-0fdee81f6228:hamish bulmer",
@@ -2904,7 +3035,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:861d1e0e-e4e6-44a4-b977-7071907aa040:jacob takuira-mita",
@@ -2926,7 +3058,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cde8292c-4540-45e1-8382-317b0053e469:joel wilson",
@@ -2948,7 +3081,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cde8292c-4540-45e1-8382-317b0053e469:matthew baker",
@@ -2970,7 +3104,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cde8292c-4540-45e1-8382-317b0053e469:nick peters",
@@ -2992,7 +3127,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cde8292c-4540-45e1-8382-317b0053e469:jacob takuira-mita",
@@ -3014,7 +3150,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:020daa8d-cdf9-46d2-8748-7cb4e07c88bf:fiona campbell",
@@ -3036,7 +3173,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e9f8351f-ff49-4ec2-ac6a-1e8ab9998412:mary black",
@@ -3058,7 +3196,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e9f8351f-ff49-4ec2-ac6a-1e8ab9998412:sarah currie",
@@ -3080,7 +3219,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e3ffdd9f-bfbe-4f72-8af2-994d37451041:louis mason",
@@ -3102,7 +3242,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e3ffdd9f-bfbe-4f72-8af2-994d37451041:stephen peterson",
@@ -3124,7 +3265,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e3ffdd9f-bfbe-4f72-8af2-994d37451041:jules congalton",
@@ -3146,7 +3288,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e3ffdd9f-bfbe-4f72-8af2-994d37451041:grant tweddle",
@@ -3168,7 +3311,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3c9372e0-0b09-408c-b702-45de900ed089:casper howell",
@@ -3190,7 +3334,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3c9372e0-0b09-408c-b702-45de900ed089:stuart campbell",
@@ -3212,7 +3357,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3c9372e0-0b09-408c-b702-45de900ed089:dixon chan",
@@ -3234,7 +3380,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3c9372e0-0b09-408c-b702-45de900ed089:timothy shires",
@@ -3256,7 +3403,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cd399253-b354-4b7d-83e4-4e2d029a9e02:helen wang",
@@ -3278,7 +3426,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cd399253-b354-4b7d-83e4-4e2d029a9e02:kate gourley",
@@ -3300,7 +3449,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1b4007af-95f2-4fad-93eb-e8777428be6e:lucy douglas",
@@ -3322,7 +3472,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1b4007af-95f2-4fad-93eb-e8777428be6e:claire cooper",
@@ -3344,7 +3495,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1b4007af-95f2-4fad-93eb-e8777428be6e:emilia mason",
@@ -3366,7 +3518,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1b4007af-95f2-4fad-93eb-e8777428be6e:sophia tweddle",
@@ -3388,7 +3541,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1b4007af-95f2-4fad-93eb-e8777428be6e:kate gourley",
@@ -3410,7 +3564,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1b4007af-95f2-4fad-93eb-e8777428be6e:mary black",
@@ -3432,7 +3587,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:matthew baker",
@@ -3454,7 +3610,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:matthew valkenburg",
@@ -3476,7 +3633,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:daniel gourley",
@@ -3498,7 +3656,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:joel wilson",
@@ -3520,7 +3679,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:louis mason",
@@ -3542,7 +3702,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:jack hansen",
@@ -3564,7 +3725,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:jules congalton",
@@ -3586,7 +3748,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:zhiyuan aiden qin",
@@ -3608,7 +3771,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:nathan mcknight",
@@ -3630,7 +3794,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:david cockin",
@@ -3652,7 +3817,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:zak benson",
@@ -3674,7 +3840,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:sam mcarthur",
@@ -3696,7 +3863,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7cc7d0b4-b5eb-4ea7-8ba0-b6a51c7c667b:stephen peterson",
@@ -3718,7 +3886,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b951206e-70c1-4832-9a73-5aa25fd0639a:wynter tickle",
@@ -3740,7 +3909,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aab2539a-2492-46c0-b356-17f8de918c13:nolan peterson",
@@ -3762,7 +3932,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aab2539a-2492-46c0-b356-17f8de918c13:cooper gouge",
@@ -3784,7 +3955,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aab2539a-2492-46c0-b356-17f8de918c13:sidney tickle",
@@ -3806,7 +3978,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aab2539a-2492-46c0-b356-17f8de918c13:joel ball-la hood",
@@ -3828,7 +4001,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:f6968792-5cf5-4ddf-ac60-77504b5d37c6:fiona campbell",
@@ -3850,7 +4024,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:5c95a496-64f2-43db-b108-0d3f28e57e93:mary black",
@@ -3872,7 +4047,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ec04828d-7039-46d1-b510-c594e0fa28bb:louis mason",
@@ -3894,7 +4070,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ec04828d-7039-46d1-b510-c594e0fa28bb:stephen peterson",
@@ -3916,7 +4093,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:69093a06-bb63-49d2-9d4b-5e348d9b789b:hamish bulmer",
@@ -3938,7 +4116,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:69093a06-bb63-49d2-9d4b-5e348d9b789b:detroit evans",
@@ -3960,7 +4139,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:69093a06-bb63-49d2-9d4b-5e348d9b789b:timothy shires",
@@ -3982,7 +4162,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:69093a06-bb63-49d2-9d4b-5e348d9b789b:stuart campbell",
@@ -4004,7 +4185,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:69093a06-bb63-49d2-9d4b-5e348d9b789b:sam tait",
@@ -4026,7 +4208,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:4a15d533-4ce4-4163-9e33-b639cab62395:emilia mason",
@@ -4048,7 +4231,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:4a15d533-4ce4-4163-9e33-b639cab62395:sophia tweddle",
@@ -4070,7 +4254,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:4a15d533-4ce4-4163-9e33-b639cab62395:mary black",
@@ -4092,7 +4277,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:matthew baker",
@@ -4114,7 +4300,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:joel wilson",
@@ -4136,7 +4323,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:matthew valkenburg",
@@ -4158,7 +4346,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:nick peters",
@@ -4180,7 +4369,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:daniel gourley",
@@ -4202,7 +4392,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:louis mason",
@@ -4224,7 +4415,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:stephen peterson",
@@ -4246,7 +4438,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:elliot hayes",
@@ -4268,7 +4461,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:jonathan shih",
@@ -4290,7 +4484,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ee981297-900f-4cbc-8efc-90ef93599d9e:zhiyuan aiden qin",
@@ -4312,7 +4507,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:395d12eb-87a5-453b-9fb0-39776f78dbc2:ryan peng",
@@ -4334,7 +4530,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:afe03db0-0250-4aef-85f6-59e5118f83a5:ryan peng",
@@ -4356,7 +4553,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:d3cec34c-51bb-4200-b538-8c49debc2b57:izabella solomon",
@@ -4378,7 +4576,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:d3cec34c-51bb-4200-b538-8c49debc2b57:laika stafford",
@@ -4400,7 +4599,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:d3cec34c-51bb-4200-b538-8c49debc2b57:imogene dalton",
@@ -4422,7 +4622,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:021776ec-6633-4334-a1a5-97bd695b95b1:laika stafford",
@@ -4444,7 +4645,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:021776ec-6633-4334-a1a5-97bd695b95b1:anna moss",
@@ -4466,7 +4668,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:a45a7502-4c9c-46c3-a32f-d6c9da6cccd9:nolan peterson",
@@ -4488,7 +4691,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:a45a7502-4c9c-46c3-a32f-d6c9da6cccd9:zhiyuan aiden qin",
@@ -4510,7 +4714,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:a45a7502-4c9c-46c3-a32f-d6c9da6cccd9:josh li",
@@ -4532,7 +4737,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:a45a7502-4c9c-46c3-a32f-d6c9da6cccd9:finley diorio",
@@ -4554,7 +4760,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2e62666e-83b8-46f3-972e-3a1b61a10384:jeremy lin",
@@ -4576,7 +4783,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2e62666e-83b8-46f3-972e-3a1b61a10384:finley diorio",
@@ -4598,7 +4806,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2e62666e-83b8-46f3-972e-3a1b61a10384:josh li",
@@ -4620,7 +4829,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e109b0a9-c01b-4093-a05c-22ee655ed131:youfu (alex) wu",
@@ -4642,7 +4852,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e109b0a9-c01b-4093-a05c-22ee655ed131:harry zhou",
@@ -4664,7 +4875,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e109b0a9-c01b-4093-a05c-22ee655ed131:emmanuel zhang",
@@ -4686,7 +4898,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:e109b0a9-c01b-4093-a05c-22ee655ed131:dean yu",
@@ -4708,7 +4921,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:cf0ae9d8-ad61-43d9-843b-c23f03be464a:elija yarr",
@@ -4730,7 +4944,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:elsie lins",
@@ -4752,7 +4967,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:izabella solomon",
@@ -4774,7 +4990,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:emily yan",
@@ -4796,7 +5013,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:xiya wang",
@@ -4818,7 +5036,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:emilia mason",
@@ -4840,7 +5059,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:jenna baker",
@@ -4862,7 +5082,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:shubhi roy",
@@ -4884,7 +5105,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:imogene dalton",
@@ -4906,7 +5128,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:laika stafford",
@@ -4928,7 +5151,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:mika neil",
@@ -4950,7 +5174,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:nikkie wu",
@@ -4972,7 +5197,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:anna moss",
@@ -4994,7 +5220,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fb1e1721-a61a-436f-83b2-2a6d3fd9f2c1:amie callaghan",
@@ -5016,7 +5243,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:jack hansen",
@@ -5038,7 +5266,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:daniel gourley",
@@ -5060,7 +5289,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:josh li",
@@ -5082,7 +5312,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:zhiyuan aiden qin",
@@ -5104,7 +5335,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:tom eyre-walker",
@@ -5126,7 +5358,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:josh carson",
@@ -5148,7 +5381,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:elliot hayes",
@@ -5170,7 +5404,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:matias ureta",
@@ -5192,7 +5427,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:joff falconer",
@@ -5214,7 +5450,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:jasper smartt",
@@ -5236,7 +5473,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:namu gusscott",
@@ -5258,7 +5496,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:elija yarr",
@@ -5280,7 +5519,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:christian patrick",
@@ -5302,7 +5542,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:corey stephenson",
@@ -5324,7 +5565,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:jeremy lin",
@@ -5346,7 +5588,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:63e0d4ed-96cd-44e3-a38a-3afd7d90ac9f:nico meyer",
@@ -5368,7 +5611,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:06b2472d-30b0-4949-937c-b25c05b39b55:bowie wang",
@@ -5390,7 +5634,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:06b2472d-30b0-4949-937c-b25c05b39b55:isabel wong",
@@ -5412,7 +5657,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:06b2472d-30b0-4949-937c-b25c05b39b55:emily zhao",
@@ -5434,7 +5680,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:72b6e3f5-11b4-46e1-9211-4203de805491:ryan peng",
@@ -5456,7 +5703,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:72b6e3f5-11b4-46e1-9211-4203de805491:samuel li",
@@ -5478,7 +5726,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:72b6e3f5-11b4-46e1-9211-4203de805491:jacob yan hao zhu",
@@ -5500,7 +5749,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:68211dd3-606f-4399-bdd3-6a7f8b16fe4a:emily burt",
@@ -5522,7 +5772,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:35903066-02ae-4f64-a10c-bc411f5cd9ca:nolan peterson",
@@ -5544,7 +5795,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:35903066-02ae-4f64-a10c-bc411f5cd9ca:jack hansen",
@@ -5566,7 +5818,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:35903066-02ae-4f64-a10c-bc411f5cd9ca:joel ball-la hood",
@@ -5588,7 +5841,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:35903066-02ae-4f64-a10c-bc411f5cd9ca:elliot hayes",
@@ -5610,7 +5864,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fe5b5a52-488e-4b79-b8bb-ca7a5b08e627:bowie wang",
@@ -5632,7 +5887,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fe5b5a52-488e-4b79-b8bb-ca7a5b08e627:isabel wong",
@@ -5654,7 +5910,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:fe5b5a52-488e-4b79-b8bb-ca7a5b08e627:emily zhao",
@@ -5676,7 +5933,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2f2d0b8c-c81f-4c99-8e6c-a0c766d0f144:samuel li",
@@ -5698,7 +5956,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2f2d0b8c-c81f-4c99-8e6c-a0c766d0f144:ryan peng",
@@ -5720,7 +5979,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:2f2d0b8c-c81f-4c99-8e6c-a0c766d0f144:jacob yan hao zhu",
@@ -5742,7 +6002,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:9ea32396-af72-467b-817d-9e1fe2cd04d4:emily burt",
@@ -5764,7 +6025,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b329fa6d-d297-489a-be94-5cb6acbccddc:tom eyre-walker",
@@ -5786,7 +6048,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b329fa6d-d297-489a-be94-5cb6acbccddc:josh li",
@@ -5808,7 +6071,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b329fa6d-d297-489a-be94-5cb6acbccddc:matias ureta",
@@ -5830,7 +6094,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ad0b0abb-fd9d-4d33-a23e-fc5b5853f407:joel ball-la hood",
@@ -5852,7 +6117,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ad0b0abb-fd9d-4d33-a23e-fc5b5853f407:nolan peterson",
@@ -5874,7 +6140,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:ad0b0abb-fd9d-4d33-a23e-fc5b5853f407:zhiyuan aiden qin",
@@ -5896,7 +6163,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3ec6662f-a1ab-476e-a9e2-fb4bb487314b:cooper gouge",
@@ -5918,7 +6186,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3ec6662f-a1ab-476e-a9e2-fb4bb487314b:joel ball-la hood",
@@ -5940,7 +6209,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3ec6662f-a1ab-476e-a9e2-fb4bb487314b:nolan peterson",
@@ -5962,7 +6232,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3ec6662f-a1ab-476e-a9e2-fb4bb487314b:zhiyuan aiden qin",
@@ -5984,7 +6255,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:afbe2ca3-859e-4bb8-b0bb-2e4f5cec17c5:ledi feng",
@@ -6006,7 +6278,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": false
   },
   {
    "id": "portal:e0daa31b-c1d2-432d-9caf-9ad1b9003fe0:helen wang",
@@ -6028,7 +6301,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:43e5e528-db35-457e-9497-5079e94d2056:graham payne",
@@ -6050,7 +6324,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:43e5e528-db35-457e-9497-5079e94d2056:gary thoreson",
@@ -6072,7 +6347,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b99d76d2-c8e2-4d2b-aa6d-ef42ff2cdcdf:graham payne",
@@ -6094,7 +6370,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:07995e5f-6591-4526-81ce-cd8baaa78c9b:kyle macdonald",
@@ -6116,7 +6393,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b99d76d2-c8e2-4d2b-aa6d-ef42ff2cdcdf:paul hentschel",
@@ -6138,7 +6416,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:b99d76d2-c8e2-4d2b-aa6d-ef42ff2cdcdf:gary thoreson",
@@ -6160,7 +6439,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1a1e3365-445b-4b55-88c4-d03d0c96ed0b:hamish bulmer",
@@ -6182,7 +6462,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:1a1e3365-445b-4b55-88c4-d03d0c96ed0b:timothy shires",
@@ -6204,7 +6485,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:340fffb8-2e20-4dcf-9bcc-26a5080470ad:stephen peterson",
@@ -6226,7 +6508,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:d5d15178-2683-4031-bddd-0dad67c8784c:kate gourley",
@@ -6248,7 +6531,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aa517d16-e7f1-4b7b-a98b-c3e4975bd15e:stephen peterson",
@@ -6270,7 +6554,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:0a1bacf5-60ec-4f54-bac6-9c88b811971d:james butler",
@@ -6292,7 +6577,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:0a1bacf5-60ec-4f54-bac6-9c88b811971d:matthew baker",
@@ -6314,7 +6600,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:0a1bacf5-60ec-4f54-bac6-9c88b811971d:charlie bioletti",
@@ -6336,7 +6623,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:0a1bacf5-60ec-4f54-bac6-9c88b811971d:stephen peterson",
@@ -6358,7 +6646,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3f1b17ba-56f7-44a2-be06-cb747e6f2a8c:pierre béchet",
@@ -6380,7 +6669,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:589a1d12-05bd-4608-bb7a-05b0f3e55efa:fiona campbell",
@@ -6402,7 +6692,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aced2519-b01b-450a-8329-5288466e8b5b:hamish bulmer",
@@ -6424,7 +6715,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aced2519-b01b-450a-8329-5288466e8b5b:casper howell",
@@ -6446,7 +6738,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aced2519-b01b-450a-8329-5288466e8b5b:timothy shires",
@@ -6468,7 +6761,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:aced2519-b01b-450a-8329-5288466e8b5b:stuart campbell",
@@ -6490,7 +6784,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:69a4e0bb-8f58-4193-8145-6a98f86813ef:helen wang",
@@ -6512,7 +6807,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:7fea31e9-783e-4449-bc07-5d0a71a39467:pierre béchet",
@@ -6534,7 +6830,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:3f433e35-8a0a-4f17-a00b-fb26bc53bb48:mary black",
@@ -6556,7 +6853,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:359e1bda-1d6b-48fe-9eb1-c2f9ea5f42be:mary black",
@@ -6578,7 +6876,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:359e1bda-1d6b-48fe-9eb1-c2f9ea5f42be:kate gourley",
@@ -6600,7 +6899,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:96607e72-bc04-4969-9a66-6aa850e1c0c0:nolan peterson",
@@ -6622,7 +6922,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:96607e72-bc04-4969-9a66-6aa850e1c0c0:cooper gouge",
@@ -6644,7 +6945,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:96607e72-bc04-4969-9a66-6aa850e1c0c0:sam mcarthur",
@@ -6666,7 +6968,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   },
   {
    "id": "portal:96607e72-bc04-4969-9a66-6aa850e1c0c0:daniel gourley",
@@ -6688,7 +6991,8 @@
    "field_size": null,
    "made_de": null,
    "status": "approved",
-   "reason": "fenz_portal"
+   "reason": "fenz_portal",
+   "fenz_ranking": true
   }
  ]
 }
