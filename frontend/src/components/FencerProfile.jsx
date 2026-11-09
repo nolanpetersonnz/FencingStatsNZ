@@ -7,6 +7,7 @@ import { fieldOverview, matchups } from '../data/pipeline.js';
 import { displayBirthYear } from '../data/fencerInfo.js';
 import EditPanel from './EditPanel.jsx';
 import DifficultyStrip from './DifficultyStrip.jsx';
+import IntlResults from './IntlResults.jsx';
 
 export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings, enrichment, isOwnProfile, session, flaggedBouts, onEditApplied }) {
   const f = fencers[fencerKey];
@@ -214,6 +215,8 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
               </div>
             </div>
           )}
+
+          <IntlResults fencerKey={fencerKey} weapon={weapon} />
 
           <div className="fl-smallcaps" style={{ marginBottom: 12 }}>Bouts on record · {fencerBouts.length}</div>
           <div style={{ borderTop: '1px solid var(--ink)' }}>

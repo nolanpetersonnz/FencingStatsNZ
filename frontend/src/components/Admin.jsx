@@ -3,6 +3,7 @@ import { adminList, adminAct, adminSetClubMeta, adminAssignFencer, adminMergeFen
   adminRefreshStatus, adminRefreshData, adminRefreshRevert, adminRefreshAccept } from '../data/edits.js';
 import Import from './Import.jsx';
 import Settings from './Settings.jsx';
+import IntlPanel from './IntlPanel.jsx';
 
 // /#admin — paste the ADMIN_TOKEN once, then review and act on edit
 // submissions. Token persists in localStorage. Listing is server-side
@@ -58,7 +59,20 @@ export default function Admin({
   const [hasToken, setHasToken] = useState(() => !!localStorage.getItem('fl_admin_token'));
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState('pending'); // pending | applied | all
-  const [section, setSection] = useState('edits'); // edits | clubs | merges | import | refresh | tuning
+  // edits | clubs | merges | intl | import | refresh | tuning. Loading the demo
+  // data leaves the admin page for a moment and remounts it; the International
+  // panel leaves a note so it comes back to itself. Read here, cleared after
+  // mount (StrictMode runs this initialiser twice, so it must not clear it).
+  const [section, setSection] = useState(() => {
+    try {
+      return sessionStorage.getItem('fl_admin_return') || 'edits';
+    } catch {
+      return 'edits';
+    }
+  });
+  useEffect(() => {
+    try { sessionStorage.removeItem('fl_admin_return'); } catch { /* storage blocked */ }
+  }, []);
   const [busy, setBusy] = useState(null);
   const [err, setErr] = useState(null);
 
@@ -109,6 +123,7 @@ export default function Admin({
               ? `${items.length} edits · ${items.filter((i) => i.status === 'pending').length} pending`
               : section === 'clubs' ? 'Clubs'
               : section === 'merges' ? 'Profile merges'
+              : section === 'intl' ? 'International results'
               : section === 'import' ? 'Data ingest'
               : section === 'refresh' ? 'Refresh from FeNZ'
               : section === 'tuning' ? 'Tuning'
@@ -119,6 +134,7 @@ export default function Admin({
           <button onClick={() => setSection('edits')} className={`fl-pill ${section === 'edits' ? 'active' : ''}`}>Edits</button>
           <button onClick={() => setSection('clubs')} className={`fl-pill ${section === 'clubs' ? 'active' : ''}`}>Clubs</button>
           <button onClick={() => setSection('merges')} className={`fl-pill ${section === 'merges' ? 'active' : ''}`}>Merges</button>
+          <button onClick={() => setSection('intl')} className={`fl-pill ${section === 'intl' ? 'active' : ''}`}>International</button>
           <button onClick={() => setSection('import')} className={`fl-pill ${section === 'import' ? 'active' : ''}`}>Import</button>
           <button onClick={() => setSection('refresh')} className={`fl-pill ${section === 'refresh' ? 'active' : ''}`}>Refresh</button>
           <button onClick={() => setSection('tuning')} className={`fl-pill ${section === 'tuning' ? 'active' : ''}`}>Tuning</button>
@@ -149,6 +165,10 @@ export default function Admin({
 
       {section === 'merges' && (
         <MergesPanel fencers={fencers} overrides={overrides} onChange={onChange} setErr={setErr} />
+      )}
+
+      {section === 'intl' && (
+        <IntlPanel fencers={fencers} onLoadDemo={onLoadDemo} setErr={setErr} />
       )}
 
       {section === 'import' && (
