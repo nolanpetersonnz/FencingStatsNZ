@@ -467,6 +467,30 @@ test('committed data: the 2025 Senior Nationals are in, and the 2024 Oceania vet
   assert.equal(final[0].deltaB, 0);
 });
 
+// Phase B: the NZ competitions between the old API's last data (19 Jul 2026)
+// and the Nationals. The Central Open ran one mixed foil pool and then men's
+// and women's DEs, so the pool is a competition of its own; a 13-13 at the
+// Mid-South Open was won on priority.
+test('committed data: the Aug to Oct 2026 opens are in, with the Central Open foil pool apart and a win on priority', () => {
+  const { bouts, competitions } = processBouts(CSV_FILES.flatMap(readCsv), S);
+  const held = competitions.map((c) => `${c.date} ${c.name}`);
+  for (const comp of ['2026-08-15 South Open Championship 2026', '2026-09-13 North Open Championships 2026',
+    '2026-09-19 Central Open Championship 2026', '2026-10-03 Mid-South Open Championships 2026',
+    '2026-10-17 Russell Towns Open 2026']) {
+    assert.ok(held.some((x) => x.startsWith(comp)), comp);
+  }
+  const foil = competitions.filter((c) => c.date === '2026-09-19' && c.weapon === 'foil').map((c) => c.name).sort();
+  assert.deepEqual(foil, ['Central Open Championship 2026 - Mens', 'Central Open Championship 2026 - Womens',
+    'Central Open Championship 2026 Mixed']);
+  const pri = bouts.filter((b) => b.priority);
+  assert.equal(pri.length, 1);
+  assert.equal(pri[0].winnerKey, 'tom eyre-walker');
+  const epee = competitions.find((c) => c.date === '2026-10-03' && c.weapon === 'epee'
+    && c.name === 'Mid-South Open Championships 2026 - Mens');
+  const dong = epee.bouts.filter((b) => b.type === 'de' && (b.keyA === 'alex dong' || b.keyB === 'alex dong'));
+  assert.deepEqual(deFinish(dong, 'alex dong'), { rank: 9, label: '9–16' });
+});
+
 test('predictiveAccuracy on the real dataset reproduces the cited calibration', () => {
   const raw = parseCSV(readFileSync(resolve(__dirname, '../../ingest/bouts.csv'), 'utf8'));
   const { bouts } = processBouts(raw, S);

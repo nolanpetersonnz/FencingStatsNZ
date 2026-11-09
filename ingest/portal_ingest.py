@@ -27,8 +27,8 @@ Politeness, agreed with the portal's maintainer and not optional:
 
 Usage, from the repo root:
     pip install requests rapidfuzz          # fenz_ingest.py's dependencies
-    python ingest/portal_ingest.py --old-ingest-skipped --nationals-2026
-    python ingest/portal_ingest.py --old-ingest-skipped --nationals-2026 --offline   # cache only
+    python ingest/portal_ingest.py --old-ingest-skipped --phase-b --nationals-2026
+    python ingest/portal_ingest.py --old-ingest-skipped --phase-b --nationals-2026 --offline   # cache only
     python ingest/portal_ingest.py --comp UUID [UUID ...] --out ingest/other.csv
 
 The first line rebuilds the committed bouts_portal.csv. Each run rewrites its
@@ -117,15 +117,25 @@ NAME_DECISIONS = {
     "mutian (tim) wang": "Mutian Wang",
     "zining (steven) wang": "Steven Zining Wang",
     "pierre bechet": "Pierre Béchet",  # also in the 2026 rows, live since 6 Nov
+    # 9 Nov 2026, on the Phase B review.
+    "joel ball-la-hood": "Joel Ball-La Hood",
+    "sera cox": "Seraphine Cox",
+    "zining wang": "Steven Zining Wang",
 }
 
 # DE bouts the portal records oddly, decided by hand: "<competition> /
 # <event> / <round>: <top name> v <bottom name>", names as the portal shows
 # them, mapped to the flag to write. wd_a or wd_b: that fencer withdrew, so
 # the other wins and neither rating moves (withdrawalSide in pipeline.js).
+# pri_a or pri_b: that fencer won on priority with the touches level, rated as
+# a normal win (priorityWinner in pipeline.js).
 BOUT_DECISIONS = {
     # 0-0 with Bosnic marked the winner: a walkover in the final.
     "Oceania Veterans Championship 2024 / Foil Men Veteran / Final: TYSHCENKO, Andrey v BOSNIC, Colin": "wd_a",
+    # 0-0 with Ustin marked the winner: a walkover.
+    "North Open Championships 2026 / Foil Men Senior / Semi-finals: PAYNE, Graham v USTIN, Nick": "wd_a",
+    # 13-13 with Eyre-Walker marked the winner: a win on priority.
+    "Mid-South Open Championships 2026 / Epee Men Senior / Tableau of 16: DONG, Alex v EYRE-WALKER, Tom": "pri_b",
 }
 
 # Phase A: the two 2026 Nationals (24 to 26 Oct 2026, Christchurch).
@@ -140,6 +150,16 @@ NATIONALS_2026 = [
 OLD_INGEST_SKIPPED = [
     "4a52d856-edf8-4125-a2f0-7e7e71273078",  # Oceania Veterans Championship 2024, Feilding
     "d1e64c8b-7508-43d1-abc2-23bc4b1438ab",  # Oceania and NZ National Open 2025 (the 2025 Senior Nationals), Auckland
+]
+
+# Phase B: the NZ competitions between the old API's last data (19 Jul 2026)
+# and the 2026 Nationals.
+PHASE_B = [
+    "ff422f0f-1424-4d23-84e4-3a954d8dbe32",  # South Open Championship 2026 (15 Aug)
+    "1e03593c-a777-4e4c-8464-655fef2fb270",  # North Open Championships 2026 (13 Sep), Auckland
+    "f886c754-fd95-42c8-976d-a3479237c4b6",  # Central Open Championship 2026 (19 to 20 Sep), Feilding
+    "5deb5efb-bb88-4a80-bd47-4ce840df1fe4",  # Mid-South Open Championships 2026 (3 Oct), Christchurch
+    "c385ca67-d8b3-4fb7-a990-29e11b77b0ea",  # Russell Towns Open 2026 (17 to 18 Oct), Dunedin
 ]
 
 UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
@@ -282,8 +302,9 @@ def parse_competition(page: str, comp_id: str) -> dict:
         raise ValueError(f"{comp_id}: no event tabs found")
     head = flat[: flat.find('hx-target="#event-shell"')]
     pieces = [p.strip() for p in re.split(r"<[^>]+>", head) if p.strip()]
-    # The range reads like 2026-10-24, an en dash, 2026-10-26, a middle dot, then the place.
-    date_re = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:\s*\S\s*(\d{4}-\d{2}-\d{2}))?\s*\N{MIDDLE DOT}\s*(.+)$")
+    # The range reads like 2026-10-24, an en dash, 2026-10-26, a middle dot, then
+    # the place. Some competitions list no place: then the date stands alone.
+    date_re = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:\s*\S\s*(\d{4}-\d{2}-\d{2}))?(?:\s*\N{MIDDLE DOT}\s*(.+))?$")
     for i, piece in enumerate(pieces):
         m = date_re.match(html.unescape(piece))
         if m and i > 0:
@@ -292,7 +313,7 @@ def parse_competition(page: str, comp_id: str) -> dict:
                 "name": html.unescape(pieces[i - 1]),
                 "start": m.group(1),
                 "end": m.group(2) or m.group(1),
-                "place": html.unescape(m.group(3)).strip(),
+                "place": html.unescape(m.group(3) or "").strip(),
                 "events": [(eid, html.unescape(label).strip()) for eid, label in events],
             }
     raise ValueError(f"{comp_id}: competition name and dates not found")
@@ -548,6 +569,7 @@ class EventResult:
     checks: dict = field(default_factory=dict)
     suspicious: list[str] = field(default_factory=list)
     decided: list[tuple[str, str]] = field(default_factory=list)  # (BOUT_DECISIONS key, note)
+    comp_name: str = ""                                   # the CSV's competition, before " - Mens|Womens"
 
 
 def competition_name(comp: dict) -> str:
@@ -556,7 +578,20 @@ def competition_name(comp: dict) -> str:
     return name if re.search(r"\b(19|20)\d{2}\b", name) else f"{name} {year}"
 
 
-def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, resolver: Resolver) -> EventResult:
+def name_events(events: list[EventResult]) -> None:
+    """Set each event's CSV competition name. A mixed event that shares its
+    weapon with a men's or women's event of the same competition gets "Mixed"
+    added: written once per gender, its rows would otherwise take the gendered
+    event's competition key, and the site would fold the events together."""
+    gendered = {(ev.comp["id"], ev.weapon) for ev in events if len(ev.genders) == 1}
+    for ev in events:
+        ev.comp_name = competition_name(ev.comp)
+        if len(ev.genders) > 1 and (ev.comp["id"], ev.weapon) in gendered:
+            ev.comp_name += " Mixed"
+
+
+def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, resolver: Resolver,
+                 comp_clubs: dict[str, str] | None = None) -> EventResult:
     base = f"{BASE_URL}/competitions/{comp['id']}/events/{event_id}"
     weapon, genders, _category = parse_event_label(label)
     ev_date, standings = parse_standings(client.get(base))
@@ -564,12 +599,15 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
     rounds = parse_bracket(client.get(base + "/bracket"))
     ev = EventResult(comp, event_id, label, weapon, genders, ev_date, standings, pools, rounds)
     club_of = {r["raw"]: r["club"] for r in standings}
+    comp_clubs = comp_clubs or {}
     tag = f"{comp['name']} / {label}"
 
     def person(raw: str) -> tuple[str, str]:
-        club = club_of.get(raw, "")
-        if raw not in club_of:
-            ev.suspicious.append(f"{tag}: {raw!r} fenced but is not in the final standings (no club)")
+        # A pool-only event can have no standings of its own; the fencer's
+        # club then comes from another event of the same competition.
+        club = club_of.get(raw) or comp_clubs.get(raw, "")
+        if raw not in club_of and raw not in comp_clubs:
+            ev.suspicious.append(f"{tag}: {raw!r} fenced but is in no standings of this competition (no club)")
         return resolver.resolve(raw, weapon, club, tag), club
 
     # Pools: one row per pair, the lower pool position as fencer A.
@@ -619,7 +657,8 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
             decision = BOUT_DECISIONS.get(dkey, "")
             if decision:
                 ev.decided.append((dkey, f"{tag} {rnd['title']}: {names[0]} {sa} v {names[1]} {sb}: written with flag {decision}"))
-                if decision in ("wd_a", "wd_b") and win != (1 if decision == "wd_a" else 0):
+                marked = {"wd_a": 1, "wd_b": 0, "pri_a": 0, "pri_b": 1}.get(decision)  # card index of the winner
+                if marked is not None and win != marked:
                     ev.suspicious.append(f"{dkey}: flag {decision} disagrees with the winner the portal marks")
             elif win is None:
                 ev.suspicious.append(f"{tag} {rnd['title']}: {names[0]} {sa} v {names[1]} {sb}: no winner marked")
@@ -641,7 +680,7 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
     ev.checks = {
         "entrants": entrants, "pool_entrants": pool_entrants, "pools": len(pools),
         "pool_expected": expected_pool, "pool_rows": pool_rows, "pool_gaps": gaps,
-        "de_expected": entrants - 1, "de_rows": de_rows,
+        "de_expected": max(entrants - 1, 0), "de_rows": de_rows,
         "rounds": [f"{r['title']}:{len(r['cards'])}" for r in rounds],
     }
     return ev
@@ -650,7 +689,7 @@ def ingest_event(client: PoliteClient, comp: dict, event_id: str, label: str, re
 def write_rows(events: list[EventResult], out_path: Path) -> int:
     rows = []
     for ev in events:
-        comp_name = competition_name(ev.comp)
+        comp_name = ev.comp_name or competition_name(ev.comp)
         for gender in ev.genders:  # a mixed event: once per gender, identical rows
             for b in ev.bouts:
                 b2 = Bout(**{**b.__dict__, "competition": f"{comp_name} - {gender}", "gender": gender})
@@ -670,20 +709,34 @@ def review(events: list[EventResult], resolver: Resolver, known: KnownNames, cli
     out.append("")
     out.append("| Event | Entrants | Pools | Pool bouts (expected) | DE bouts (entrants minus 1) | Rounds |")
     out.append("|---|---|---|---|---|---|")
-    all_ok = True
+    def balanced(evs: list[EventResult]) -> bool:
+        s = lambda k: sum(e.checks[k] for e in evs)  # noqa: E731
+        return (s("pool_rows") + s("pool_gaps") == s("pool_expected") and s("de_rows") == s("de_expected")
+                and s("entrants") == s("pool_entrants"))
+
+    # A competition can run one mixed pool and then separate men's and women's
+    # DEs, so the counts are also checked over each competition and weapon.
+    by_weapon: dict[tuple, list] = defaultdict(list)
+    for ev in events:
+        by_weapon[(ev.comp["id"], ev.weapon)].append(ev)
+    all_ok, together = True, 0
     for ev in events:
         c = ev.checks
         ok_pool = c["pool_rows"] + c["pool_gaps"] == c["pool_expected"]
         ok_de = c["de_rows"] == c["de_expected"]
         ok_ent = c["entrants"] == c["pool_entrants"]
-        all_ok &= ok_pool and ok_de and ok_ent
+        group_ok = balanced(by_weapon[(ev.comp["id"], ev.weapon)])
+        alone_ok = ok_pool and ok_de and ok_ent
+        all_ok &= alone_ok or group_ok
+        together += (not alone_ok and group_ok)
         out.append(f"| {ev.comp['name']} / {ev.label} | {c['entrants']}"
                    f"{'' if ok_ent else ' (pools: ' + str(c['pool_entrants']) + ')'} | {c['pools']} | "
                    f"{c['pool_rows']} ({c['pool_expected']}{', gaps ' + str(c['pool_gaps']) if c['pool_gaps'] else ''})"
                    f"{'' if ok_pool else ' MISMATCH'} | {c['de_rows']} ({c['de_expected']}){'' if ok_de else ' MISMATCH'} | "
-                   f"{' '.join(c['rounds'])} |")
+                   f"{' '.join(c['rounds'])}{' (balances with the other ' + ev.weapon + ' events)' if not alone_ok and group_ok else ''} |")
     out.append("")
-    out.append("All counts match." if all_ok else "**Some counts do not match: see above.**")
+    out.append(("All counts match" + (f", {together} of them only with the competition's other events in the same weapon." if together else "."))
+               if all_ok else "**Some counts do not match: see above.**")
     out.append("")
     sus = [s for ev in events for s in ev.suspicious]
     out.append(f"## Suspicious bouts ({len(sus)})")
@@ -760,7 +813,7 @@ def review(events: list[EventResult], resolver: Resolver, known: KnownNames, cli
                 continue
             key = name_key(resolved)
             if key not in latest_run or ev.comp["start"] >= latest_run[key][0]:
-                latest_run[key] = (ev.comp["start"], resolved, r["club"], f"{competition_name(ev.comp)} / {ev.label}")
+                latest_run[key] = (ev.comp["start"], resolved, r["club"], f"{ev.comp_name or competition_name(ev.comp)} / {ev.label}")
     changes = {}
     for key, (start, resolved, club, tag) in latest_run.items():
         prev = known.latest_club.get(key)
@@ -782,6 +835,8 @@ def main() -> int:
     ap.add_argument("--nationals-2026", action="store_true", help="Phase A: both 2026 Nationals")
     ap.add_argument("--old-ingest-skipped", action="store_true",
                     help="the NZ-hosted Oceania events the old ingest skipped (OLD_INGEST_SKIPPED)")
+    ap.add_argument("--phase-b", action="store_true",
+                    help="NZ competitions from 19 Jul 2026 to the 2026 Nationals (PHASE_B)")
     ap.add_argument("--out", default=str(INGEST_DIR / "bouts_portal.csv"))
     ap.add_argument("--offline", action="store_true", help="use the cache only; send no requests")
     ap.add_argument("--replace", action="store_true",
@@ -790,10 +845,10 @@ def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     comp_ids = list(args.comp) + (OLD_INGEST_SKIPPED if args.old_ingest_skipped else []) \
-        + (NATIONALS_2026 if args.nationals_2026 else [])
+        + (PHASE_B if args.phase_b else []) + (NATIONALS_2026 if args.nationals_2026 else [])
     comp_ids = list(dict.fromkeys(comp_ids))
     if not comp_ids:
-        ap.error("give --comp UUID ..., --old-ingest-skipped or --nationals-2026")
+        ap.error("give --comp UUID ..., --old-ingest-skipped, --phase-b or --nationals-2026")
     if Path(args.out).resolve() == (INGEST_DIR / "bouts.csv").resolve():
         ap.error("refusing to write bouts.csv: the portal ingest writes its own file")
 
@@ -803,32 +858,41 @@ def main() -> int:
     events: list[EventResult] = []
     for cid in comp_ids:
         comp = parse_competition(client.get(f"{BASE_URL}/competitions/{cid}"), cid)
-        print(f"[portal] {comp['name']} ({comp['start']} to {comp['end']}, {comp['place']}): {len(comp['events'])} events")
+        print(f"[portal] {comp['name']} ({comp['start']} to {comp['end']}, {comp['place'] or 'no place listed'}): "
+              f"{len(comp['events'])} events")
+        # Clubs from every event's standings (the pages ingest_event reads
+        # next, so no extra requests), for a fencer an event doesn't list.
+        comp_clubs: dict[str, str] = {}
+        for eid, _label in comp["events"]:
+            for r in parse_standings(client.get(f"{BASE_URL}/competitions/{cid}/events/{eid}"))[1]:
+                if r["club"]:
+                    comp_clubs.setdefault(r["raw"], r["club"])
         for eid, label in comp["events"]:
-            ev = ingest_event(client, comp, eid, label, resolver)
+            ev = ingest_event(client, comp, eid, label, resolver, comp_clubs)
             c = ev.checks
             print(f"[portal]   {label}: {c['entrants']} entrants, {c['pool_rows']} pool + {c['de_rows']} DE bouts"
                   f"{' (mixed: written for Mens and Womens)' if len(ev.genders) > 1 else ''}")
             events.append(ev)
+    name_events(events)
 
     # write_rows replaces the whole file, so a run that leaves out a competition
     # the file already holds would drop its rows without a word.
     out_path = Path(args.out)
     if out_path.exists() and not args.replace:
-        writing = {f"{competition_name(ev.comp)} - {g}" for ev in events for g in ev.genders}
+        writing = {f"{ev.comp_name} - {g}" for ev in events for g in ev.genders}
         with open(out_path, encoding="utf-8", newline="") as f:
             held = {r["competition"] for r in csv.DictReader(f)}
         dropped = sorted(held - writing)
         if dropped:
             print(f"[portal] {args.out} also holds {', '.join(dropped)}, which this run would drop. "
-                  "Add those competitions to the run (see OLD_INGEST_SKIPPED and --nationals-2026), "
+                  "Add those competitions to the run (see OLD_INGEST_SKIPPED, PHASE_B and NATIONALS_2026), "
                   "or pass --replace. Nothing written.", file=sys.stderr)
             return 1
     n = write_rows(events, out_path)
     print(f"[portal] wrote {n} rows to {args.out} ({client.requests_made} requests sent this run)")
 
     standings = [{
-        "competition": competition_name(ev.comp), "weapon": ev.weapon, "genders": ev.genders,
+        "competition": ev.comp_name, "weapon": ev.weapon, "genders": ev.genders,
         "date": ev.comp["start"], "event": ev.label, "event_date": ev.date,
         "standings": [{"rank": r["rank"], "name": resolver.exact.get(r["raw"], title_name(r["raw"])),
                        "club": r["club"], "nation": r["nation"]} for r in ev.standings],
