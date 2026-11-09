@@ -7,7 +7,9 @@
 // Each record goes through the real validateResult and reviewResult, so the
 // examples show what the rules do: one counted, one in too small a field,
 // one at an event not on the list, one too old, one Australian (FeNZ's own
-// ranking handles those; it meets cl. 5.1), one rejected and two waiting.
+// ranking handles those; it meets cl. 5.1), one rejected and two waiting,
+// and two more waiting from one event, entered together with the admin's
+// "Add an event" (they share an event_id, so the queue shows them as one).
 
 import { PLACEHOLDER_POLICY, initialLog, validateResult, newRecord, reviewResult, addMonths } from './intl.js';
 
@@ -59,6 +61,14 @@ function rows(today) {
       event: 'Satellite (test)', country: 'SUI', city: 'Bern', level: 'fie', made_de: true,
       date: ago(6), results_url: 'https://example.org/results/sui-satellite', placing: 64, field_size: 180,
       residence: 'nz' }, null],
+    [{ ...base, fencer: 'hamish carter', fencer_name: 'Hamish Carter', weapon: 'epee', gender: 'mens',
+      event: 'National circuit, round 4 (test)', country: 'FRA', city: 'Lyon', level: 'national_circuit',
+      date: ago(1), results_url: 'https://example.org/results/fra-circuit-4', placing: 9, field_size: 64,
+      residence: 'overseas', event_id: 'test-event-1' }, null],
+    [{ ...base, fencer: "liam o'connell", fencer_name: "Liam O'Connell", weapon: 'epee', gender: 'mens',
+      event: 'National circuit, round 4 (test)', country: 'FRA', city: 'Lyon', level: 'national_circuit',
+      date: ago(1), results_url: 'https://example.org/results/fra-circuit-4', placing: 30, field_size: 64,
+      residence: 'overseas', event_id: 'test-event-1' }, null],
   ];
 }
 
@@ -68,6 +78,7 @@ export function testIntlState(today, now = `${today}T09:00:00.000Z`) {
     const checked = validateResult(input, { today });
     if (checked.error) throw new Error(`test record ${i + 1}: ${checked.error}`);
     let rec = newRecord(checked.value, { id: `test-${i + 1}`, now });
+    if (input.event_id) rec = { ...rec, event_id: input.event_id };
     if (review) {
       const out = reviewResult(rec, review.action, {
         reviewer: 'Test reviewer', note: review.note, listEntry: review.listEntry, policy, now,

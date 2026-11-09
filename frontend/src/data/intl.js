@@ -80,6 +80,18 @@ export function ordinal(n) {
   return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
 }
 
+// "5th of 40", or "157th" alone where the field size isn't published (the
+// FeNZ results portal lists only the podium and the NZ fencers).
+export function placingText(rec) {
+  return rec.field_size ? `${ordinal(rec.placing)} of ${rec.field_size}` : ordinal(rec.placing);
+}
+
+// The category as the event ran it: the site's label, or the portal's own
+// words for one the site has no category for (an U15 event, say).
+export function categoryText(rec) {
+  return CATEGORY_LABELS[rec.category] || rec.age_label || '';
+}
+
 // ---- A submitted result (PANELS.md 2.3) --------------------------------------
 
 const text = (v, max) => {
@@ -226,6 +238,10 @@ export const INTL_HEADING = 'International results';
 export const INTL_NOTE = 'Placings at events overseas, checked by FeNZ against the official results.';
 // The International tab's heading line, picked by Nolan on 9 Nov 2026.
 export const INTL_PAGE_NOTE = 'Results at events overseas, checked by FeNZ against the official results, and whether each counts toward the FeNZ ranking.';
+// The International tab's line on where its results come from, picked by
+// Nolan on 9 Nov 2026. Without the portal file, the prototype line as before.
+export const INTL_SOURCE_NOTE = 'FIE and Australian results pulled from FeNZ. Other events are a prototype.';
+export const INTL_PROTOTYPE_NOTE = 'Prototype: placeholder points and event list; results stay in this browser.';
 export function statusText(status, rec) {
   if (status.counts) return `Counts toward the FeNZ ranking: ${status.points} pts`;
   if (status.reason === 'small_field') return `Not counted: fewer than ${rec.min_field} fencers`;
@@ -233,12 +249,11 @@ export function statusText(status, rec) {
   return "Not counted: event not on FeNZ's list";
 }
 
+// A profile's international results for one weapon: the International
+// tab's list for that fencer (approved results, FeNZ portal ones included),
+// each with the same two answers.
 export function profileResults(records, fencer, weapon, today) {
-  return (records || [])
-    .filter((r) => r.fencer === fencer && r.weapon === weapon)
-    .map((r) => ({ rec: r, status: publicStatus(r, today) }))
-    .filter((x) => x.status)
-    .sort((a, b) => b.rec.date.localeCompare(a.rec.date));
+  return fencerResults(records, fencer, today).results.filter(({ rec }) => rec.weapon === weapon);
 }
 
 // The International tab answers two things for each of a fencer's approved
@@ -267,10 +282,70 @@ export function fencerResults(records, fencer, today) {
   const mine = (records || []).filter((r) => r.fencer === fencer);
   return {
     results: mine.filter((r) => r.status === 'approved')
-      .sort((a, b) => b.date.localeCompare(a.date))
+      .sort((a, b) => b.date.localeCompare(a.date) || a.event.localeCompare(b.event) || a.placing - b.placing)
       .map((rec) => ({ rec, verdict: eventVerdict(rec, today) })),
     waiting: mine.filter((r) => r.status === 'pending').length,
   };
+}
+
+// ---- Results from FeNZ's results portal ----------------------------------------
+// ingest/portal_intl.py writes NZ fencers' placings at the portal's
+// International competitions (FIE and Australian events) to
+// data/intl_results.json. They are FeNZ's own records: shown as they are,
+// never reviewed or scored here, and kept out of the cl. 5.1 check (the
+// portal gives no field size, and a selection check on real fencers is
+// FeNZ's to run, PANELS.md 2.6).
+
+// Keeps the rows the pages can show, each as an approved FeNZ portal result
+// whatever the file says, so no row can pose as one this panel scored.
+export function shippedResults(json) {
+  const rows = Array.isArray(json?.results) ? json.results : [];
+  const out = [];
+  const seen = new Set();
+  for (const r of rows) {
+    if (!r || typeof r.fencer !== 'string' || !r.fencer.trim()) continue;
+    const placing = whole(r.placing);
+    if (!WEAPONS.includes(r.weapon) || !validIsoDate(String(r.date ?? '')) || !placing || placing < 1) continue;
+    const id = String(r.id || `${r.fencer}|${r.date}|${r.event}|${r.event_label}`);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const fieldSize = whole(r.field_size);
+    out.push({
+      id,
+      fencer: r.fencer,
+      fencer_name: String(r.fencer_name || r.fencer),
+      weapon: r.weapon,
+      gender: r.gender,
+      category: CATEGORIES.includes(r.category) ? r.category : null,
+      age_label: String(r.age_label ?? ''),
+      event: String(r.event || 'International event'),
+      event_label: String(r.event_label ?? ''),
+      place: String(r.place ?? ''),
+      country: /^[A-Z]{3}$/.test(r.country || '') ? r.country : null,
+      level: LEVELS.includes(r.level) ? r.level : 'other',
+      date: r.date,
+      results_url: safeHttpUrl(String(r.results_url ?? '')) || null,
+      placing,
+      field_size: fieldSize && fieldSize >= placing ? fieldSize : null,
+      made_de: null,
+      status: 'approved',
+      reason: 'fenz_portal',
+      source: 'fenz_portal',
+      counts: null,
+      points: null,
+    });
+  }
+  return out;
+}
+
+// Admin merges (overrides.merges) fold one site name into another; a portal
+// result follows its fencer the same way.
+export function applyMerges(records, merges) {
+  if (!merges || !Object.keys(merges).length) return records;
+  return records.map((r) => {
+    const to = merges[r.fencer]?.merge_into;
+    return to ? { ...r, fencer: to, fencer_name: merges[r.fencer].merge_into_name || r.fencer_name } : r;
+  });
 }
 
 // The two answers in words (visitor-facing; wording picked by Nolan, 9 Nov 2026).
@@ -294,6 +369,54 @@ export function adminStatusText(rec, today) {
   return statusText(publicStatus(rec, today), rec);
 }
 
+// ---- One event, several fencers (admin) ------------------------------------------
+// When several NZ fencers went to the same event, FeNZ enters the event once
+// and adds each fencer's placing: one pending result per fencer, sharing an
+// event_id, so the queue can show them together and approve them at once.
+
+const ROW_STUB = { fencer: 'stub', placing: 1, made_de: false, residence: 'overseas' };
+
+// event: the shared fields (as validateResult takes them, field size
+// included); rows: [{ fencer, fencer_name, placing, made_de, residence }].
+// Rows left blank are skipped. Returns { value: [cleaned result, ...] } or
+// { error }: the event's own errors first, then each fencer's, by name.
+export function validateEventEntry(event, rows, { today }) {
+  const shared = validateResult({ ...event, ...ROW_STUB }, { today });
+  if (shared.error) return { error: shared.error };
+  const filled = (rows || []).filter((r) => String(r.fencer ?? '').trim() || String(r.placing ?? '').trim());
+  if (!filled.length) return { error: 'add at least one fencer' };
+  const seen = new Set();
+  const value = [];
+  for (const [i, row] of filled.entries()) {
+    const who = row.fencer_name || `fencer ${i + 1}`;
+    const out = validateResult({ ...event, ...row }, { today });
+    if (out.error) return { error: `${who}: ${out.error}` };
+    if (seen.has(out.value.fencer)) return { error: `${who} is listed twice` };
+    seen.add(out.value.fencer);
+    value.push(out.value);
+  }
+  return { value };
+}
+
+// Approve, reject or withdraw every pending result of one event, with the
+// same list entry and note. All or none: the first error changes nothing.
+export function reviewEvent(records, eventId, action, opts) {
+  let count = 0;
+  const next = [];
+  for (const r of records || []) {
+    if (r.event_id && r.event_id === eventId && r.status === 'pending') {
+      const out = reviewResult(r, action, opts);
+      if (out.error) return { error: `${r.fencer_name}: ${out.error}` };
+      next.push(out.value);
+      count += 1;
+    } else {
+      next.push(r);
+    }
+  }
+  if (!count) return { error: 'nothing waiting for this event' };
+  return { value: next, count };
+}
+
 // ---- Selection Policy 2026, cl. 5.1 -------------------------------------------
 // For Asian, Commonwealth and World Championships, a fencer living in NZ is
 // Soft Cap eligible only with one of these from a competition outside NZ in
@@ -302,7 +425,7 @@ export function adminStatusText(rec, today) {
 // country's; reaching the DE at an FIE event. Approved results only.
 
 export function softCapQualifier(rec) {
-  if (rec.status !== 'approved' || rec.country === 'NZL') return null;
+  if (rec.status !== 'approved' || rec.country === 'NZL' || rec.source === 'fenz_portal') return null;
   if (rec.level === 'fie') return rec.made_de ? 'fie_de' : null;
   if (rec.level !== 'national_championship' && rec.level !== 'national_circuit') return null;
   const share = rec.placing / rec.field_size;

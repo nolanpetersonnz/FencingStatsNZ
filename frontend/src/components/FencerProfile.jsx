@@ -9,7 +9,7 @@ import EditPanel from './EditPanel.jsx';
 import DifficultyStrip from './DifficultyStrip.jsx';
 import IntlResults from './IntlResults.jsx';
 
-export default function FencerProfile({ fencerKey, fencers, bouts, competitions, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings, enrichment, isOwnProfile, session, flaggedBouts, onEditApplied }) {
+export default function FencerProfile({ fencerKey, fencers, bouts, competitions, intlShipped, onBack, onSelectFencer, onSelectComp, onSelectClub, weapon: globalWeapon, settings, enrichment, isOwnProfile, session, flaggedBouts, onEditApplied }) {
   const f = fencers[fencerKey];
   const info = enrichment?.[fencerKey] || null;
   const [disputeStatus, setDisputeStatus] = useState({}); // boutId -> 'sending'|'sent'|'error:msg'
@@ -216,7 +216,7 @@ export default function FencerProfile({ fencerKey, fencers, bouts, competitions,
             </div>
           )}
 
-          <IntlResults fencerKey={fencerKey} weapon={weapon} />
+          <IntlResults fencerKey={fencerKey} weapon={weapon} shipped={intlShipped} />
 
           <div className="fl-smallcaps" style={{ marginBottom: 12 }}>Bouts on record · {fencerBouts.length}</div>
           <div style={{ borderTop: '1px solid var(--ink)' }}>

@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import {
-  INTL_HEADING, INTL_PAGE_NOTE, PLACEHOLDER_POLICY, initialLog,
-  fencerResults, verdictText, ordinal,
+  INTL_HEADING, INTL_PAGE_NOTE, INTL_SOURCE_NOTE, INTL_PROTOTYPE_NOTE, PLACEHOLDER_POLICY, initialLog,
+  fencerResults, verdictText, placingText, categoryText,
 } from '../data/intl.js';
 import { loadIntl, saveIntl, clearIntl, todayIso } from '../data/intlStore.js';
 import { testIntlState } from '../data/intlTestData.js';
@@ -14,8 +14,12 @@ import { pressable } from '../utils/a11y.js';
 // asked on 9 Nov: search a fencer, see their international results, each
 // marked whether FeNZ counts the event and how many points it earns, then
 // submit an event, which stays behind FeNZ's admin sign-in. Review, the
-// points table and the event list stay with FeNZ in /#admin. Records live in
-// this browser only (data/intlStore.js).
+// points table and the event list stay with FeNZ in /#admin.
+//
+// Two sources: `shipped`, NZ fencers' placings at the FeNZ results portal's
+// International competitions (FIE and Australian events, from
+// data/intl_results.json), and the prototype's own records, kept in this
+// browser only (data/intlStore.js).
 
 const fresh = () => ({ records: [], policy: PLACEHOLDER_POLICY, log: initialLog(new Date().toISOString()) });
 const WEAPON_LABEL = { foil: 'Foil', epee: 'Épée', sabre: 'Sabre' };
@@ -30,7 +34,7 @@ function submitFor(key) {
   window.location.hash = 'admin';
 }
 
-export default function IntlPage({ fencers = {}, picked, onPick, onSelectFencer, onLoadDemo }) {
+export default function IntlPage({ fencers = {}, shipped = [], picked, onPick, onSelectFencer, onLoadDemo }) {
   const [state, setState] = useState(() => loadIntl() || fresh());
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -48,18 +52,19 @@ export default function IntlPage({ fencers = {}, picked, onPick, onSelectFencer,
   const tryIt = () => { persist(testIntlState(today)); onLoadDemo?.(); };
   const removeTest = () => { clearIntl(); setState(fresh()); onPick?.(null); };
 
+  const records = useMemo(() => [...shipped, ...state.records], [shipped, state.records]);
   // Fencers on the site, plus anyone with an international result but no
   // NZ bouts yet (an overseas-based fencer, say).
   const people = useMemo(() => {
     const m = new Map(Object.values(fencers).map((f) => [f.key, { key: f.key, name: f.name, club: f.club || '' }]));
-    for (const r of state.records) if (!m.has(r.fencer)) m.set(r.fencer, { key: r.fencer, name: r.fencer_name, club: '' });
+    for (const r of records) if (!m.has(r.fencer)) m.set(r.fencer, { key: r.fencer, name: r.fencer_name, club: '' });
     return [...m.values()];
-  }, [fencers, state.records]);
+  }, [fencers, records]);
   // Suggestions as in the header search: the name or club contains what's
   // typed, eight at most; anyone with an international result comes first.
   const hasResults = useMemo(
-    () => new Set(state.records.filter((r) => r.status === 'approved').map((r) => r.fencer)),
-    [state.records],
+    () => new Set(records.filter((r) => r.status === 'approved').map((r) => r.fencer)),
+    [records],
   );
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -71,7 +76,7 @@ export default function IntlPage({ fencers = {}, picked, onPick, onSelectFencer,
   }, [people, query, hasResults]);
 
   const person = picked ? (people.find((f) => f.key === picked) || { key: picked, name: picked, club: '' }) : null;
-  const mine = picked ? fencerResults(state.records, picked, today) : null;
+  const mine = picked ? fencerResults(records, picked, today) : null;
   const pick = (key) => { onPick?.(key); setQuery(''); setOpen(false); };
   const muted = { color: 'var(--ink-soft)', fontSize: '0.92rem' };
 
@@ -82,7 +87,7 @@ export default function IntlPage({ fencers = {}, picked, onPick, onSelectFencer,
         <p className="fl-italic" style={{ ...muted, fontSize: '1rem', margin: '8px 0 0' }}>{INTL_PAGE_NOTE}</p>
         <div style={{ marginTop: 14, padding: '10px 12px', border: '1px solid var(--rule)', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <span className="fl-italic" style={{ ...muted, flex: '1 1 320px' }}>
-            Prototype: placeholder points and event list; results stay in this browser.
+            {shipped.length ? INTL_SOURCE_NOTE : INTL_PROTOTYPE_NOTE}
             {state.test_data ? ' Sample results loaded.' : ''}
           </span>
           {state.test_data
@@ -147,9 +152,9 @@ export default function IntlPage({ fencers = {}, picked, onPick, onSelectFencer,
                       {href ? <a className="fl-link" href={href} target="_blank" rel="noopener noreferrer">{rec.event}</a> : rec.event}
                     </span>
                   </div>
-                  <div className="fl-mono" style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{ordinal(rec.placing)} of {rec.field_size}</div>
+                  <div className="fl-mono" style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{placingText(rec)}</div>
                   <div className="fl-mono" style={{ gridColumn: '1 / -1', fontSize: '0.76rem', color: 'var(--ink-soft)' }}>
-                    {rec.country} · {fmtDate(rec.date)} · {WEAPON_LABEL[rec.weapon]}
+                    {[rec.place || rec.country, fmtDate(rec.date), WEAPON_LABEL[rec.weapon], categoryText(rec)].filter(Boolean).join(' · ')}
                   </div>
                   {/* 3. Is it a FeNZ event, and how many points */}
                   <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '4px 24px', flexWrap: 'wrap', marginTop: 4, fontSize: '0.9rem' }}>

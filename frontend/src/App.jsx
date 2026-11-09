@@ -5,6 +5,7 @@ import { processBouts, makeDemoBouts, parseCSV, nameKey } from './data/pipeline.
 import { loadFromStorage, saveToStorage, clearStorage } from './data/storage.js';
 import { loadFencerInfo, buildEnrichmentIndex, genderFromEnrichment } from './data/fencerInfo.js';
 import { loadOverrides } from './data/edits.js';
+import { shippedResults, applyMerges } from './data/intl.js';
 import Header from './components/Header.jsx';
 import EmptyState from './components/EmptyState.jsx';
 import Leaderboard from './components/Leaderboard.jsx';
@@ -30,6 +31,9 @@ export default function App() {
   // The fencer chosen on the International tab, kept here so it survives
   // opening their profile and coming back (the tab unmounts in between).
   const [intlFencer, setIntlFencer] = useState(null);
+  // NZ fencers' placings at the FeNZ results portal's International
+  // competitions (ingest/portal_intl.py, shipped as data/intl_results.json).
+  const [intlShipped, setIntlShipped] = useState([]);
   const [selectedClub, setSelectedClub] = useState(null);
   const [history, setHistory] = useState([]);
   const [serverSourced, setServerSourced] = useState(false);
@@ -81,6 +85,15 @@ export default function App() {
 
       const info = await loadFencerInfo();
       setFencerInfo(info);
+
+      // Optional: with no file (or the demo data) the International tab shows
+      // only results kept in this browser.
+      try {
+        const res = await fetch('/data/intl_results.json', { cache: 'no-cache' });
+        if (res.ok) setIntlShipped(shippedResults(await res.json()));
+      } catch {
+        // Missing, or the dev server's index.html in its place: no portal results.
+      }
 
       // Pull live overrides (applied name/club edits + flagged bouts).
       // Failure here is non-fatal — the function gracefully returns an
@@ -142,6 +155,9 @@ export default function App() {
     () => processBouts(mergedRawBouts, settings),
     [mergedRawBouts, settings]
   );
+
+  // Portal results follow admin merges, as bouts do.
+  const intlResults = useMemo(() => applyMerges(intlShipped, overrides.merges), [intlShipped, overrides.merges]);
 
   // name_key → enrichment record, derived from the shipped fencers.json.
   // Defined before `fencers` so the gender fallback below can use it.
@@ -298,7 +314,7 @@ export default function App() {
         ) : view === 'intl' ? (
           // The International tab (prototype). Its demo button loads the demo
           // fencers without leaving the page, unlike the admin import.
-          <IntlPage fencers={fencers} picked={intlFencer} onPick={setIntlFencer} onSelectFencer={goFencer} onLoadDemo={() => setRawBouts(makeDemoBouts())} />
+          <IntlPage fencers={fencers} shipped={intlResults} picked={intlFencer} onPick={setIntlFencer} onSelectFencer={goFencer} onLoadDemo={() => setRawBouts(makeDemoBouts())} />
         ) : view === 'method' ? (
           <Method bouts={bouts} settings={settings} />
         ) : view === 'faq' ? (
@@ -313,6 +329,7 @@ export default function App() {
             settings={settings}
             enrichment={enrichment}
             flaggedBouts={flaggedBouts}
+            intlShipped={intlResults}
             onBack={goBack}
             onSelectFencer={goFencer}
             onSelectComp={goComp}

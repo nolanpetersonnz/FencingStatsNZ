@@ -121,6 +121,17 @@ NAME_DECISIONS = {
     "joel ball-la-hood": "Joel Ball-La Hood",
     "sera cox": "Seraphine Cox",
     "zining wang": "Steven Zining Wang",
+    # 9 Nov 2026, on the international results review (portal_intl.py): the
+    # same weapon, plus club, school or a registry record where known.
+    "joel ball la hood": "Joel Ball-La Hood",
+    "zhi yuan qin": "Zhiyuan Aiden Qin",
+    "ho ting ruby chan": "Ruby Ho Ting Chan",
+    "ting xuan emma hu": "Ting Xuan Hu",
+    "alex wu": "Youfu (Alex) Wu",
+    "nicholas peters": "Nick Peters",
+    "olivia fu": "Olivia Hanqi Fu",
+    "jackie ziqi wu": "Jackie Wu",
+    "jeremy ziqi lin": "Jeremy Lin",
 }
 
 # DE bouts the portal records oddly, decided by hand: "<competition> /
@@ -441,23 +452,25 @@ class KnownNames:
     registry_site: dict[str, set] = field(default_factory=lambda: defaultdict(set))
 
     @classmethod
-    def load(cls, bouts_csv: Path, fencers_json: Path) -> "KnownNames":
+    def load(cls, bouts_csv: Path | list[Path], fencers_json: Path) -> "KnownNames":
+        """bouts_csv: one bouts file, or several (portal_intl.py reads both)."""
         k = cls()
         counts: dict[str, Counter] = defaultdict(Counter)
-        with open(bouts_csv, encoding="utf-8", newline="") as f:
-            for r in csv.DictReader(f):
-                for side in ("a", "b"):
-                    nm, club = r[f"fencer_{side}"].strip(), r[f"club_{side}"].strip()
-                    key = name_key(nm)
-                    if not key:
-                        continue
-                    counts[key][nm] += 1
-                    k.weapons[key].add(r["weapon"])
-                    if club:
-                        k.clubs[key].add(club.lower())
-                        prev = k.latest_club.get(key)
-                        if prev is None or r["date"] >= prev[0]:
-                            k.latest_club[key] = (r["date"], club)
+        for path in (bouts_csv if isinstance(bouts_csv, (list, tuple)) else [bouts_csv]):
+            with open(path, encoding="utf-8", newline="") as f:
+                for r in csv.DictReader(f):
+                    for side in ("a", "b"):
+                        nm, club = r[f"fencer_{side}"].strip(), r[f"club_{side}"].strip()
+                        key = name_key(nm)
+                        if not key:
+                            continue
+                        counts[key][nm] += 1
+                        k.weapons[key].add(r["weapon"])
+                        if club:
+                            k.clubs[key].add(club.lower())
+                            prev = k.latest_club.get(key)
+                            if prev is None or r["date"] >= prev[0]:
+                                k.latest_club[key] = (r["date"], club)
         for key, c in counts.items():
             k.spelling[key] = c.most_common(1)[0][0]
             k.source[key] = "bouts.csv"

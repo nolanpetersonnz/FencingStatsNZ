@@ -1,18 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   CATEGORIES, CATEGORY_LABELS, GENDERS, LEVELS, LEVEL_LABELS, RESIDENCES, WEAPONS,
-  PLACEHOLDER_POLICY, initialLog, validateResult, newRecord, reviewResult, changePolicy,
+  PLACEHOLDER_POLICY, initialLog, validateEventEntry, newRecord, reviewResult, reviewEvent, changePolicy,
   adminStatusText, softCapQualifier, SOFT_CAP_LABELS, ordinal,
 } from '../data/intl.js';
+import { nameKey } from '../data/pipeline.js';
 import { loadIntl, saveIntl, clearIntl, todayIso } from '../data/intlStore.js';
 import { testIntlState } from '../data/intlTestData.js';
 import { fmtDate } from '../utils/formatters.js';
 import { safeHttpUrl } from '../utils/url.js';
 
 // /#admin, International: the prototype of the international results panel
-// (PANELS.md section 2). Admin entry, the review queue, the points table and
-// the event list. Records stay in this browser (data/intlStore.js), and the
-// table and list are placeholders until FeNZ sets them.
+// (PANELS.md section 2). Entering results (an event once, then each fencer
+// who went), the review queue, the points table and the event list. Records
+// stay in this browser (data/intlStore.js), and the table and list are
+// placeholders until FeNZ sets them. Results from FeNZ's results portal
+// (data/intl_results.json) never come through here: they are FeNZ's own.
 
 const WEAPON_LABEL = { foil: 'Foil', epee: 'Épée', sabre: 'Sabre' };
 const GENDER_LABEL = { mens: 'Men', womens: 'Women' };
@@ -20,9 +23,11 @@ const input = { width: '100%', padding: '8px 10px', fontSize: '0.95rem', fontFam
 const label = { display: 'block', fontSize: '0.72rem', marginBottom: 4 };
 const box = { borderTop: '1px solid var(--ink)', borderBottom: '1px solid var(--ink)' };
 const tag = { fontSize: '0.66rem', padding: '2px 6px', border: '1px solid var(--rule)', color: 'var(--ink-soft)' };
+const soft = { color: 'var(--ink-soft)' };
 
 const fresh = () => ({ records: [], policy: PLACEHOLDER_POLICY, log: initialLog(new Date().toISOString()) });
 const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
   const [state, setState] = useState(() => loadIntl() || fresh());
@@ -60,20 +65,26 @@ export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
     setConfirmClear(false);
     setNote('Cleared the records, table and list in this browser.');
   };
+  const added = (recs) => {
+    persist({ ...state, records: [...recs, ...state.records] }, recs.length === 1
+      ? `Added ${recs[0].fencer_name}'s result to the review queue.`
+      : `Added ${plural(recs.length, 'result')} from ${recs[0].event} to the review queue, kept together.`);
+    setTab('queue');
+  };
 
-  const sections = [['queue', 'Review queue'], ['add', 'Add a result'], ['table', 'Points table'], ['list', 'Event list'], ['log', 'Change log']];
+  const sections = [['queue', 'Review queue'], ['add', 'Add an event'], ['table', 'Points table'], ['list', 'Event list'], ['log', 'Change log']];
 
   return (
     <div>
-      <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 6 }}>
-        FeNZ's side of the international results prototype (PANELS.md section 2): submitting a result (from
-        email, or a fencer's "Submit an event" on the International tab), the review queue, the points table and
-        the event list. Anyone can look a fencer up on the International tab. Records stay in this browser and are
-        never sent anywhere; the table and list are placeholders until FeNZ sets them, and only made-up results
-        belong here.
+      <p className="fl-italic" style={{ ...soft, fontSize: '0.9rem', marginBottom: 6 }}>
+        FeNZ's side of the international results prototype (PANELS.md section 2): entering results (an event once,
+        then every fencer who went, from email or a fencer's "Submit an event" on the International tab), the review
+        queue, the points table and the event list. Records stay in this browser and are never sent anywhere; the
+        table and list are placeholders until FeNZ sets them, and only made-up results belong here. FIE and
+        Australian results from FeNZ's results portal show on the International tab without coming through here.
       </p>
-      <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 14 }}>
-        Points table v{state.policy.version}. {state.records.length} result{state.records.length === 1 ? '' : 's'} stored.
+      <p className="fl-italic" style={{ ...soft, fontSize: '0.9rem', marginBottom: 14 }}>
+        Points table v{state.policy.version}. {plural(state.records.length, 'result')} stored.
         {state.test_data && ' Test results on the demo fencers: open Hamish Carter, Charlotte Reeves or Aroha Williams to see them on a profile.'}
       </p>
 
@@ -108,7 +119,7 @@ export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
       )}
 
       {tab === 'queue' && <Queue state={state} who={who} today={today} persist={persist} fail={fail} />}
-      {tab === 'add' && <AddResult fencers={fencers} today={today} defaults={submitFor ? { fencer: submitFor } : {}} onAdd={(rec) => { persist({ ...state, records: [rec, ...state.records] }, `Added ${rec.fencer_name}'s result to the review queue.`); setTab('queue'); }} fail={fail} />}
+      {tab === 'add' && <AddEvent fencers={fencers} today={today} defaults={submitFor ? { fencer: submitFor } : {}} onAdd={added} fail={fail} />}
       {tab === 'table' && <PointsTable state={state} who={who} clause={clause} persist={persist} fail={fail} />}
       {tab === 'list' && <EventList state={state} who={who} clause={clause} persist={persist} fail={fail} />}
       {tab === 'log' && <ChangeLog log={state.log} />}
@@ -117,26 +128,43 @@ export default function IntlPanel({ fencers = {}, onLoadDemo, setErr }) {
 }
 
 // ---- Review queue (PANELS.md 2.4, screen 2) ------------------------------------
+// Results entered together as one event sit under one heading, with one set
+// of actions for the fencers still waiting; each keeps its own actions too.
 
 function Queue({ state, who, today, persist, fail }) {
   const [filter, setFilter] = useState('pending');
-  const [draft, setDraft] = useState({}); // id -> { note, listEntry }
+  const [draft, setDraft] = useState({}); // record id, or "event:<event_id>" -> { note, listEntry }
   const counts = useMemo(() => {
     const c = { pending: 0, approved: 0, rejected: 0, withdrawn: 0 };
     for (const r of state.records) c[r.status] += 1;
     return c;
   }, [state.records]);
   const shown = state.records.filter((r) => filter === 'all' || r.status === filter);
+  const groups = new Map();
+  for (const r of shown) {
+    const k = r.event_id ? `event:${r.event_id}` : r.id;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  }
   const nowIso = () => new Date().toISOString();
+  const edit = (k) => (patch) => setDraft((m) => ({ ...m, [k]: { ...(m[k] || {}), ...patch } }));
+  const opts = (k) => ({ reviewer: who, note: draft[k]?.note, listEntry: draft[k]?.listEntry, policy: state.policy, now: nowIso() });
 
   const act = (rec, action) => {
-    const d = draft[rec.id] || {};
-    const out = reviewResult(rec, action, { reviewer: who, note: d.note, listEntry: d.listEntry, policy: state.policy, now: nowIso() });
+    const out = reviewResult(rec, action, opts(rec.id));
     if (out.error) { fail(out.error); return; }
     persist({ ...state, records: state.records.map((r) => (r.id === rec.id ? out.value : r)) },
       `${rec.fencer_name}: ${out.value.status === 'pending' ? 'back in the queue' : out.value.status}.`);
     setDraft((m) => ({ ...m, [rec.id]: {} }));
   };
+  const actEvent = (k, first, action) => {
+    const out = reviewEvent(state.records, first.event_id, action, opts(k));
+    if (out.error) { fail(out.error); return; }
+    const done = { approve: 'approved', reject: 'rejected', withdraw: 'withdrawn' }[action];
+    persist({ ...state, records: out.value }, `${first.event}: ${plural(out.count, 'result')} ${done}.`);
+    setDraft((m) => ({ ...m, [k]: {} }));
+  };
+  const entriesFor = (r) => state.policy.list.filter((e) => e.country === r.country);
 
   return (
     <div>
@@ -149,142 +177,239 @@ function Queue({ state, who, today, persist, fail }) {
       </div>
       <div style={box}>
         {shown.length === 0 && (
-          <div className="fl-italic" style={{ padding: 32, textAlign: 'center', color: 'var(--ink-soft)' }}>No results in this view.</div>
+          <div className="fl-italic" style={{ padding: 32, textAlign: 'center', ...soft }}>No results in this view.</div>
         )}
-        {shown.map((r) => {
-          const href = safeHttpUrl(r.results_url);
-          const q = softCapQualifier(r);
-          const d = draft[r.id] || {};
-          const entries = state.policy.list.filter((e) => e.country === r.country);
-          return (
-            <div key={r.id} style={{ padding: '14px 0', borderBottom: '1px solid var(--rule-soft)' }}>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
-                <span className="fl-smallcaps" style={{ color: r.status === 'pending' ? 'var(--ox)' : 'var(--ink-soft)' }}>{r.status}</span>
-                <span className="fl-display" style={{ fontWeight: 600 }}>{r.fencer_name}</span>
-                <span className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem' }}>
-                  {WEAPON_LABEL[r.weapon]} · {GENDER_LABEL[r.gender]} · {CATEGORY_LABELS[r.category]} · lives {r.residence === 'nz' ? 'in NZ' : 'overseas'}
-                </span>
-              </div>
-              <div style={{ marginTop: 6, fontSize: '0.95rem' }}>
-                {r.event} · {r.country}{r.city ? `, ${r.city}` : ''} · {fmtDate(r.date)} · {LEVEL_LABELS[r.level]}{r.organiser ? ` · ${r.organiser}` : ''}
-              </div>
-              <div style={{ marginTop: 4, fontSize: '0.95rem', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
-                <span className="fl-mono">{ordinal(r.placing)} of {r.field_size}</span>
-                {r.level === 'fie' && <span className="fl-italic">{r.made_de ? 'reached the DE' : 'out in the pools'}</span>}
-                {href ? <a className="fl-link" href={href} target="_blank" rel="noopener noreferrer">Official results</a> : <span>no valid link</span>}
-                {q && <span className="fl-smallcaps" style={tag}>{SOFT_CAP_LABELS[q]}</span>}
-              </div>
-              {r.status !== 'pending' && (
-                <div className="fl-italic" style={{ marginTop: 6, fontSize: '0.88rem', color: 'var(--ink-soft)' }}>
-                  {r.status === 'approved' && <>{adminStatusText(r, today)} · table v{r.policy_version} · </>}
-                  {r.reviewer ? `${r.reviewer}, ${fmtDate((r.reviewed_at || '').slice(0, 10))}` : ''}
-                  {r.review_note ? ` · "${r.review_note}"` : ''}
-                </div>
-              )}
-              <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                {r.status === 'pending' && (
-                  <>
-                    <select aria-label="Event list entry" value={d.listEntry || ''} onChange={(e) => setDraft((m) => ({ ...m, [r.id]: { ...d, listEntry: e.target.value } }))} style={{ ...input, maxWidth: 260 }}>
-                      <option value="">Not on the event list</option>
-                      {entries.map((e) => <option key={e.id} value={e.id}>{e.country}: {e.event} ({LEVEL_LABELS[e.level]})</option>)}
-                    </select>
-                    <input aria-label="Review note" placeholder="Note (needed to reject)" value={d.note || ''} onChange={(e) => setDraft((m) => ({ ...m, [r.id]: { ...d, note: e.target.value } }))} style={{ ...input, maxWidth: 280 }} />
-                    <button onClick={() => act(r, 'approve')} className="fl-pill">Approve</button>
-                    <button onClick={() => act(r, 'reject')} className="fl-pill">Reject</button>
-                    <button onClick={() => act(r, 'withdraw')} className="fl-pill">Withdraw</button>
-                  </>
-                )}
-                {(r.status === 'approved' || r.status === 'rejected') && (
-                  <button onClick={() => act(r, 'reopen')} className="fl-pill" title="Back to the queue, to review again under the current table">Reopen</button>
-                )}
-                {r.status === 'approved' && <button onClick={() => act(r, 'withdraw')} className="fl-pill">Withdraw</button>}
-              </div>
-            </div>
-          );
-        })}
+        {[...groups.entries()].map(([k, recs]) => (recs.length > 1 ? (
+          <EventGroup key={k} recs={recs} draft={draft[k] || {}} onDraft={edit(k)} entries={entriesFor(recs[0])}
+            onAct={(action) => actEvent(k, recs[0], action)}>
+            {recs.map((r) => (
+              <ResultRow key={r.id} r={r} compact today={today} draft={draft[r.id] || {}} onDraft={edit(r.id)}
+                entries={entriesFor(r)} onAct={(action) => act(r, action)} />
+            ))}
+          </EventGroup>
+        ) : (
+          <ResultRow key={k} r={recs[0]} today={today} draft={draft[k] || {}} onDraft={edit(k)}
+            entries={entriesFor(recs[0])} onAct={(action) => act(recs[0], action)} />
+        )))}
       </div>
     </div>
   );
 }
 
-// ---- A result's form (PANELS.md 2.4, screen 1), behind FeNZ's sign-in while
-// fencer sign-in is paused: a result sent by email, or one started from the
-// International tab's "Submit an event". It goes to the review queue. ---------
+const eventLine = (r) => `${r.event} · ${r.country}${r.city ? `, ${r.city}` : ''} · ${fmtDate(r.date)} · ${LEVEL_LABELS[r.level]}${r.organiser ? ` · ${r.organiser}` : ''}`;
+const asRan = (r) => `${WEAPON_LABEL[r.weapon]} · ${GENDER_LABEL[r.gender]} · ${CATEGORY_LABELS[r.category]}`;
 
-const blank = {
-  fencer: '', weapon: 'epee', gender: 'mens', category: 'senior', event: '', organiser: '', country: '', city: '',
-  level: 'national_championship', date: '', results_url: '', placing: '', field_size: '', made_de: '', residence: 'overseas',
+// The list entry and note a review takes, then the buttons.
+function ReviewControls({ draft, onDraft, entries, children }) {
+  return (
+    <>
+      <select aria-label="Event list entry" value={draft.listEntry || ''} onChange={(e) => onDraft({ listEntry: e.target.value })} style={{ ...input, maxWidth: 260 }}>
+        <option value="">Not on the event list</option>
+        {entries.map((e) => <option key={e.id} value={e.id}>{e.country}: {e.event} ({LEVEL_LABELS[e.level]})</option>)}
+      </select>
+      <input aria-label="Review note" placeholder="Note (needed to reject)" value={draft.note || ''} onChange={(e) => onDraft({ note: e.target.value })} style={{ ...input, maxWidth: 280 }} />
+      {children}
+    </>
+  );
+}
+
+function EventGroup({ recs, draft, onDraft, entries, onAct, children }) {
+  const first = recs[0];
+  const href = safeHttpUrl(first.results_url);
+  const waiting = recs.filter((r) => r.status === 'pending').length;
+  return (
+    <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule-soft)' }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
+        <span className="fl-smallcaps" style={{ color: waiting ? 'var(--ox)' : 'var(--ink-soft)' }}>event · {plural(recs.length, 'fencer')}</span>
+        <span className="fl-display" style={{ fontWeight: 600 }}>{first.event}</span>
+        <span className="fl-italic" style={{ ...soft, fontSize: '0.9rem' }}>{asRan(first)}</span>
+      </div>
+      <div style={{ marginTop: 6, fontSize: '0.95rem', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
+        <span>{eventLine(first).slice(first.event.length + 3)}</span>
+        <span className="fl-mono">field of {first.field_size}</span>
+        {href ? <a className="fl-link" href={href} target="_blank" rel="noopener noreferrer">Official results</a> : <span>no valid link</span>}
+      </div>
+      {waiting > 0 && (
+        <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <ReviewControls draft={draft} onDraft={onDraft} entries={entries}>
+            <button onClick={() => onAct('approve')} className="fl-pill">{waiting > 1 ? `Approve all ${waiting}` : 'Approve'}</button>
+            <button onClick={() => onAct('reject')} className="fl-pill">{waiting > 1 ? 'Reject all' : 'Reject'}</button>
+            <button onClick={() => onAct('withdraw')} className="fl-pill">{waiting > 1 ? 'Withdraw all' : 'Withdraw'}</button>
+          </ReviewControls>
+        </div>
+      )}
+      <div style={{ marginTop: 10, marginLeft: 16, borderTop: '1px solid var(--rule-soft)' }}>{children}</div>
+    </div>
+  );
+}
+
+function ResultRow({ r, compact = false, today, draft, onDraft, entries, onAct }) {
+  const href = safeHttpUrl(r.results_url);
+  const q = softCapQualifier(r);
+  return (
+    <div style={{ padding: compact ? '10px 0' : '14px 0', borderBottom: '1px solid var(--rule-soft)' }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap' }}>
+        <span className="fl-smallcaps" style={{ color: r.status === 'pending' ? 'var(--ox)' : 'var(--ink-soft)' }}>{r.status}</span>
+        <span className="fl-display" style={{ fontWeight: 600 }}>{r.fencer_name}</span>
+        <span className="fl-italic" style={{ ...soft, fontSize: '0.9rem' }}>
+          {compact ? '' : `${asRan(r)} · `}lives {r.residence === 'nz' ? 'in NZ' : 'overseas'}
+        </span>
+      </div>
+      {!compact && <div style={{ marginTop: 6, fontSize: '0.95rem' }}>{eventLine(r)}</div>}
+      <div style={{ marginTop: 4, fontSize: '0.95rem', display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline' }}>
+        <span className="fl-mono">{ordinal(r.placing)} of {r.field_size}</span>
+        {r.level === 'fie' && <span className="fl-italic">{r.made_de ? 'reached the DE' : 'out in the pools'}</span>}
+        {!compact && (href ? <a className="fl-link" href={href} target="_blank" rel="noopener noreferrer">Official results</a> : <span>no valid link</span>)}
+        {q && <span className="fl-smallcaps" style={tag}>{SOFT_CAP_LABELS[q]}</span>}
+      </div>
+      {r.status !== 'pending' && (
+        <div className="fl-italic" style={{ marginTop: 6, fontSize: '0.88rem', ...soft }}>
+          {r.status === 'approved' && <>{adminStatusText(r, today)} · table v{r.policy_version} · </>}
+          {r.reviewer ? `${r.reviewer}, ${fmtDate((r.reviewed_at || '').slice(0, 10))}` : ''}
+          {r.review_note ? ` · "${r.review_note}"` : ''}
+        </div>
+      )}
+      <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        {r.status === 'pending' && (
+          <ReviewControls draft={draft} onDraft={onDraft} entries={entries}>
+            <button onClick={() => onAct('approve')} className="fl-pill">Approve</button>
+            <button onClick={() => onAct('reject')} className="fl-pill">Reject</button>
+            <button onClick={() => onAct('withdraw')} className="fl-pill">Withdraw</button>
+          </ReviewControls>
+        )}
+        {(r.status === 'approved' || r.status === 'rejected') && (
+          <button onClick={() => onAct('reopen')} className="fl-pill" title="Back to the queue, to review again under the current table">Reopen</button>
+        )}
+        {r.status === 'approved' && <button onClick={() => onAct('withdraw')} className="fl-pill">Withdraw</button>}
+      </div>
+    </div>
+  );
+}
+
+// ---- Entering results (PANELS.md 2.4, screen 1), behind FeNZ's sign-in while
+// fencer sign-in is paused: the event once, as on the official results page,
+// then every NZ fencer who went, each with their own placing. One pending
+// result per fencer, sharing an event_id, so the queue keeps them together.
+// A single result is an event with one fencer. ------------------------------
+
+const blankEvent = {
+  weapon: 'epee', gender: 'mens', category: 'senior', event: '', organiser: '', country: '', city: '',
+  level: 'national_championship', date: '', results_url: '', field_size: '',
 };
+const blankRow = (name = '') => ({ id: newId(), name, placing: '', made_de: '', residence: 'overseas' });
 
-export function AddResult({ fencers, today, onAdd, fail, intro, submitLabel = 'Add to the review queue', defaults = {} }) {
-  const [form, setForm] = useState(() => ({ ...blank, ...defaults }));
-  const [filter, setFilter] = useState('');
-  const list = useMemo(() => Object.values(fencers)
+export function AddEvent({ fencers, today, onAdd, fail, defaults = {} }) {
+  const people = useMemo(() => Object.values(fencers)
     .map((f) => ({ key: f.key, name: f.name, club: f.club || '' }))
     .sort((a, b) => a.name.localeCompare(b.name)), [fencers]);
-  const options = filter.trim() ? list.filter((f) => f.name.toLowerCase().includes(filter.trim().toLowerCase())) : list;
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  // A typed name finds its fencer by the name shown (which an admin edit can
+  // change) or by the site key.
+  const find = useMemo(() => {
+    const m = new Map();
+    for (const f of people) { m.set(f.key, f); m.set(nameKey(f.name), f); }
+    return (typed) => m.get(nameKey(typed)) || null;
+  }, [people]);
+  const [ev, setEv] = useState(blankEvent);
+  const [rows, setRows] = useState(() => [blankRow(fencers[defaults.fencer]?.name || '')]);
+  const setE = (k) => (e) => setEv((f) => ({ ...f, [k]: e.target.value }));
+  const setR = (id, k) => (e) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, [k]: e.target.value } : r)));
+  const filled = rows.filter((r) => r.name.trim() || r.placing.trim());
 
   const submit = () => {
-    const picked = list.find((f) => f.key === form.fencer);
-    const made = form.made_de === 'yes' ? true : form.made_de === 'no' ? false : undefined;
-    const out = validateResult({ ...form, fencer_name: picked?.name, made_de: made }, { today });
+    const mapped = [];
+    for (const r of filled) {
+      const f = find(r.name);
+      if (!f) { fail(`${r.name.trim() || 'A fencer row'}: pick a fencer from the suggestions (a name on the site)`); return; }
+      mapped.push({
+        fencer: f.key, fencer_name: f.name, placing: r.placing, residence: r.residence,
+        made_de: r.made_de === 'yes' ? true : r.made_de === 'no' ? false : undefined,
+      });
+    }
+    const out = validateEventEntry(ev, mapped, { today });
     if (out.error) { fail(out.error); return; }
-    onAdd(newRecord(out.value, { id: newId(), now: new Date().toISOString() }));
-    setForm({ ...blank, ...defaults });
+    const eventId = newId();
+    const now = new Date().toISOString();
+    onAdd(out.value.map((v, i) => ({ ...newRecord(v, { id: `${eventId}-${i + 1}`, now }), event_id: eventId })));
+    setEv(blankEvent);
+    setRows([blankRow()]);
   };
 
-  const field = (k, l, el) => (
-    <div style={{ flex: '1 1 200px' }}>
+  const field = (k, l, el, flex = '1 1 200px') => (
+    <div style={{ flex }}>
       <label className="fl-smallcaps" style={label} htmlFor={`intl-${k}`}>{l}</label>
       {el}
     </div>
   );
   const select = (k, values, labels) => (
-    <select id={`intl-${k}`} value={form[k]} onChange={set(k)} style={input}>
+    <select id={`intl-${k}`} value={ev[k]} onChange={setE(k)} style={input}>
       {values.map((v) => <option key={v} value={v}>{labels[v] || v}</option>)}
     </select>
   );
+  const heading = (text) => <div className="fl-smallcaps" style={{ margin: '4px 0 10px', borderBottom: '1px solid var(--rule)', paddingBottom: 4 }}>{text}</div>;
 
   return (
     <div style={{ maxWidth: 760 }}>
-      <p className="fl-italic" style={{ color: 'var(--ink-soft)', fontSize: '0.9rem', marginBottom: 14 }}>
-        {intro ?? 'From a fencer\'s email or form, while sign-in is paused. Every field as published on the official results page.'}
+      <p className="fl-italic" style={{ ...soft, fontSize: '0.9rem', marginBottom: 14 }}>
+        From the official results page, or a fencer's email while sign-in is paused. Enter the event once, then add
+        every NZ fencer who went with their placing: each becomes a result in the review queue, kept together there
+        so they can be approved at once.
       </p>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
-        {field('find', 'Find fencer', <input id="intl-find" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Type part of a name" style={input} />)}
-        {field('fencer', 'Fencer', (
-          <select id="intl-fencer" value={form.fencer} onChange={set('fencer')} style={input}>
-            <option value="">Pick a fencer</option>
-            {options.map((f) => <option key={f.key} value={f.key}>{f.name}{f.club ? ` · ${f.club}` : ''}</option>)}
-          </select>
-        ))}
-      </div>
+      {heading('The event')}
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
         {field('weapon', 'Weapon', select('weapon', WEAPONS, WEAPON_LABEL))}
         {field('gender', 'Event ran as', select('gender', GENDERS, GENDER_LABEL))}
         {field('category', 'Category', select('category', CATEGORIES, CATEGORY_LABELS))}
       </div>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
-        {field('event', 'Event name', <input id="intl-event" value={form.event} onChange={set('event')} style={input} />)}
-        {field('organiser', 'Organiser', <input id="intl-organiser" value={form.organiser} onChange={set('organiser')} style={input} />)}
+        {field('event', 'Event name', <input id="intl-event" value={ev.event} onChange={setE('event')} style={input} />)}
+        {field('organiser', 'Organiser', <input id="intl-organiser" value={ev.organiser} onChange={setE('organiser')} style={input} />)}
       </div>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
-        {field('country', 'Country (three letters)', <input id="intl-country" value={form.country} onChange={set('country')} placeholder="GBR" style={input} />)}
-        {field('city', 'City', <input id="intl-city" value={form.city} onChange={set('city')} style={input} />)}
+        {field('country', 'Country (three letters)', <input id="intl-country" value={ev.country} onChange={setE('country')} placeholder="GBR" style={input} />)}
+        {field('city', 'City', <input id="intl-city" value={ev.city} onChange={setE('city')} style={input} />)}
         {field('level', 'Level', select('level', LEVELS, LEVEL_LABELS))}
-        {field('date', 'Date', <input id="intl-date" type="date" max={today} value={form.date} onChange={set('date')} style={input} />)}
+        {field('date', 'Date', <input id="intl-date" type="date" max={today} value={ev.date} onChange={setE('date')} style={input} />)}
       </div>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
-        {field('results_url', 'Official results link', <input id="intl-results_url" value={form.results_url} onChange={set('results_url')} placeholder="https://" style={input} />)}
-        {field('placing', 'Placing', <input id="intl-placing" inputMode="numeric" value={form.placing} onChange={set('placing')} style={input} />)}
-        {field('field_size', 'Field size', <input id="intl-field_size" inputMode="numeric" value={form.field_size} onChange={set('field_size')} style={input} />)}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+        {field('results_url', 'Official results link', <input id="intl-results_url" value={ev.results_url} onChange={setE('results_url')} placeholder="https://" style={input} />, '3 1 300px')}
+        {field('field_size', 'Field size', <input id="intl-field_size" inputMode="numeric" value={ev.field_size} onChange={setE('field_size')} style={input} />, '1 1 120px')}
       </div>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
-        {form.level === 'fie' && field('made_de', 'Reached the DE?', select('made_de', ['', 'yes', 'no'], { '': 'Pick one', yes: 'Yes', no: 'No, out in the pools' }))}
-        {field('residence', 'Lived at the time', select('residence', RESIDENCES, { overseas: 'Overseas', nz: 'In NZ' }))}
+
+      {heading(`Fencers · ${filled.length}`)}
+      <datalist id="intl-fencer-names">
+        {people.map((f) => <option key={f.key} value={f.name}>{f.club}</option>)}
+      </datalist>
+      {rows.map((r, i) => (
+        <div key={r.id} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 10 }}>
+          {field(`r-${r.id}-name`, `Fencer ${i + 1}`, (
+            <input id={`intl-r-${r.id}-name`} list="intl-fencer-names" autoComplete="off" placeholder="Type a name" value={r.name} onChange={setR(r.id, 'name')} style={input} />
+          ), '3 1 220px')}
+          {field(`r-${r.id}-placing`, 'Placing', (
+            <input id={`intl-r-${r.id}-placing`} inputMode="numeric" value={r.placing} onChange={setR(r.id, 'placing')} style={input} />
+          ), '1 1 80px')}
+          {ev.level === 'fie' && field(`r-${r.id}-made_de`, 'Reached the DE?', (
+            <select id={`intl-r-${r.id}-made_de`} value={r.made_de} onChange={setR(r.id, 'made_de')} style={input}>
+              <option value="">Pick one</option>
+              <option value="yes">Yes</option>
+              <option value="no">No, out in the pools</option>
+            </select>
+          ), '1 1 150px')}
+          {field(`r-${r.id}-residence`, 'Lived at the time', (
+            <select id={`intl-r-${r.id}-residence`} value={r.residence} onChange={setR(r.id, 'residence')} style={input}>
+              {RESIDENCES.map((v) => <option key={v} value={v}>{v === 'nz' ? 'In NZ' : 'Overseas'}</option>)}
+            </select>
+          ), '1 1 130px')}
+          {rows.length > 1 && (
+            <button onClick={() => setRows((rs) => rs.filter((x) => x.id !== r.id))} className="fl-pill" aria-label={`Remove fencer ${i + 1}`}>Remove</button>
+          )}
+        </div>
+      ))}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 6 }}>
+        <button onClick={() => setRows((rs) => [...rs, blankRow()])} className="fl-pill">Add another fencer</button>
+        <button onClick={submit} className="fl-pill">
+          {filled.length > 1 ? `Add ${filled.length} results to the review queue` : 'Add to the review queue'}
+        </button>
       </div>
-      <button onClick={submit} className="fl-pill">{submitLabel}</button>
     </div>
   );
 }

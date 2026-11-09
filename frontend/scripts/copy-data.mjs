@@ -29,7 +29,19 @@ if (hasFencerJson) {
   fs.copyFileSync(fencerJson, path.join(outDir, 'fencers.json'));
 }
 
+// intl_results.json: NZ fencers' placings at the FeNZ results portal's
+// International competitions (ingest/portal_intl.py). JSON, not CSV, so the
+// manifest below never offers it as bouts. Removed from public/data/ when the
+// ingest file is gone, so a stale copy can't linger.
+const intlJson = path.join(ingestDir, 'intl_results.json');
+const hasIntlJson = fs.existsSync(intlJson);
+if (hasIntlJson) {
+  fs.copyFileSync(intlJson, path.join(outDir, 'intl_results.json'));
+} else {
+  fs.rmSync(path.join(outDir, 'intl_results.json'), { force: true });
+}
+
 const manifest = csvs.map(f => `data/${f}`);
 fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 
-console.log(`copy-data: ${csvs.length} CSV(s)${hasFencerJson ? ' + fencers.json' : ''} copied → public/data/`);
+console.log(`copy-data: ${csvs.length} CSV(s)${hasFencerJson ? ' + fencers.json' : ''}${hasIntlJson ? ' + intl_results.json' : ''} copied → public/data/`);

@@ -1,9 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {
   PLACEHOLDER_POLICY, initialLog, validateResult, newRecord, reviewResult, scoreResult, placingShare,
   publicStatus, statusText, profileResults, adminStatusText, softCapQualifier, coversAgeGroup, meetsSoftCap,
   changePolicy, validatePolicy, addMonths, ordinal, eventVerdict, fencerResults, verdictText,
+  placingText, categoryText, shippedResults, applyMerges, validateEventEntry, reviewEvent,
 } from '../src/data/intl.js';
 import { testIntlState, TEST_FENCERS } from '../src/data/intlTestData.js';
 import { makeDemoBouts, nameKey } from '../src/data/pipeline.js';
@@ -89,7 +91,7 @@ test('review states: reject needs a reason; withdraw and reopen', () => {
   assert.match(reviewResult(withdrawn, 'reopen', { policy: P, now: NOW }).error, /can't be reopened/);
 });
 
-test('the profile shows approved results this panel scores, with the chosen wording', () => {
+test('statusText keeps the admin wording; the profile lists what the International tab does', () => {
   const counted = approve(pending(), 'gbr-champs').value;
   assert.deepEqual(publicStatus(counted, TODAY), { counts: true, points: 50 });
   assert.equal(statusText(publicStatus(counted, TODAY), counted), 'Counts toward the FeNZ ranking: 50 pts');
@@ -102,8 +104,10 @@ test('the profile shows approved results this panel scores, with the chosen word
   assert.equal(publicStatus(pending(), TODAY), null, 'pending stays off the profile');
   assert.equal(publicStatus(approve(pending({ country: 'AUS' })).value, TODAY), null, 'FeNZ ranks Australian events itself');
   assert.match(adminStatusText(approve(pending({ country: 'AUS' })).value, TODAY), /FeNZ's own ranking/);
-  const rows = profileResults([counted, old, off, pending()], 'hamish carter', 'epee', TODAY);
-  assert.deepEqual(rows.map((x) => x.rec.date), ['2026-06-14', '2026-06-14', '2025-06-14']);
+  const aus = approve(pending({ country: 'AUS', date: '2026-08-01' })).value;
+  const rows = profileResults([counted, old, off, aus, pending()], 'hamish carter', 'epee', TODAY);
+  assert.deepEqual(rows.map((x) => x.rec.date), ['2026-08-01', '2026-06-14', '2026-06-14', '2025-06-14']);
+  assert.deepEqual(rows[0].verdict, { fenz: null, why: 'australian', points: null, note: null }, 'Australian results show too');
   assert.deepEqual(profileResults([counted], 'hamish carter', 'foil', TODAY), []);
 });
 
@@ -160,7 +164,7 @@ test('a fencer\'s results say whether FeNZ counts the event and how many points 
     ['GBR', { fenz: true, why: 'listed', points: 50, note: null }],
     ['FRA', { fenz: true, why: 'listed', points: 0, note: 'small_field' }],
   ], 'newest first');
-  assert.equal(hamish.waiting, 0);
+  assert.equal(hamish.waiting, 1, 'the two-fencer event waiting in the queue');
   const one = (key) => fencerResults(st.records, key, TODAY).results[0];
   assert.deepEqual(one('charlotte reeves').verdict, { fenz: true, why: 'listed', points: 0, note: 'expired' });
   assert.deepEqual(one('aroha williams').verdict, { fenz: false, why: 'not_listed', points: 0, note: null });
@@ -193,6 +197,105 @@ test('the test data uses only the demo fencers, and shows each rule', () => {
   assert.deepEqual(shown.map((s) => (s.counts ? 'counts' : s.reason)).sort(),
     ['counts', 'expired', 'not_on_list', 'small_field']);
   assert.deepEqual(st.records.map((r) => r.status).sort(),
-    ['approved', 'approved', 'approved', 'approved', 'approved', 'pending', 'pending', 'rejected']);
+    ['approved', 'approved', 'approved', 'approved', 'approved', 'pending', 'pending', 'pending', 'pending', 'rejected']);
   assert.ok(st.records.some((r) => softCapQualifier(r) === 'aus_top_half'));
+  const together = st.records.filter((r) => r.event_id === 'test-event-1');
+  assert.deepEqual(together.map((r) => r.fencer_name), ['Hamish Carter', "Liam O'Connell"], 'one event, entered together');
+});
+
+// ---- Results from FeNZ's results portal ----------------------------------------
+
+const portalRow = (over = {}) => ({
+  id: 'portal:e1:claire cooper', fencer: 'claire cooper', fencer_name: 'Claire Cooper', weapon: 'epee',
+  gender: 'womens', category: 'senior', age_label: 'Senior', event: 'Fencing World Championships 2026',
+  event_label: 'Epee Women Senior', place: 'Hong Kong', country: 'HKG', level: 'fie', date: '2026-07-22',
+  date_end: '2026-07-30', results_url: 'https://results.fencing.org.nz/competitions/c1/events/e1',
+  placing: 157, field_size: null, made_de: null, status: 'approved', reason: 'fenz_portal', ...over,
+});
+
+test('placings read "5th of 40", or "157th" where the field size is not published', () => {
+  assert.equal(placingText({ placing: 5, field_size: 40 }), '5th of 40');
+  assert.equal(placingText({ placing: 157, field_size: null }), '157th');
+  assert.equal(categoryText({ category: 'u20' }), 'Junior (U20)');
+  assert.equal(categoryText({ category: null, age_label: 'U15' }), 'U15', "the portal's words where the site has no category");
+});
+
+test('portal results are shown as FeNZ records: never scored here, never a cl. 5.1 qualifier', () => {
+  const rows = shippedResults({ results: [
+    portalRow(),
+    portalRow({ id: 'portal:e2:claire cooper', status: 'pending', reason: null, points: 99, counts: true }),
+    portalRow({ id: 'portal:e1:claire cooper' }),                       // same id again
+    portalRow({ id: 'x1', weapon: 'lance' }),
+    portalRow({ id: 'x2', date: '22/07/2026' }),
+    portalRow({ id: 'x3', placing: 0 }),
+    portalRow({ id: 'x4', fencer: '' }),
+    portalRow({ id: 'x5', results_url: 'javascript:alert(1)', level: 'national_circuit', country: 'AUS' }),
+  ] });
+  assert.deepEqual(rows.map((r) => r.id), ['portal:e1:claire cooper', 'portal:e2:claire cooper', 'x5']);
+  for (const r of rows) {
+    assert.deepEqual([r.status, r.reason, r.source, r.points, r.counts], ['approved', 'fenz_portal', 'fenz_portal', null, null]);
+  }
+  assert.equal(rows[2].results_url, null, 'an unsafe link is dropped');
+  assert.deepEqual(eventVerdict(rows[0], TODAY), { fenz: true, why: 'fie', points: null, note: null });
+  assert.deepEqual(eventVerdict(rows[2], TODAY), { fenz: null, why: 'australian', points: null, note: null });
+  assert.equal(softCapQualifier({ ...rows[0], made_de: true }), null, 'no selection check on real fencers');
+  assert.deepEqual(shippedResults(null), []);
+  assert.deepEqual(shippedResults({ results: 'nope' }), []);
+  // They join the browser's records on the tab, newest first, and follow admin merges.
+  const both = fencerResults([...rows, approve(pending({ fencer: 'claire cooper', date: '2026-08-01' })).value], 'claire cooper', TODAY);
+  assert.deepEqual(both.results.map((x) => x.rec.date), ['2026-08-01', '2026-07-22', '2026-07-22', '2026-07-22']);
+  const merged = applyMerges(rows, { 'claire cooper': { merge_into: 'clare cooper', merge_into_name: 'Clare Cooper' } });
+  assert.deepEqual([merged[0].fencer, merged[0].fencer_name], ['clare cooper', 'Clare Cooper']);
+  assert.equal(applyMerges(rows, {}), rows);
+});
+
+test('the shipped intl_results.json reads cleanly and holds no personal fields', () => {
+  const file = new URL('../../ingest/intl_results.json', import.meta.url);
+  if (!fs.existsSync(file)) return;
+  const json = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const rows = shippedResults(json);
+  assert.equal(rows.length, json.results.length, 'every row is usable');
+  assert.equal(new Set(json.results.map((r) => r.id)).size, json.results.length, 'ids are unique');
+  const allowed = new Set(Object.keys(portalRow()));
+  for (const r of json.results) {
+    assert.deepEqual(Object.keys(r).filter((k) => !allowed.has(k)), [], `${r.id}: only the documented fields`);
+    assert.equal(r.fencer, nameKey(r.fencer_name), `${r.id}: the key is the site's key for the name`);
+    assert.ok(r.results_url.startsWith('https://results.fencing.org.nz/competitions/'), r.id);
+    assert.notEqual(r.country, 'NZL');
+    assert.ok(r.level === 'fie' || r.country === 'AUS', `${r.id}: FIE or Australian`);
+    assert.equal(r.field_size, null);
+  }
+});
+
+// ---- One event, several fencers ---------------------------------------------------
+
+const ev = {
+  weapon: 'epee', gender: 'mens', category: 'senior', event: 'National circuit (test)', organiser: '',
+  country: 'FRA', city: 'Lyon', level: 'national_circuit', date: '2026-10-01',
+  results_url: 'https://example.org/r', field_size: '64',
+};
+const row = (fencer, placing, over = {}) => ({ fencer: nameKey(fencer), fencer_name: fencer, placing, residence: 'overseas', ...over });
+
+test('an event entered once gives one result per fencer, the event checked first', () => {
+  const ok = validateEventEntry(ev, [row('Hamish Carter', '9'), { fencer: '', placing: '' }, row("Liam O'Connell", '30')], { today: TODAY });
+  assert.deepEqual(ok.value.map((v) => [v.fencer_name, v.placing, v.field_size, v.event]),
+    [['Hamish Carter', 9, 64, 'National circuit (test)'], ["Liam O'Connell", 30, 64, 'National circuit (test)']], 'blank rows skipped');
+  assert.match(validateEventEntry({ ...ev, results_url: '' }, [row('Hamish Carter', 'x')], { today: TODAY }).error, /official results link/, 'the event first');
+  assert.match(validateEventEntry(ev, [row('Hamish Carter', '70')], { today: TODAY }).error, /^Hamish Carter: the placing is past the field size/);
+  assert.match(validateEventEntry(ev, [row('Hamish Carter', '9'), row('Hamish Carter', '12')], { today: TODAY }).error, /listed twice/);
+  assert.match(validateEventEntry(ev, [{ fencer: '', placing: '' }], { today: TODAY }).error, /at least one fencer/);
+  assert.match(validateEventEntry({ ...ev, level: 'fie' }, [row('Hamish Carter', '9')], { today: TODAY }).error, /reached the DE/);
+});
+
+test('an event\'s waiting results are approved together, all or none', () => {
+  const recs = validateEventEntry(ev, [row('Hamish Carter', '9'), row("Liam O'Connell", '30')], { today: TODAY }).value
+    .map((v, i) => ({ ...newRecord(v, { id: `e-${i}`, now: NOW }), event_id: 'e' }));
+  const other = pending({ fencer: 'theo anand' });
+  const policy = { ...P, list: [...P.list, { id: 'fra-circuit-x', country: 'FRA', event: 'National circuit', level: 'national_circuit' }] };
+  const out = reviewEvent([...recs, other], 'e', 'approve', { reviewer: 'Rev', listEntry: 'fra-circuit-x', policy, now: NOW });
+  assert.equal(out.count, 2);
+  assert.deepEqual(out.value.map((r) => [r.status, r.points]), [['approved', 21], ['approved', 12], ['pending', null]]);
+  assert.match(reviewEvent([...recs, other], 'e', 'approve', { reviewer: '', policy, now: NOW }).error, /reviewer name/);
+  assert.match(reviewEvent(out.value, 'e', 'approve', { reviewer: 'Rev', policy, now: NOW }).error, /nothing waiting/);
+  assert.match(reviewEvent(recs, 'e', 'reject', { reviewer: 'Rev', policy, now: NOW }).error, /say why/);
 });
