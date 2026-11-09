@@ -103,6 +103,18 @@ export function withdrawalSide(b) {
   return null;
 }
 
+// Win on priority: the touches were level when time ran out, and the fencer
+// with priority won. The scores stay as fenced (13-13, say), so without this
+// the bout reads as a draw and the loser looks never eliminated. The ingest
+// sets `pri_a` or `pri_b` for the winner the results mark. Rated as a normal
+// win. Returns 'a' | 'b' | null.
+export function priorityWinner(b) {
+  const f = (b && b.flag != null ? String(b.flag) : '').toLowerCase().trim();
+  if (f === 'pri_a' || f === 'pri:a') return 'a';
+  if (f === 'pri_b' || f === 'pri:b') return 'b';
+  return null;
+}
+
 // Age categories for rating streams. Open/Senior is the default bucket.
 export const AGE_CATEGORIES = ['cadet', 'junior', 'senior', 'veteran'];
 
@@ -268,8 +280,9 @@ export function parseCSV(text) {
 // gender), then drop duplicate rows by canonical bout hash.
 //
 // Flag-aware: when a dropped duplicate carries a withdrawal flag the kept copy
-// lacks, the flag is merged onto the kept row. Whether a withdrawal survives
-// must not depend on which copy the scraper happened to emit first.
+// lacks, the flag is merged onto the kept row (a priority flag likewise, onto
+// a row with no flag). Whether a flag survives must not depend on which copy
+// the scraper happened to emit first.
 // Exported so the dataset smoke test and diagnose-withdrawals.mjs can compute
 // the expected withdrawal count with the exact same logic.
 export function dedupeBouts(rawBouts) {
@@ -286,6 +299,7 @@ export function dedupeBouts(rawBouts) {
     const prev = kept.get(dedupKey);
     if (prev) {
       if (!withdrawalSide(prev) && withdrawalSide(b)) prev.flag = b.flag;
+      else if (!prev.flag && priorityWinner(b)) prev.flag = b.flag;
       continue;
     }
     kept.set(dedupKey, { ...b, competition, gender });
@@ -443,7 +457,8 @@ export function processBouts(rawBouts, settings) {
         if (withdrawalSide(b)) continue; // no rating contribution
         const sA = parseInt(b.score_a, 10), sB = parseInt(b.score_b, 10);
         if (isNaN(sA) || isNaN(sB)) continue;
-        const scoreA = sA > sB ? 1 : sB > sA ? 0 : 0.5;
+        const pri = priorityWinner(b);
+        const scoreA = pri ? (pri === 'a' ? 1 : 0) : sA > sB ? 1 : sB > sA ? 0 : 0.5;
         const scoreB = 1 - scoreA;
         const isDe = b._type === 'de';
         const snap = isDe ? snapDe : snapPool;
@@ -532,10 +547,12 @@ export function processBouts(rawBouts, settings) {
 
       // Withdrawals carry zero rating movement; the opponent is the winner.
       const wd = withdrawalSide(b);
+      const pri = wd ? null : priorityWinner(b);
       const ratingAAfter = wd ? snap[kA].rating : wepA.rating;
       const ratingBAfter = wd ? snap[kB].rating : wepB.rating;
       const winnerKey = wd
         ? (wd === 'a' ? kB : wd === 'b' ? kA : null)
+        : pri ? (pri === 'a' ? kA : kB)
         : (sA > sB ? kA : sB > sA ? kB : null);
 
       bouts.push({
@@ -550,6 +567,7 @@ export function processBouts(rawBouts, settings) {
         deltaA: ratingAAfter - snap[kA].rating, deltaB: ratingBAfter - snap[kB].rating,
         winnerKey,
         ...(wd ? { withdrawal: wd } : {}),
+        ...(pri ? { priority: pri } : {}),
       });
 
       const compId = `${b.competition || 'Unnamed'}|${weapon}|${date}`;

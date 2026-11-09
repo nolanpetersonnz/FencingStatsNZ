@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import {
-  parseCSV, processBouts, parseAgeCategory, withdrawalSide, dedupeBouts, deFinish,
+  parseCSV, processBouts, parseAgeCategory, withdrawalSide, priorityWinner, dedupeBouts, deFinish,
   difficultyTier, fieldOverview, predictiveAccuracy, buildTableau,
   lineDifficulty, matchups, makeDemoBouts, boutHash, normDate, normWeapon,
 } from '../src/data/pipeline.js';
@@ -113,6 +113,44 @@ test('mixed-event dedup keeps a withdrawal flag carried only by the later copy',
   assert.equal(bouts[0].withdrawal, 'b');
   assert.equal(fencers['alice a'].byWeapon.epee.de.rating, S.initialRating);
   assert.equal(fencers['bob b'].byWeapon.epee.de.rating, S.initialRating);
+});
+
+// ---- Wins on priority ---------------------------------------------------------
+// Touches level when time ran out, the fencer with priority won: the scores
+// stay as fenced and the flag names the winner.
+test('priorityWinner parses the flag column, and leaves withdrawals alone', () => {
+  assert.equal(priorityWinner({ flag: 'pri_a' }), 'a');
+  assert.equal(priorityWinner({ flag: 'PRI_B' }), 'b');
+  assert.equal(priorityWinner({ flag: 'wd_a' }), null);
+  assert.equal(priorityWinner({ flag: '' }), null);
+  assert.equal(priorityWinner({}), null);
+  assert.equal(withdrawalSide({ flag: 'pri_a' }), null);
+});
+
+test('a win on priority with level touches is rated as a normal win, not a draw', () => {
+  const tied = mkBout({ score_a: '13', score_b: '13', de_round: 'T16' });
+  const plain = processBouts([tied], S);
+  assert.equal(plain.bouts[0].winnerKey, null, 'unflagged level touches read as a draw');
+  assert.equal(plain.fencers['bob b'].byWeapon.epee.de.ties, 1);
+
+  const { fencers, bouts } = processBouts([{ ...tied, flag: 'pri_b' }], S);
+  const a = fencers['alice a'].byWeapon.epee.de;
+  const b = fencers['bob b'].byWeapon.epee.de;
+  assert.equal(bouts[0].winnerKey, 'bob b');
+  assert.equal(bouts[0].priority, 'b');
+  assert.ok(b.rating > S.initialRating && a.rating < S.initialRating, 'ratings move as for a win');
+  assert.equal(b.rating - S.initialRating, processBouts([mkBout({ score_a: '10', score_b: '15', de_round: 'T16' })], S)
+    .fencers['bob b'].byWeapon.epee.de.rating - S.initialRating, 'same movement as a 15-10 win');
+  assert.deepEqual([a.wins, a.losses, a.ties, b.wins, b.losses, b.ties], [0, 1, 0, 1, 0, 0]);
+  assert.deepEqual(deFinish(bouts, 'alice a'), { rank: 9, label: '9–16' }, 'the loser is out in the T16');
+});
+
+test('mixed-event dedup keeps a priority flag carried only by the later copy', () => {
+  const pair = mixedPair(null, null).map((b) => ({ ...b, score_a: '13', score_b: '13' }));
+  pair[1].flag = 'pri_a';
+  const { bouts } = processBouts(pair, S);
+  assert.equal(bouts.length, 1);
+  assert.equal(bouts[0].winnerKey, 'alice a');
 });
 
 // ---- DE finish derivation (Phase 1 Results view) ----------------------------
