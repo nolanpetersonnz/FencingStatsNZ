@@ -581,6 +581,7 @@ if (!seeding.entered) {
     ['FeNZ-higher fencer won', ...seedingTable.map((r) => `${int(r.fenzHigherWon)} (${pct(r.disagree ? r.fenzHigherWon / r.disagree : null)})`)],
     ['FencingStatsNZ-higher fencer won', ...seedingTable.map((r) => `${int(r.fsnzHigherWon)} (${pct(r.disagree ? r.fsnzHigherWon / r.disagree : null)})`)],
   ], [1, 2]));
+  if (testRows.filter(bothRanked).every((r) => r.established)) add('Every bout with both fencers ranked is an established bout, so the two columns are the same from "Ranking and rating pick the same fencer" down.');
   add('Disagreement bouts by stream:');
   add(table(['', 'Stream', 'Disagreement bouts', 'FeNZ-higher won', 'FencingStatsNZ-higher won'], seedingStreams.map((r) => [r.subset, r.stream, int(r.disagree),
     `${int(r.fenzHigherWon)} (${pct(r.disagree ? r.fenzHigherWon / r.disagree : null)})`, `${int(r.fsnzHigherWon)} (${pct(r.disagree ? r.fsnzHigherWon / r.disagree : null)})`]), [2, 3, 4]));
