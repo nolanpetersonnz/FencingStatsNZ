@@ -318,7 +318,7 @@ const seedRow = (r) => {
 };
 const isDisagreement = (r) => M.disagreement([r]).disagree === 1;
 const seedingTable = [], seedingStreams = [];
-for (const [subset, pick] of SUBSETS) {
+for (const [subset, pick] of seeding.entered ? SUBSETS : []) {
   const rows = pick(testRows);
   const seeded = rows.filter((r) => hasSeeds(eventKey(r.bout.competition, r.bout.weapon))).map(seedRow);
   const d = M.disagreement(seeded);
@@ -327,7 +327,7 @@ for (const [subset, pick] of SUBSETS) {
   for (const text of groups.log) mergeLog.push({ table: 'Disagreement bouts by stream', subset, text });
   for (const g of groups.groups) {
     const s = M.disagreement(g.rows);
-    if (seeding.entered && s.disagree < MIN_GROUP) smallLeft.push({ table: 'Disagreement bouts by stream', subset, group: g.name, n: s.disagree });
+    if (s.disagree < MIN_GROUP) smallLeft.push({ table: 'Disagreement bouts by stream', subset, group: g.name, n: s.disagree });
     seedingStreams.push({ subset, stream: g.name, disagree: s.disagree, fenzHigherWon: s.fenzHigherWon, fsnzHigherWon: s.fsnzHigherWon });
   }
 }
@@ -424,7 +424,7 @@ add(`The full dataset is every bout in ${files.map((f) => `\`ingest/${f}\``).joi
 add(table(['', 'Full dataset', 'Full dataset, counted', 'Test set', 'Test set, counted'],
   [...counts.map((c) => [c.group === 'All' ? 'All bouts' : c.group, int(c.full), int(c.fullCounted), int(c.test), int(c.testCounted)]),
     ['Date range', range(bouts), '', range(testBouts), '']], [1, 2, 3, 4]));
-add('"Counted" leaves out the bouts in the next table.');
+add('"Counted" leaves out the bouts in the next table. A bout\'s date is its competition\'s start date.');
 add('### Bouts that do not count');
 add(table(['Reason', 'Full dataset', 'Test set'], [
   ...exclusions.map((e) => [e.label, int(e.full), int(e.test)]),
@@ -537,6 +537,8 @@ add('### By rating level');
 add('The level is the mean of the two fencers\' ratings before the competition.');
 for (const [subset] of SUBSETS) add(`**${subset}**`, '', table(['Rating level', 'Bouts', 'Predicted', 'Observed'], level.filter((r) => r.subset === subset).map(bandCells), [1, 2, 3]));
 add(tableLog('Rating level'));
+const levelMerges = mergeLog.filter((m) => m.table === 'Rating level');
+if (levelMerges.length) add(check(`The plan names three rating levels. After merging there are ${SUBSETS.map(([s]) => `${level.filter((r) => r.subset === s).length} (${s.toLowerCase()})`).join(' and ')}: ${levelMerges.map((m) => `${m.subset.toLowerCase()}, ${m.text}`).join('; ')}. The gap-within-level table uses the merged levels.`));
 add('### By rating gap within each rating level');
 for (const [subset] of SUBSETS) add(`**${subset}**`, '', table(['Rating level', 'Rating gap', 'Bouts', 'Predicted', 'Observed'], gapInLevel.filter((r) => r.subset === subset).map((r) => [r.level, ...bandCells(r)]), [2, 3, 4]));
 add(tableLog('Rating gap within level', true));
@@ -563,7 +565,10 @@ add(table(['Stream', 'Filter', 'Bouts scored', 'Accuracy', 'Expected accuracy', 
 add('Confidence bands for each filter:');
 add(table(['Stream', 'Filter', 'Confidence band', 'Bouts', 'Predicted', 'Observed'], methodBands.map((r) => [r.stream, r.subset, ...bandCells(r)]), [3, 4, 5]));
 const pageMerges = mergeLog.filter((m) => m.table.startsWith('Method page bands'));
-if (pageMerges.length) add(check(`The Method page shows five bands for every filter. Here ${pageMerges.length} band${pageMerges.length > 1 ? 's' : ''} with fewer than ${MIN_GROUP} test-set bouts ${pageMerges.length > 1 ? 'are' : 'is'} merged with a neighbour (listed in \`results/merge_log.csv\`).`));
+if (pageMerges.length) {
+  const filters = [...new Set(pageMerges.map((m) => `${m.table.replace('Method page bands, ', '')}, ${m.subset.toLowerCase()}`))];
+  add(check(`The Method page shows five bands for every filter. Here bands with fewer than ${MIN_GROUP} test-set bouts are merged with a neighbour, which leaves fewer than five for: ${filters.join('; ')}. The merges are listed in \`results/merge_log.csv\`.`));
+}
 
 add('## 11. Limitations');
 add([
