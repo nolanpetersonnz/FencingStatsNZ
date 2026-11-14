@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 426" width="760" height="426" role="img" aria-labelledby="t d">
+<title id="t">Calibration, test set</title>
+<desc id="d">Two panels, all bouts and established bouts only. In each, one point per confidence band: the predicted win rate of the favourite across, the observed win rate up, with the line where the two are equal.</desc>
+<style>
+  svg { --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781; --grid: #e1e0d9; --axis: #c3c2b7; --s1: #2a78d6; --s2: #eb6834; }
+  @media (prefers-color-scheme: dark) {
+    svg { --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781; --grid: #2c2c2a; --axis: #383835; --s1: #3987e5; --s2: #d95926; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .surface { fill: var(--surface); }
+  .title { fill: var(--ink); font-size: 15px; font-weight: 600; }
+  .subtitle { fill: var(--ink2); font-size: 12px; }
+  .panel { fill: var(--ink); font-size: 12.5px; font-weight: 600; }
+  .legend, .axis-title { fill: var(--ink2); font-size: 12px; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .grid { stroke: var(--grid); stroke-width: 1; }
+  .base { stroke: var(--axis); stroke-width: 1; }
+  .ref { stroke: var(--muted); stroke-width: 1; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .s1 { stroke: var(--s1); } .s2 { stroke: var(--s2); }
+  .dot { stroke: var(--surface); stroke-width: 2; }
+  .f1 { fill: var(--s1); } .f2 { fill: var(--s2); }
+</style>
+<rect class="surface" width="760" height="426"/>
+<text class="title" x="16" y="26">Calibration, test set</text>
+<text class="subtitle" x="16" y="46">Bouts from 2026-07-20. Favourite: the fencer with the higher predicted chance.</text>
+<g transform="translate(16 70)"><line class="line s1" x1="0" x2="22" y1="0" y2="0"/><circle class="dot f1" cx="11" cy="0" r="5"/><text class="legend" x="30" y="4">Observed win rate of the favourite, by confidence band</text></g>
+<g transform="translate(372 70)"><line class="ref" x1="0" x2="22" y1="0" y2="0"/><text class="legend" x="30" y="4">Predicted = observed</text></g>
+<text class="panel" x="52" y="106">All bouts (1,470 bouts)</text>
+<line class="base" x1="52" x2="364" y1="370" y2="370"/>
+<text class="tick" x="44" y="374" text-anchor="end">40%</text>
+<line class="grid" x1="52" x2="364" y1="328.33" y2="328.33"/>
+<text class="tick" x="44" y="332.33" text-anchor="end">50%</text>
+<line class="grid" x1="52" x2="364" y1="286.67" y2="286.67"/>
+<text class="tick" x="44" y="290.67" text-anchor="end">60%</text>
+<line class="grid" x1="52" x2="364" y1="245" y2="245"/>
+<text class="tick" x="44" y="249" text-anchor="end">70%</text>
+<line class="grid" x1="52" x2="364" y1="203.33" y2="203.33"/>
+<text class="tick" x="44" y="207.33" text-anchor="end">80%</text>
+<line class="grid" x1="52" x2="364" y1="161.67" y2="161.67"/>
+<text class="tick" x="44" y="165.67" text-anchor="end">90%</text>
+<line class="grid" x1="52" x2="364" y1="120" y2="120"/>
+<text class="tick" x="44" y="124" text-anchor="end">100%</text>
+<text class="tick" x="52" y="387" text-anchor="middle">50%</text>
+<text class="tick" x="114.4" y="387" text-anchor="middle">60%</text>
+<text class="tick" x="176.8" y="387" text-anchor="middle">70%</text>
+<text class="tick" x="239.2" y="387" text-anchor="middle">80%</text>
+<text class="tick" x="301.6" y="387" text-anchor="middle">90%</text>
+<text class="tick" x="364" y="387" text-anchor="middle">100%</text>
+<text class="axis-title" x="208" y="412" text-anchor="middle">Predicted win rate of the favourite</text>
+<line class="ref" x1="52" y1="328.33" x2="364" y2="120"/>
+<path class="line s1" d="M81.59 302.36L143.12 255.11L206.69 217.05L270.63 152.21L322.12 133.02"/>
+<g><title>50% to 60%: predicted 54.7%, observed 56.2%, 409 bouts</title><circle class="dot f1" cx="81.59" cy="302.36" r="5"/></g>
+<g><title>60% to 70%: predicted 64.6%, observed 67.6%, 404 bouts</title><circle class="dot f1" cx="143.12" cy="255.11" r="5"/></g>
+<g><title>70% to 80%: predicted 74.8%, observed 76.7%, 322 bouts</title><circle class="dot f1" cx="206.69" cy="217.05" r="5"/></g>
+<g><title>80% to 90%: predicted 85.0%, observed 92.3%, 207 bouts</title><circle class="dot f1" cx="270.63" cy="152.21" r="5"/></g>
+<g><title>90% to 100%: predicted 93.3%, observed 96.9%, 128 bouts</title><circle class="dot f1" cx="322.12" cy="133.02" r="5"/></g>
+<text class="panel" x="426" y="106">Established only (1,256 bouts)</text>
+<line class="base" x1="426" x2="738" y1="370" y2="370"/>
+<text class="tick" x="418" y="374" text-anchor="end">40%</text>
+<line class="grid" x1="426" x2="738" y1="328.33" y2="328.33"/>
+<text class="tick" x="418" y="332.33" text-anchor="end">50%</text>
+<line class="grid" x1="426" x2="738" y1="286.67" y2="286.67"/>
+<text class="tick" x="418" y="290.67" text-anchor="end">60%</text>
+<line class="grid" x1="426" x2="738" y1="245" y2="245"/>
+<text class="tick" x="418" y="249" text-anchor="end">70%</text>
+<line class="grid" x1="426" x2="738" y1="203.33" y2="203.33"/>
+<text class="tick" x="418" y="207.33" text-anchor="end">80%</text>
+<line class="grid" x1="426" x2="738" y1="161.67" y2="161.67"/>
+<text class="tick" x="418" y="165.67" text-anchor="end">90%</text>
+<line class="grid" x1="426" x2="738" y1="120" y2="120"/>
+<text class="tick" x="418" y="124" text-anchor="end">100%</text>
+<text class="tick" x="426" y="387" text-anchor="middle">50%</text>
+<text class="tick" x="488.4" y="387" text-anchor="middle">60%</text>
+<text class="tick" x="550.8" y="387" text-anchor="middle">70%</text>
+<text class="tick" x="613.2" y="387" text-anchor="middle">80%</text>
+<text class="tick" x="675.6" y="387" text-anchor="middle">90%</text>
+<text class="tick" x="738" y="387" text-anchor="middle">100%</text>
+<text class="axis-title" x="582" y="412" text-anchor="middle">Predicted win rate of the favourite</text>
+<line class="ref" x1="426" y1="328.33" x2="738" y2="120"/>
+<path class="line s1" d="M457.04 300.82L517.95 255.6L581.22 204.8L644.46 146.6L696.07 133.12"/>
+<g><title>50% to 60%: predicted 55.0%, observed 56.6%, 318 bouts</title><circle class="dot f1" cx="457.04" cy="300.82" r="5"/></g>
+<g><title>60% to 70%: predicted 64.7%, observed 67.5%, 338 bouts</title><circle class="dot f1" cx="517.95" cy="255.6" r="5"/></g>
+<g><title>70% to 80%: predicted 74.9%, observed 79.6%, 285 bouts</title><circle class="dot f1" cx="581.22" cy="204.8" r="5"/></g>
+<g><title>80% to 90%: predicted 85.0%, observed 93.6%, 188 bouts</title><circle class="dot f1" cx="644.46" cy="146.6" r="5"/></g>
+<g><title>90% to 100%: predicted 93.3%, observed 96.9%, 127 bouts</title><circle class="dot f1" cx="696.07" cy="133.12" r="5"/></g>
+</svg>

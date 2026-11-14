@@ -1,0 +1,11 @@
+subset,band,n,predicted,observed,bands_merged
+All bouts,50% to 60%,409,0.547425,0.562347,1
+All bouts,60% to 70%,404,0.646025,0.675743,1
+All bouts,70% to 80%,322,0.747905,0.767081,1
+All bouts,80% to 90%,207,0.850376,0.922705,1
+All bouts,90% to 100%,128,0.932878,0.968750,1
+Established only,50% to 60%,318,0.549744,0.566038,1
+Established only,60% to 70%,338,0.647353,0.674556,1
+Established only,70% to 80%,285,0.748745,0.796491,1
+Established only,80% to 90%,188,0.850092,0.936170,1
+Established only,90% to 100%,127,0.932799,0.968504,1

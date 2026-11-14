@@ -1,0 +1,5 @@
+subset,group,n,brier,accuracy,expectedAccuracy
+All bouts,Pool,1110,0.179589,0.724324,0.701999
+All bouts,DE,360,0.184084,0.725000,0.672037
+Established only,Pool,936,0.167594,0.748932,0.712979
+Established only,DE,320,0.180415,0.728125,0.681095

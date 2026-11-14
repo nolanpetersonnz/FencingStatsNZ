@@ -1,0 +1,26 @@
+stream,subset,band,n,predicted,observed,bands_merged
+Both streams,All bouts,50% to 60%,409,0.547425,0.562347,1
+Both streams,All bouts,60% to 70%,404,0.646025,0.675743,1
+Both streams,All bouts,70% to 80%,322,0.747905,0.767081,1
+Both streams,All bouts,80% to 90%,207,0.850376,0.922705,1
+Both streams,All bouts,90% to 100%,128,0.932878,0.968750,1
+Both streams,Established only,50% to 60%,318,0.549744,0.566038,1
+Both streams,Established only,60% to 70%,338,0.647353,0.674556,1
+Both streams,Established only,70% to 80%,285,0.748745,0.796491,1
+Both streams,Established only,80% to 90%,188,0.850092,0.936170,1
+Both streams,Established only,90% to 100%,127,0.932799,0.968504,1
+Pool,All bouts,50% to 60%,304,0.546195,0.575658,1
+Pool,All bouts,60% to 70%,280,0.646040,0.635714,1
+Pool,All bouts,70% to 80%,237,0.746930,0.763713,1
+Pool,All bouts,80% to 90%,178,0.851645,0.915730,1
+Pool,All bouts,90% to 100%,111,0.933956,0.963964,1
+Pool,Established only,50% to 60%,235,0.548781,0.587234,1
+Pool,Established only,60% to 70%,226,0.646937,0.632743,1
+Pool,Established only,70% to 80%,205,0.747587,0.804878,1
+Pool,Established only,80% to 90%,160,0.851221,0.931250,1
+Pool,Established only,90% to 100%,110,0.933874,0.963636,1
+DE,All bouts,50% to 60%,105,0.550985,0.523810,1
+DE,All bouts,60% to 70%,124,0.645990,0.766129,1
+DE,All bouts,70% to 100%,131,0.793719,0.847328,3
+DE,Established only,50% to 70%,195,0.607448,0.651282,2
+DE,Established only,70% to 100%,125,0.795986,0.848000,3

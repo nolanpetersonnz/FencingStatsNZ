@@ -1,0 +1,5 @@
+subset,band,n,predicted,observed,bands_merged
+All bouts,below 1500,636,0.702179,0.687107,1
+All bouts,1500 and over,834,0.688928,0.752998,2
+Established only,below 1500,545,0.713656,0.750459,1
+Established only,1500 and over,711,0.698110,0.738397,2

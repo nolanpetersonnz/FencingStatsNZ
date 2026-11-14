@@ -1,0 +1,7 @@
+stream,subset,n,brier,accuracy,expectedAccuracy
+Both streams,All bouts,1470,0.180690,0.724490,0.694661
+Both streams,Established only,1256,0.170861,0.743631,0.704856
+Pool,All bouts,1110,0.179589,0.724324,0.701999
+Pool,Established only,936,0.167594,0.748932,0.712979
+DE,All bouts,360,0.184084,0.725000,0.672037
+DE,Established only,320,0.180415,0.728125,0.681095

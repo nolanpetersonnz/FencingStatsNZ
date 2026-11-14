@@ -1,0 +1,7 @@
+subset,group,n,brier,accuracy,expectedAccuracy
+All bouts,Epee,831,0.186563,0.719615,0.689596
+All bouts,Foil,429,0.163185,0.750583,0.710457
+All bouts,Sabre,210,0.193212,0.690476,0.682438
+Established only,Epee,728,0.179719,0.732143,0.697545
+Established only,Foil,380,0.153722,0.768421,0.720203
+Established only,Sabre,148,0.171291,0.736486,0.701411

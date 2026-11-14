@@ -1,0 +1,13 @@
+subset,level,band,n,predicted,observed,bands_merged
+All bouts,below 1500,0 to 100,224,0.567650,0.491071,1
+All bouts,below 1500,100 to 200,171,0.681264,0.707602,1
+All bouts,below 1500,200 and over,241,0.842058,0.854772,1
+All bouts,1500 and over,0 to 100,324,0.562941,0.629630,1
+All bouts,1500 and over,100 to 200,236,0.683278,0.745763,1
+All bouts,1500 and over,200 and over,274,0.842773,0.905109,1
+Established only,below 1500,0 to 100,174,0.570087,0.540230,1
+Established only,below 1500,100 to 200,150,0.683575,0.766667,1
+Established only,below 1500,200 and over,221,0.847110,0.904977,1
+Established only,1500 and over,0 to 100,265,0.567234,0.592453,1
+Established only,1500 and over,100 to 200,201,0.688095,0.731343,1
+Established only,1500 and over,200 and over,245,0.847886,0.902041,1

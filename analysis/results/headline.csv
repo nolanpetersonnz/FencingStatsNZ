@@ -1,0 +1,7 @@
+subset,set,n,brier,accuracy,expectedAccuracy
+All bouts,Test set,1470,0.180690,0.724490,0.694661
+All bouts,"Full dataset, the plan's rules",19299,0.198596,0.684491,0.667690
+All bouts,"Full dataset, as the Method page shows it now",19300,0.198705,0.684197,0.667474
+Established only,Test set,1256,0.170861,0.743631,0.704856
+Established only,"Full dataset, the plan's rules",13504,0.179210,0.733634,0.695115
+Established only,"Full dataset, as the Method page shows it now",13495,0.179321,0.733309,0.694870

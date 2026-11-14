@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 426" width="760" height="426" role="img" aria-labelledby="t d">
+<title id="t">Win rate of the higher-rated fencer by rating gap, test set</title>
+<desc id="d">Two panels, all bouts and established bouts only. In each, for every rating gap band, the predicted and the observed win rate of the higher-rated fencer.</desc>
+<style>
+  svg { --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781; --grid: #e1e0d9; --axis: #c3c2b7; --s1: #2a78d6; --s2: #eb6834; }
+  @media (prefers-color-scheme: dark) {
+    svg { --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781; --grid: #2c2c2a; --axis: #383835; --s1: #3987e5; --s2: #d95926; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .surface { fill: var(--surface); }
+  .title { fill: var(--ink); font-size: 15px; font-weight: 600; }
+  .subtitle { fill: var(--ink2); font-size: 12px; }
+  .panel { fill: var(--ink); font-size: 12.5px; font-weight: 600; }
+  .legend, .axis-title { fill: var(--ink2); font-size: 12px; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .grid { stroke: var(--grid); stroke-width: 1; }
+  .base { stroke: var(--axis); stroke-width: 1; }
+  .ref { stroke: var(--muted); stroke-width: 1; }
+  .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .s1 { stroke: var(--s1); } .s2 { stroke: var(--s2); }
+  .dot { stroke: var(--surface); stroke-width: 2; }
+  .f1 { fill: var(--s1); } .f2 { fill: var(--s2); }
+</style>
+<rect class="surface" width="760" height="426"/>
+<text class="title" x="16" y="26">Win rate of the higher-rated fencer by rating gap, test set</text>
+<text class="subtitle" x="16" y="46">Bouts from 2026-07-20. Predicted and observed, for each band of the gap between the two ratings.</text>
+<g transform="translate(16 70)"><line class="line s1" x1="0" x2="22" y1="0" y2="0"/><circle class="dot f1" cx="11" cy="0" r="5"/><text class="legend" x="30" y="4">Observed</text></g>
+<g transform="translate(126 70)"><line class="line s2" x1="0" x2="22" y1="0" y2="0"/><path class="dot f2" d="M11 -6L17 0L11 6L5 0Z"/><text class="legend" x="30" y="4">Predicted</text></g>
+<text class="panel" x="52" y="106">All bouts (1,470 bouts)</text>
+<line class="base" x1="52" x2="364" y1="370" y2="370"/>
+<text class="tick" x="44" y="374" text-anchor="end">40%</text>
+<line class="grid" x1="52" x2="364" y1="328.33" y2="328.33"/>
+<text class="tick" x="44" y="332.33" text-anchor="end">50%</text>
+<line class="grid" x1="52" x2="364" y1="286.67" y2="286.67"/>
+<text class="tick" x="44" y="290.67" text-anchor="end">60%</text>
+<line class="grid" x1="52" x2="364" y1="245" y2="245"/>
+<text class="tick" x="44" y="249" text-anchor="end">70%</text>
+<line class="grid" x1="52" x2="364" y1="203.33" y2="203.33"/>
+<text class="tick" x="44" y="207.33" text-anchor="end">80%</text>
+<line class="grid" x1="52" x2="364" y1="161.67" y2="161.67"/>
+<text class="tick" x="44" y="165.67" text-anchor="end">90%</text>
+<line class="grid" x1="52" x2="364" y1="120" y2="120"/>
+<text class="tick" x="44" y="124" text-anchor="end">100%</text>
+<text class="tick" x="83.2" y="387" text-anchor="middle">0–50</text>
+<text class="tick" x="145.6" y="387" text-anchor="middle">50–100</text>
+<text class="tick" x="208" y="387" text-anchor="middle">100–200</text>
+<text class="tick" x="270.4" y="387" text-anchor="middle">200–300</text>
+<text class="tick" x="332.8" y="387" text-anchor="middle">300+</text>
+<text class="axis-title" x="208" y="412" text-anchor="middle">Rating gap before the competition</text>
+<path class="line s2" d="M83.2 315.22L145.6 286.34L208 252.32L270.4 210.98L332.8 162.84"/>
+<path class="line s1" d="M83.2 313.66L145.6 280.98L208 232.61L270.4 201.97L332.8 139.99"/>
+<g><title>Gap 0 to 50: predicted 53.1%, observed 53.5%, 284 bouts</title><path class="dot f2" d="M83.2 309.22L89.2 315.22L83.2 321.22L77.2 315.22Z"/></g>
+<g><title>Gap 0 to 50: predicted 53.1%, observed 53.5%, 284 bouts</title><circle class="dot f1" cx="83.2" cy="313.66" r="5"/></g>
+<g><title>Gap 50 to 100: predicted 60.1%, observed 61.4%, 264 bouts</title><path class="dot f2" d="M145.6 280.34L151.6 286.34L145.6 292.34L139.6 286.34Z"/></g>
+<g><title>Gap 50 to 100: predicted 60.1%, observed 61.4%, 264 bouts</title><circle class="dot f1" cx="145.6" cy="280.98" r="5"/></g>
+<g><title>Gap 100 to 200: predicted 68.2%, observed 73.0%, 407 bouts</title><path class="dot f2" d="M208 246.32L214 252.32L208 258.32L202 252.32Z"/></g>
+<g><title>Gap 100 to 200: predicted 68.2%, observed 73.0%, 407 bouts</title><circle class="dot f1" cx="208" cy="232.61" r="5"/></g>
+<g><title>Gap 200 to 300: predicted 78.2%, observed 80.3%, 244 bouts</title><path class="dot f2" d="M270.4 204.98L276.4 210.98L270.4 216.98L264.4 210.98Z"/></g>
+<g><title>Gap 200 to 300: predicted 78.2%, observed 80.3%, 244 bouts</title><circle class="dot f1" cx="270.4" cy="201.97" r="5"/></g>
+<g><title>Gap 300 and over: predicted 89.7%, observed 95.2%, 271 bouts</title><path class="dot f2" d="M332.8 156.84L338.8 162.84L332.8 168.84L326.8 162.84Z"/></g>
+<g><title>Gap 300 and over: predicted 89.7%, observed 95.2%, 271 bouts</title><circle class="dot f1" cx="332.8" cy="139.99" r="5"/></g>
+<text class="panel" x="426" y="106">Established only (1,256 bouts)</text>
+<line class="base" x1="426" x2="738" y1="370" y2="370"/>
+<text class="tick" x="418" y="374" text-anchor="end">40%</text>
+<line class="grid" x1="426" x2="738" y1="328.33" y2="328.33"/>
+<text class="tick" x="418" y="332.33" text-anchor="end">50%</text>
+<line class="grid" x1="426" x2="738" y1="286.67" y2="286.67"/>
+<text class="tick" x="418" y="290.67" text-anchor="end">60%</text>
+<line class="grid" x1="426" x2="738" y1="245" y2="245"/>
+<text class="tick" x="418" y="249" text-anchor="end">70%</text>
+<line class="grid" x1="426" x2="738" y1="203.33" y2="203.33"/>
+<text class="tick" x="418" y="207.33" text-anchor="end">80%</text>
+<line class="grid" x1="426" x2="738" y1="161.67" y2="161.67"/>
+<text class="tick" x="418" y="165.67" text-anchor="end">90%</text>
+<line class="grid" x1="426" x2="738" y1="120" y2="120"/>
+<text class="tick" x="418" y="124" text-anchor="end">100%</text>
+<text class="tick" x="457.2" y="387" text-anchor="middle">0–50</text>
+<text class="tick" x="519.6" y="387" text-anchor="middle">50–100</text>
+<text class="tick" x="582" y="387" text-anchor="middle">100–200</text>
+<text class="tick" x="644.4" y="387" text-anchor="middle">200–300</text>
+<text class="tick" x="706.8" y="387" text-anchor="middle">300+</text>
+<text class="axis-title" x="582" y="412" text-anchor="middle">Rating gap before the competition</text>
+<path class="line s2" d="M457.2 314.18L519.6 285.32L582 250.77L644.4 209.22L706.8 161.53"/>
+<path class="line s1" d="M457.2 316.08L519.6 280.55L582 225.65L644.4 189.77L706.8 134.94"/>
+<g><title>Gap 0 to 50: predicted 53.4%, observed 52.9%, 221 bouts</title><path class="dot f2" d="M457.2 308.18L463.2 314.18L457.2 320.18L451.2 314.18Z"/></g>
+<g><title>Gap 0 to 50: predicted 53.4%, observed 52.9%, 221 bouts</title><circle class="dot f1" cx="457.2" cy="316.08" r="5"/></g>
+<g><title>Gap 50 to 100: predicted 60.3%, observed 61.5%, 218 bouts</title><path class="dot f2" d="M519.6 279.32L525.6 285.32L519.6 291.32L513.6 285.32Z"/></g>
+<g><title>Gap 50 to 100: predicted 60.3%, observed 61.5%, 218 bouts</title><circle class="dot f1" cx="519.6" cy="280.55" r="5"/></g>
+<g><title>Gap 100 to 200: predicted 68.6%, observed 74.6%, 351 bouts</title><path class="dot f2" d="M582 244.77L588 250.77L582 256.77L576 250.77Z"/></g>
+<g><title>Gap 100 to 200: predicted 68.6%, observed 74.6%, 351 bouts</title><circle class="dot f1" cx="582" cy="225.65" r="5"/></g>
+<g><title>Gap 200 to 300: predicted 78.6%, observed 83.3%, 215 bouts</title><path class="dot f2" d="M644.4 203.22L650.4 209.22L644.4 215.22L638.4 209.22Z"/></g>
+<g><title>Gap 200 to 300: predicted 78.6%, observed 83.3%, 215 bouts</title><circle class="dot f1" cx="644.4" cy="189.77" r="5"/></g>
+<g><title>Gap 300 and over: predicted 90.0%, observed 96.4%, 251 bouts</title><path class="dot f2" d="M706.8 155.53L712.8 161.53L706.8 167.53L700.8 161.53Z"/></g>
+<g><title>Gap 300 and over: predicted 90.0%, observed 96.4%, 251 bouts</title><circle class="dot f1" cx="706.8" cy="134.94" r="5"/></g>
+</svg>

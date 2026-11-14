@@ -1,0 +1,3 @@
+subset,n,brier,accuracy,expectedAccuracy
+All bouts,1470,0.180690,0.724490,0.694661
+Established only,1256,0.170861,0.743631,0.704856
