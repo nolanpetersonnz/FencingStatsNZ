@@ -292,8 +292,9 @@ try {
 // (fetch_seeds.py writes the entrant sheet, enter_seeds.mjs fills it in from the
 // transcription in seeds_ftl.csv). A fencer is ranked when FencingTimeLive shows
 // a Rank for them. An event's seeding is usable when at least one of its
-// fencers is ranked: where no fencer shows a Rank, the seed order is not a
-// FeNZ ranking order.
+// fencers is ranked. Where no fencer shows a Rank, the FeNZ ranking was not
+// used to seed the event and nothing can be read from its seed order (Nolan,
+// 14 November 2026, before section 6 was run), so the event is left out.
 const seedsFile = resolve(HERE, 'seeds.csv');
 const eventKey = (competition, weapon) => `${competition}|${weapon}`;
 const eventOf = (r) => eventKey(r.bout.competition, r.bout.weapon);
@@ -324,9 +325,14 @@ const seedRow = (r) => {
   return { ...r, seedA: a.seed ?? null, seedB: b.seed ?? null, rankedA: a.ranked ?? null, rankedB: b.ranked ?? null };
 };
 const bothRanked = (r) => { const s = seedRow(r); return s.seedA != null && s.seedB != null && s.rankedA === true && s.rankedB === true; };
+const sameRank = (r) => {
+  const ev = seeding.events.get(eventOf(r));
+  return bothRanked(r) && ev.fencers.get(r.bout.keyA).rank === ev.fencers.get(r.bout.keyB).rank;
+};
 // What FencingTimeLive listed, from the transcription, to show names that are
 // not among the event's entrants.
 const ftlFile = resolve(HERE, 'seeds_ftl.csv');
+const seedsReport = resolve(HERE, 'seeds_report.txt');
 const ftlCount = new Map();
 if (seeding.entered && existsSync(ftlFile)) for (const r of parseCSV(readFileSync(ftlFile, 'utf8'))) ftlCount.set(eventKey(r.competition, r.weapon), (ftlCount.get(eventKey(r.competition, r.weapon)) || 0) + 1);
 const coverage = testEvents.map((k) => {
@@ -340,7 +346,7 @@ const coverage = testEvents.map((k) => {
     entrants: fencers.length, on_ftl: ftlCount.get(k) ?? '', seeded: seeded.length, ranked: ranked.length,
     same_rank: [...new Set(ranks.filter((x, i) => ranks.indexOf(x) !== i))].join(' '),
     status: seeded.length === 0 ? 'not entered' : ranked.length === 0 ? 'no Rank shown' : 'usable',
-    counted: rows.length, both_ranked: rows.filter(bothRanked).length,
+    counted: rows.length, both_ranked: rows.filter(bothRanked).length, same_rank_bouts: rows.filter(sameRank).length,
   };
 });
 const statusOf = new Map(coverage.map((c) => [c.event, c.status]));
@@ -399,7 +405,7 @@ writeCsv('test_competitions.csv', ['date', 'competition', 'events', 'pool', 'de'
 writeCsv('headline.csv', ['subset', 'set', ...H], headlineRows);
 writeCsv('site_method_on_test_set.csv', ['subset', ...H], siteMethodTest);
 writeCsv('calibration.csv', ['subset', 'band', 'n', 'predicted', 'observed', 'bands_merged'], calibration);
-writeCsv('seeding_coverage.csv', ['competition', 'weapon', 'label', 'entrants', 'on_ftl', 'seeded', 'ranked', 'same_rank', 'status', 'counted', 'both_ranked'], seeding.entered ? coverage : []);
+writeCsv('seeding_coverage.csv', ['competition', 'weapon', 'label', 'entrants', 'on_ftl', 'seeded', 'ranked', 'same_rank', 'status', 'counted', 'both_ranked', 'same_rank_bouts'], seeding.entered ? coverage : []);
 writeCsv('seeding_disagreement.csv',['subset', 'counted', 'no_seeding', 'unranked', 'equalSeed', 'equalRating', 'agree', 'disagree', 'fenzHigherWon', 'fsnzHigherWon'], seedingTable);
 writeCsv('seeding_disagreement_by_stream.csv', ['subset', 'stream', 'disagree', 'fenzHigherWon', 'fsnzHigherWon'], seedingStreams);
 writeCsv('rating_gap.csv', ['subset', 'band', 'n', 'predicted', 'observed', 'bands_merged'], gap);
@@ -490,7 +496,7 @@ add('### Competitions with no usable seeding');
 const sumOf = (list, field) => list.reduce((s, c) => s + c[field], 0);
 if (!seeding.entered) add(`\`analysis/seeds.csv\` has not been entered${REHEARSAL ? ' for these dates' : ' yet'}. Until it is, no competition has usable seeding and section 6 is empty.`);
 else {
-  add('The seeding is each event\'s "Seeding for Round 1" on FencingTimeLive, entered in `analysis/seeds.csv`. A fencer is ranked when that page shows a Rank for them. An event\'s seeding is usable when at least one of its fencers shows a Rank.');
+  add('The seeding is each event\'s "Seeding for Round 1" on FencingTimeLive, entered in `analysis/seeds.csv`. A fencer is ranked when that page shows a Rank for them. An event\'s seeding is usable when at least one of its fencers shows a Rank. Where the page shows no Rank for anyone, the FeNZ ranking was not used to seed the event, and the event is left out of section 6.');
   add(table(['Seeding', 'Events', 'Counted bouts', 'Bouts with both fencers ranked'], [
     ['Usable', coverage.length - noRank.length - notEntered.length, int(sumOf(coverage.filter((c) => c.status === 'usable'), 'counted')), int(sumOf(coverage, 'both_ranked'))],
     ['FencingTimeLive shows no Rank for any fencer', noRank.length, int(sumOf(noRank, 'counted')), 0],
@@ -500,12 +506,15 @@ else {
   add(table(['Competition', 'Weapon', 'Entrants', 'On FencingTimeLive', 'Seeded', 'With a Rank', 'Counted bouts', 'Both ranked', 'Seeding'],
     coverage.map((c) => [c.competition, c.weapon, c.entrants, c.on_ftl, c.seeded, c.ranked, int(c.counted), int(c.both_ranked), c.status]), [2, 3, 4, 5, 6, 7]));
   add('"Entrants" are the fencers the results portal lists for the event. "On FencingTimeLive" is the number of names on its seeding page; a name that is not among the entrants is left out. The two Central Open foil DE events ran no pools, so their fencers take their seeds from the mixed foil pool.');
-  if (noRank.length) add(check(`FencingTimeLive shows no Rank for any fencer in ${noRank.length} of ${coverage.length} test-set events (${int(sumOf(noRank, 'counted'))} counted bouts). Their seed numbers are entered and their bouts are left out of section 6 as unranked.`));
+  if (noRank.length) add(check(`FencingTimeLive shows no Rank for any fencer in ${noRank.length} of ${coverage.length} test-set events (${int(sumOf(noRank, 'counted'))} counted bouts). Their bouts are left out of section 6: Nolan decided on 14 November 2026, before section 6 was run, that the ranking was not used to seed those events and nothing can be read from their seed order.`));
   const extra = coverage.filter((c) => c.on_ftl !== '' && c.on_ftl > c.seeded);
   const extraNames = extra.reduce((s, c) => s + c.on_ftl - c.seeded, 0);
   if (extra.length) add(check(`Names on FencingTimeLive's seeding that are not among the portal's entrants, and so are left out: ${extraNames} (${extra.map((c) => `${c.competition}, ${c.weapon}`).join('; ')}). They are named in \`analysis/seeds_report.txt\`.`));
   const tied = coverage.filter((c) => c.same_rank);
-  if (tied.length) add(check(`In ${tied.length} event${tied.length > 1 ? 's' : ''} two fencers show the same Rank (${tied.map((c) => `${c.competition}, ${c.weapon}: Rank ${c.same_rank}`).join('; ')}). Their seed numbers differ, and section 6 compares seed numbers.`));
+  if (tied.length) add(check(`In ${tied.length} event${tied.length > 1 ? 's' : ''} two fencers show the same Rank (${tied.map((c) => `${c.competition}, ${c.weapon}: Rank ${c.same_rank}`).join('; ')}). Their seed numbers differ, and section 6 compares seed numbers. ${int(sumOf(coverage, 'same_rank_bouts'))} counted bouts are between two fencers who show the same Rank.`));
+  const spelled = existsSync(seedsReport) ? readFileSync(seedsReport, 'utf8').split('\n').filter((l) => l.startsWith('  check: ')) : [];
+  const byHand = spelled.filter((l) => l.includes('entered by hand')).length;
+  if (spelled.length) add(check(`${spelled.length} names on FencingTimeLive's seeding were matched to an entrant whose name the site spells differently${byHand ? `, ${byHand} of them entered by hand` : ''}. They are the "check" lines of \`analysis/seeds_report.txt\`.`));
 }
 add('### Settings used');
 add(table(['Setting', 'Value'], [
@@ -637,7 +646,7 @@ add([
   '1. **Where the FeNZ ranking comes from.** The plan takes it from each competition\'s initial seeding on the FeNZ results portal. The portal shows no seeding. Checked on 14 November 2026: an event\'s Results view lists final rank, name, club and nationality; Pools and Bracket list names and scores; `/rankings` is one current board dated 2026-10-25, after the test-set competitions. The closest source is each event\'s "Seeding for Round 1" page on FencingTimeLive. Nolan took a screenshot of each; they were transcribed into `analysis/seeds_ftl.csv`, and `analysis/enter_seeds.mjs` matched each name to an entrant on the sheet from `analysis/fetch_seeds.py` (`analysis/seeds_template.csv`) and wrote `analysis/seeds.csv`. No seeds were fetched by a script.'
     + (seedingComplete ? '' : seeding.entered ? ` **${notEntered.length} events are not entered yet, so section 6 is empty.**` : ' **Nothing has been entered yet, so section 6 is empty.**'),
   '2. **Unranked fencers.** The portal does not mark them. A fencer counts as ranked when the FencingTimeLive seeding page shows a Rank for them, and as unranked when it shows none (the `ranked` and `rank` columns of the sheet).'
-    + (noRank.length ? ` In ${noRank.length} events it shows no Rank for anyone, so every bout of those events is left out as unranked.` : ''),
+    + (noRank.length ? ` In ${noRank.length} events it shows no Rank for anyone. Nolan decided on 14 November 2026, before section 6 was run, that the FeNZ ranking was not used to seed those events and nothing can be read from their seed order, so every bout of those events is left out.` : ''),
   '3. **Events with no pools.** The Central Open foil ran one mixed pool, then a men\'s and a women\'s DE. The three DE bouts use the mixed pool\'s seeding.',
   '4. **P-black cards.** The plan leaves them out. The data does not mark them (section 2), so none could be left out.',
   `5. **Loading the data.** The run instructions were to load every CSV in \`ingest/\` through the site's parse and dedupe steps. That alone does not reproduce the Method tab (${pct(csvOnly.accuracy)} against ${METHOD_TAB.accuracy}), because the site also applies name merges from its override store. The run applies the site's merges, which reproduces the tab exactly (section 2).`,

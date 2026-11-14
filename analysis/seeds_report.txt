@@ -24,17 +24,25 @@ Mid-South Open Championships 2026|foil: 10 seeded, 10 of 10 entrants matched, 0 
 Mid-South Open Championships 2026|sabre: 6 seeded, 6 of 6 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
 Russell Towns Open 2026|epee: 10 seeded, 10 of 10 entrants matched, 8 with a Rank
 Russell Towns Open 2026|foil: 10 seeded, 10 of 10 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+NZL National Senior Championships 2026 - Mens|epee: 50 seeded, 50 of 50 entrants matched, 48 with a Rank
+  check: BIOLETTI Charles (Charlie) -> Charlie Bioletti
+  check: YARR Elijah -> Elija Yarr
+  check: BENSON Zachary (Zak) -> Zak Benson
+NZL National Senior Championships 2026 - Womens|epee: 37 seeded, 37 of 37 entrants matched, 33 with a Rank
+  check: GIBSON Casandra -> Cassandra Gibson (entered by hand: the spellings differ)
+NZL National Senior Championships 2026 - Mens|foil: 29 seeded, 29 of 29 entrants matched, 20 with a Rank
+  check: ZENG Kwan Yat (Kingu) -> Kwun Yat Zeng
+NZL National Senior Championships 2026 - Womens|foil: 15 seeded, 15 of 15 entrants matched, 15 with a Rank
+NZL National Senior Championships 2026 - Mens|sabre: 9 seeded, 9 of 9 entrants matched, 7 with a Rank
+  check: ZENG Kwan Yat (Kingu) -> Kwun Yat Zeng
+NZL National Senior Championships 2026 - Womens|sabre: 5 seeded, 5 of 5 entrants matched, 5 with a Rank
+NZL National Veteran Championships 2026 - Mens|epee: 15 seeded, 15 of 15 entrants matched, 10 with a Rank
+  check: DOWNS Quinn -> Quin Downs
+NZL National Veteran Championships 2026 - Womens|epee: 6 seeded, 6 of 6 entrants matched, 3 with a Rank
+  check: BRILL Katherine (Kate) -> Kate Brill
+NZL National Veteran Championships 2026|foil: 12 seeded, 11 of 11 entrants matched, 7 with a Rank
+  not matched: seed 11 FOLEY Gareth (no entrant with that surname: did not fence?)
 Central Open Championship 2026 - Mens|foil: no pools of its own; 3 of 3 entrants take their seed from Central Open Championship 2026 Mixed|foil
 Central Open Championship 2026 - Womens|foil: no pools of its own; 2 of 2 entrants take their seed from Central Open Championship 2026 Mixed|foil
 
-22 of 31 events have seeds; 220 of 397 entrant rows seeded, 65 of them with a Rank.
-No seeding entered yet for 9 events:
-  NZL National Senior Championships 2026 - Mens|epee
-  NZL National Senior Championships 2026 - Womens|epee
-  NZL National Senior Championships 2026 - Mens|foil
-  NZL National Senior Championships 2026 - Womens|foil
-  NZL National Senior Championships 2026 - Mens|sabre
-  NZL National Senior Championships 2026 - Womens|sabre
-  NZL National Veteran Championships 2026 - Mens|epee
-  NZL National Veteran Championships 2026 - Womens|epee
-  NZL National Veteran Championships 2026|foil
+31 of 31 events have seeds; 397 of 397 entrant rows seeded, 213 of them with a Rank.

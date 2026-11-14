@@ -14,8 +14,9 @@
 // "Given Surname", sometimes with other given names. A name is matched to an
 // entrant of the same event by surname and at least one given name. Nothing is
 // guessed past that: a name with no match, or with two, is listed and left
-// out. Every match that is not letter for letter the same name is listed too,
-// so it can be checked by eye.
+// out. A spelling the rule cannot join is entered by hand in SAME_FENCER below.
+// Every match that is not letter for letter the same name is listed too, so
+// it can be checked by eye.
 //
 // What was matched, what was not and what to check by eye is printed and saved
 // as analysis/seeds_report.txt.
@@ -38,6 +39,14 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const SAME_SEEDING = {
   'Central Open Championship 2026 - Mens|foil': 'Central Open Championship 2026 Mixed|foil',
   'Central Open Championship 2026 - Womens|foil': 'Central Open Championship 2026 Mixed|foil',
+};
+
+// Spellings the rule below cannot join: FencingTimeLive spells the given name
+// differently from the site, and neither spelling starts the other. Each one
+// is entered here by hand, is the only entrant of that surname in the event,
+// and is listed in the report.
+const SAME_FENCER = {
+  'NZL National Senior Championships 2026 - Womens|epee|GIBSON Casandra': 'Cassandra Gibson',
 };
 
 const plain = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -84,7 +93,9 @@ for (const ev of [...new Set(ftlRows.map(key))]) {
   for (const r of rows) {
     const ftl = parseFtl(r.name);
     const scored = entrants.map((name) => ({ name, score: fit(ftl, name) })).filter((c) => c.score > 0).sort((a, b) => b.score - a.score);
-    const best = scored.length && (scored.length === 1 || scored[0].score > scored[1].score) ? scored[0].name : null;
+    const byHand = SAME_FENCER[`${ev}|${r.name}`];
+    if (byHand && !entrants.includes(byHand)) { lines.push(`  PROBLEM: ${r.name} is entered by hand as ${byHand}, who is not an entrant`); problems++; continue; }
+    const best = byHand ?? (scored.length && (scored.length === 1 || scored[0].score > scored[1].score) ? scored[0].name : null);
     if (!best) {
       const sameSurname = entrants.filter((name) => fit(ftl, name) >= 0);
       lines.push(`  not matched: seed ${r.seed} ${r.name}${sameSurname.length ? ` (same surname on the sheet: ${sameSurname.join(', ')})` : ' (no entrant with that surname: did not fence?)'}`);
@@ -92,7 +103,7 @@ for (const ev of [...new Set(ftlRows.map(key))]) {
     }
     if (taken.has(best)) { lines.push(`  PROBLEM: ${r.name} and ${taken.get(best).ftl} both match ${best}`); problems++; continue; }
     taken.set(best, { seed: r.seed, rank: r.rank, ftl: r.name });
-    if (squash(`${ftl.given} ${ftl.surname}`) !== squash(best)) lines.push(`  check: ${r.name} -> ${best}`);
+    if (squash(`${ftl.given} ${ftl.surname}`) !== squash(best)) lines.push(`  check: ${r.name} -> ${best}${byHand ? ' (entered by hand: the spellings differ)' : ''}`);
   }
   const seeds = rows.map((r) => Number(r.seed));
   const twice = [...new Set(seeds.filter((s, i) => seeds.indexOf(s) !== i))];
