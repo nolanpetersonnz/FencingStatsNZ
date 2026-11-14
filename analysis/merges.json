@@ -1,0 +1,23 @@
+{
+  "note": "Name merges applied to the raw bouts before rating, the way the site applies its admin merges (mergedRawBouts in frontend/src/App.jsx). The site keeps its merges in a live override store, not in the repo, so they are recorded here. Each key is a name key (nameKey in pipeline.js).",
+  "merges": {
+    "tim (mutian) wang": {
+      "merge_into": "tim wang",
+      "merge_into_name": "Tim Wang",
+      "on_site": true,
+      "source": "The site's override store, read from /api/overrides on the intl-results-prototype preview deployment on 14 Nov 2026."
+    },
+    "hoting chan": {
+      "merge_into": "ruby ho ting chan",
+      "merge_into_name": "Ruby Ho Ting Chan",
+      "on_site": true,
+      "source": "The site's override store, read from /api/overrides on the intl-results-prototype preview deployment on 14 Nov 2026."
+    },
+    "mutian wang": {
+      "merge_into": "tim wang",
+      "merge_into_name": "Tim Wang",
+      "on_site": false,
+      "source": "Nolan, 14 Nov 2026: Mutian Wang is Tim Wang. Decided before any test-set result was computed. Not in the site's override store on that date."
+    }
+  }
+}
