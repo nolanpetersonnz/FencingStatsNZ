@@ -177,7 +177,7 @@ Commits since then that touch the settings file, the engine or the pipeline:
 
 | What | Commit |
 | --- | --- |
-| Analysis code, this run | `64cd1cd6a4acc66bde5c24d1d2baa7900eed8cd4` |
+| Analysis code, this run | `e3d72b017ae1717981dc2278abd140994be57b1f` |
 | Rating code (`constants.js`, `glicko2.js`, `pipeline.js`) | `218aa0faa0daa6854309854f91ad842e219710e6` |
 | Data (`ingest/bouts.csv`, `ingest/bouts_portal.csv`) | `7c7e6f7921b17f59841fc58476c965a4d7253dcb` |
 | `PREREGISTRATION.md` | `d981950768df40454d2c06be0c7cb70a6a7adacd` |
