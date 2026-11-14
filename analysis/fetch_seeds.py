@@ -15,10 +15,11 @@ it. Checked on 14 Nov 2026:
 No page carries a seed number or marks a fencer as unranked. The seeding is on
 FencingTimeLive, which this script does not read: Nolan copies it by hand.
 
-So this script writes the sheet he fills in, analysis/seeds_template.csv: one
+So this script writes the sheet to fill in, analysis/seeds_template.csv: one
 row per entrant of every test-set event (competitions starting on or after
 20 July 2026), with the seed and ranked columns blank. The filled sheet is
-saved as analysis/seeds.csv, which this script never writes.
+analysis/seeds.csv, which this script never writes: analysis/enter_seeds.mjs
+writes it from the seedings transcribed in analysis/seeds_ftl.csv.
 
 Columns:
   competition  the competition as the site names that event's bouts: with

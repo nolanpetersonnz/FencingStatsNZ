@@ -1,0 +1,40 @@
+South Open Championship 2026|epee: 19 seeded, 19 of 19 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+  check: COX Sera -> Seraphine Cox
+South Open Championship 2026 - Mens|foil: 7 seeded, 7 of 7 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+South Open Championship 2026 - Womens|foil: 5 seeded, 5 of 5 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+South Open Championship 2026|sabre: 7 seeded, 7 of 7 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+North Open Championships 2026 - Mens|epee: 35 seeded, 35 of 35 entrants matched, 23 with a Rank
+  check: YARR Elijah -> Elija Yarr
+  check: WANG Zining (Steven) -> Steven Zining Wang
+North Open Championships 2026 - Womens|epee: 12 seeded, 12 of 12 entrants matched, 11 with a Rank
+North Open Championships 2026 - Mens|foil: 15 seeded, 14 of 14 entrants matched, 9 with a Rank
+  not matched: seed 2 ZHU Jacob Yan Hao (Jacob) (no entrant with that surname: did not fence?)
+  seed 12 is not on the screenshot
+North Open Championships 2026 - Womens|foil: 8 seeded, 8 of 8 entrants matched, 7 with a Rank
+North Open Championships 2026|sabre: 9 seeded, 8 of 8 entrants matched, 7 with a Rank
+  not matched: seed 8 CHAN Ruby (Ho Ting) (Ruby) (no entrant with that surname: did not fence?)
+Central Open Championship 2026 - Mens|epee: 13 seeded, 13 of 13 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Central Open Championship 2026 - Womens|epee: 10 seeded, 10 of 10 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Central Open Championship 2026 Mixed|foil: 5 seeded, 5 of 5 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Central Open Championship 2026 - Mens|sabre: 8 seeded, 8 of 8 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Central Open Championship 2026 - Womens|sabre: 8 seeded, 8 of 8 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Mid-South Open Championships 2026 - Mens|epee: 14 seeded, 14 of 14 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Mid-South Open Championships 2026 - Womens|epee: 6 seeded, 6 of 6 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Mid-South Open Championships 2026|foil: 10 seeded, 10 of 10 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Mid-South Open Championships 2026|sabre: 6 seeded, 6 of 6 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Russell Towns Open 2026|epee: 10 seeded, 10 of 10 entrants matched, 8 with a Rank
+Russell Towns Open 2026|foil: 10 seeded, 10 of 10 entrants matched, 0 with a Rank (FencingTimeLive shows no Rank for anyone)
+Central Open Championship 2026 - Mens|foil: no pools of its own; 3 of 3 entrants take their seed from Central Open Championship 2026 Mixed|foil
+Central Open Championship 2026 - Womens|foil: no pools of its own; 2 of 2 entrants take their seed from Central Open Championship 2026 Mixed|foil
+
+22 of 31 events have seeds; 220 of 397 entrant rows seeded, 65 of them with a Rank.
+No seeding entered yet for 9 events:
+  NZL National Senior Championships 2026 - Mens|epee
+  NZL National Senior Championships 2026 - Womens|epee
+  NZL National Senior Championships 2026 - Mens|foil
+  NZL National Senior Championships 2026 - Womens|foil
+  NZL National Senior Championships 2026 - Mens|sabre
+  NZL National Senior Championships 2026 - Womens|sabre
+  NZL National Veteran Championships 2026 - Mens|epee
+  NZL National Veteran Championships 2026 - Womens|epee
+  NZL National Veteran Championships 2026|foil
