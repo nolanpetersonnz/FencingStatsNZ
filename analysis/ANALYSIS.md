@@ -85,13 +85,13 @@ An event is one weapon in one men's, women's or mixed competition, as the site l
 
 ### Competitions with no usable seeding
 
-The seeding is each event's "Seeding for Round 1" on FencingTimeLive, entered in `analysis/seeds.csv`. A fencer is ranked when that page shows a Rank for them. An event's seeding is usable when at least one of its fencers shows a Rank.
+The seeding is each event's "Seeding for Round 1" on FencingTimeLive, entered in `analysis/seeds.csv`. A fencer is ranked when that page shows a Rank for them. An event's seeding is usable when at least one of its fencers shows a Rank. Where the page shows no Rank for anyone, the FeNZ ranking was not used to seed the event, and the event is left out of section 6.
 
 | Seeding | Events | Counted bouts | Bouts with both fencers ranked |
 | --- | ---: | ---: | ---: |
-| Usable | 6 | 359 | 208 |
+| Usable | 15 | 971 | 649 |
 | FencingTimeLive shows no Rank for any fencer | 16 | 499 | 0 |
-| Not entered yet | 9 | 612 | 0 |
+| Not entered yet | 0 | 0 | 0 |
 
 By event:
 
@@ -108,15 +108,15 @@ By event:
 | Mid-South Open Championships 2026 - Womens | epee | 6 | 6 | 6 | 0 | 20 | 0 | no Rank shown |
 | Mid-South Open Championships 2026 | foil | 10 | 10 | 10 | 0 | 54 | 0 | no Rank shown |
 | Mid-South Open Championships 2026 | sabre | 6 | 6 | 6 | 0 | 20 | 0 | no Rank shown |
-| NZL National Senior Championships 2026 - Mens | epee | 50 |  | 0 | 0 | 181 | 0 | not entered |
-| NZL National Senior Championships 2026 - Mens | foil | 29 |  | 0 | 0 | 98 | 0 | not entered |
-| NZL National Senior Championships 2026 - Mens | sabre | 9 |  | 0 | 0 | 44 | 0 | not entered |
-| NZL National Senior Championships 2026 - Womens | epee | 37 |  | 0 | 0 | 132 | 0 | not entered |
-| NZL National Senior Championships 2026 - Womens | foil | 15 |  | 0 | 0 | 44 | 0 | not entered |
-| NZL National Senior Championships 2026 - Womens | sabre | 5 |  | 0 | 0 | 14 | 0 | not entered |
-| NZL National Veteran Championships 2026 - Mens | epee | 15 |  | 0 | 0 | 44 | 0 | not entered |
-| NZL National Veteran Championships 2026 - Womens | epee | 6 |  | 0 | 0 | 20 | 0 | not entered |
-| NZL National Veteran Championships 2026 | foil | 11 |  | 0 | 0 | 35 | 0 | not entered |
+| NZL National Senior Championships 2026 - Mens | epee | 50 | 50 | 50 | 48 | 181 | 164 | usable |
+| NZL National Senior Championships 2026 - Mens | foil | 29 | 29 | 29 | 20 | 98 | 48 | usable |
+| NZL National Senior Championships 2026 - Mens | sabre | 9 | 9 | 9 | 7 | 44 | 27 | usable |
+| NZL National Senior Championships 2026 - Womens | epee | 37 | 37 | 37 | 33 | 132 | 106 | usable |
+| NZL National Senior Championships 2026 - Womens | foil | 15 | 15 | 15 | 15 | 44 | 44 | usable |
+| NZL National Senior Championships 2026 - Womens | sabre | 5 | 5 | 5 | 5 | 14 | 14 | usable |
+| NZL National Veteran Championships 2026 - Mens | epee | 15 | 15 | 15 | 10 | 44 | 19 | usable |
+| NZL National Veteran Championships 2026 - Womens | epee | 6 | 6 | 6 | 3 | 20 | 5 | usable |
+| NZL National Veteran Championships 2026 | foil | 11 | 12 | 11 | 7 | 35 | 14 | usable |
 | North Open Championships 2026 - Mens | epee | 35 | 35 | 35 | 23 | 139 | 63 | usable |
 | North Open Championships 2026 - Mens | foil | 14 | 15 | 14 | 9 | 55 | 21 | usable |
 | North Open Championships 2026 - Womens | epee | 12 | 12 | 12 | 11 | 41 | 35 | usable |
@@ -131,11 +131,13 @@ By event:
 
 "Entrants" are the fencers the results portal lists for the event. "On FencingTimeLive" is the number of names on its seeding page; a name that is not among the entrants is left out. The two Central Open foil DE events ran no pools, so their fencers take their seeds from the mixed foil pool.
 
-[CHECK 3] FencingTimeLive shows no Rank for any fencer in 16 of 31 test-set events (499 counted bouts). Their seed numbers are entered and their bouts are left out of section 6 as unranked.
+[CHECK 3] FencingTimeLive shows no Rank for any fencer in 16 of 31 test-set events (499 counted bouts). Their bouts are left out of section 6: Nolan decided on 14 November 2026, before section 6 was run, that the ranking was not used to seed those events and nothing can be read from their seed order.
 
-[CHECK 4] Names on FencingTimeLive's seeding that are not among the portal's entrants, and so are left out: 2 (North Open Championships 2026 - Mens, foil; North Open Championships 2026, sabre). They are named in `analysis/seeds_report.txt`.
+[CHECK 4] Names on FencingTimeLive's seeding that are not among the portal's entrants, and so are left out: 3 (NZL National Veteran Championships 2026, foil; North Open Championships 2026 - Mens, foil; North Open Championships 2026, sabre). They are named in `analysis/seeds_report.txt`.
 
-[CHECK 5] In 2 events two fencers show the same Rank (North Open Championships 2026 - Mens, epee: Rank 35; North Open Championships 2026, sabre: Rank 3). Their seed numbers differ, and section 6 compares seed numbers.
+[CHECK 5] In 4 events two fencers show the same Rank (NZL National Senior Championships 2026 - Mens, epee: Rank 122 55 22; NZL National Veteran Championships 2026, foil: Rank 12; North Open Championships 2026 - Mens, epee: Rank 35; North Open Championships 2026, sabre: Rank 3). Their seed numbers differ, and section 6 compares seed numbers. 3 counted bouts are between two fencers who show the same Rank.
+
+[CHECK 6] 11 names on FencingTimeLive's seeding were matched to an entrant whose name the site spells differently, 1 of them entered by hand. They are the "check" lines of `analysis/seeds_report.txt`.
 
 ### Settings used
 
@@ -169,13 +171,13 @@ Commits since then that touch the settings file, the engine or the pipeline:
 | `218aa0f` | 2026-11-09 | `pipeline.js` | A win on priority (flag `pri_a` or `pri_b`) is rated as a win. Before, a bout with level scores was rated as a draw. One bout in the dataset carries the flag. |
 | `f70b6b8` | 2026-11-03 | `pipeline.js` | Adds expected accuracy to `predictiveAccuracy`. No change to ratings. |
 
-[CHECK 6] `pipeline.js` changed how one kind of bout is rated after the test set began (commit `218aa0f`, 2026-11-09): a win on priority is rated as a win, not a draw. Bouts in the dataset that carry the flag: 1, of which 1 in the test set.
+[CHECK 7] `pipeline.js` changed how one kind of bout is rated after the test set began (commit `218aa0f`, 2026-11-09): a win on priority is rated as a win, not a draw. Bouts in the dataset that carry the flag: 1, of which 1 in the test set.
 
 ### Commits
 
 | What | Commit |
 | --- | --- |
-| Analysis code, this run | `d32b7e7956fff8fa1a2a77195bf633e82c5c308b` |
+| Analysis code, this run | `64cd1cd6a4acc66bde5c24d1d2baa7900eed8cd4` |
 | Rating code (`constants.js`, `glicko2.js`, `pipeline.js`) | `218aa0faa0daa6854309854f91ad842e219710e6` |
 | Data (`ingest/bouts.csv`, `ingest/bouts_portal.csv`) | `7c7e6f7921b17f59841fc58476c965a4d7253dcb` |
 | `PREREGISTRATION.md` | `d981950768df40454d2c06be0c7cb70a6a7adacd` |
@@ -199,9 +201,9 @@ A coin flip scores a Brier of 0.2500 and an accuracy of 50.0%. Expected accuracy
 
 The full dataset includes the test set. "As the Method page shows it now" is `predictiveAccuracy` with the site's own merges.
 
-[CHECK 7] Test-set Brier is 0.1807 and full-dataset Brier (the plan's rules) is 0.1986: a difference of 0.0179.
+[CHECK 8] Test-set Brier is 0.1807 and full-dataset Brier (the plan's rules) is 0.1986: a difference of 0.0179.
 
-[CHECK 8] 10 counted test-set bouts have a predicted chance of exactly 50% (equal ratings). The favourite is then taken as fencer A, as `predictiveAccuracy` does.
+[CHECK 9] 10 counted test-set bouts have a predicted chance of exactly 50% (equal ratings). The favourite is then taken as fencer A, as `predictiveAccuracy` does.
 
 > [NOLAN: what this shows]
 
@@ -237,7 +239,33 @@ No group had fewer than 100 bouts.
 
 ## 6. FeNZ ranking vs FencingStatsNZ rating
 
-Not run yet. The seeding of 9 of 31 test-set events (612 counted bouts) has not been entered, and the comparison is held back until every event is in. Section 2 lists what has been entered.
+Test set only. In each bout the FeNZ-higher fencer is the one with the lower seed number in that event's initial seeding, and the FencingStatsNZ-higher fencer is the one with the higher rating before the competition. A disagreement bout is one where those are different fencers.
+
+|  | All bouts | Established only |
+| --- | ---: | ---: |
+| Bouts counted | 1,470 | 1,256 |
+| Left out: the event's seeding shows no Rank for any fencer | 499 | 406 |
+| Left out: either fencer unranked or without a seed | 322 | 201 |
+| Left out: both fencers have the same seed | 0 | 0 |
+| Both fencers have the same rating | 0 | 0 |
+| Ranking and rating pick the same fencer | 523 | 523 |
+| **Disagreement bouts** | **126** | **126** |
+| FeNZ-higher fencer won | 58 (46.0%) | 58 (46.0%) |
+| FencingStatsNZ-higher fencer won | 68 (54.0%) | 68 (54.0%) |
+
+Every bout with both fencers ranked is an established bout, so the two columns are the same from "Ranking and rating pick the same fencer" down.
+
+Disagreement bouts by stream:
+
+|  | Stream | Disagreement bouts | FeNZ-higher won | FencingStatsNZ-higher won |
+| --- | --- | ---: | ---: | ---: |
+| All bouts | Pool + DE | 126 | 58 (46.0%) | 68 (54.0%) |
+| Established only | Pool + DE | 126 | 58 (46.0%) | 68 (54.0%) |
+
+Groups under 100 bouts, merged:
+
+- All bouts: DE (40 bouts) merged with Pool (86 bouts).
+- Established only: DE (40 bouts) merged with Pool (86 bouts).
 
 > [NOLAN: what this shows]
 
@@ -296,7 +324,7 @@ Groups under 100 bouts, merged:
 - All bouts: 1700 and over (80 bouts) merged with 1500 to 1700 (754 bouts).
 - Established only: 1700 and over (76 bouts) merged with 1500 to 1700 (635 bouts).
 
-[CHECK 9] The plan names three rating levels. After merging there are 2 (all bouts) and 2 (established only): all bouts, 1700 and over (80 bouts) merged with 1500 to 1700 (754 bouts); established only, 1700 and over (76 bouts) merged with 1500 to 1700 (635 bouts). The gap-within-level table uses the merged levels.
+[CHECK 10] The plan names three rating levels. After merging there are 2 (all bouts) and 2 (established only): all bouts, 1700 and over (80 bouts) merged with 1500 to 1700 (754 bouts); established only, 1700 and over (76 bouts) merged with 1500 to 1700 (635 bouts). The gap-within-level table uses the merged levels.
 
 ### By rating gap within each rating level
 
@@ -410,7 +438,7 @@ Confidence bands for each filter:
 | DE | Established only | 50% to 70% | 195 | 60.7% | 65.1% |
 | DE | Established only | 70% to 100% | 125 | 79.6% | 84.8% |
 
-[CHECK 10] The Method page shows five bands for every filter. Here bands with fewer than 100 test-set bouts are merged with a neighbour, which leaves fewer than five for: DE, all bouts; DE, established only. The merges are listed in `results/merge_log.csv`.
+[CHECK 11] The Method page shows five bands for every filter. Here bands with fewer than 100 test-set bouts are merged with a neighbour, which leaves fewer than five for: DE, all bouts; DE, established only. The merges are listed in `results/merge_log.csv`.
 
 ## 11. Limitations
 
@@ -426,8 +454,8 @@ Prior bouts are a fencer's rated bouts in the same weapon and the same stream (p
 
 ### What could not be done as the plan says
 
-1. **Where the FeNZ ranking comes from.** The plan takes it from each competition's initial seeding on the FeNZ results portal. The portal shows no seeding. Checked on 14 November 2026: an event's Results view lists final rank, name, club and nationality; Pools and Bracket list names and scores; `/rankings` is one current board dated 2026-10-25, after the test-set competitions. The closest source is each event's "Seeding for Round 1" page on FencingTimeLive. Nolan took a screenshot of each; they were transcribed into `analysis/seeds_ftl.csv`, and `analysis/enter_seeds.mjs` matched each name to an entrant on the sheet from `analysis/fetch_seeds.py` (`analysis/seeds_template.csv`) and wrote `analysis/seeds.csv`. No seeds were fetched by a script. **9 events are not entered yet, so section 6 is empty.**
-2. **Unranked fencers.** The portal does not mark them. A fencer counts as ranked when the FencingTimeLive seeding page shows a Rank for them, and as unranked when it shows none (the `ranked` and `rank` columns of the sheet). In 16 events it shows no Rank for anyone, so every bout of those events is left out as unranked.
+1. **Where the FeNZ ranking comes from.** The plan takes it from each competition's initial seeding on the FeNZ results portal. The portal shows no seeding. Checked on 14 November 2026: an event's Results view lists final rank, name, club and nationality; Pools and Bracket list names and scores; `/rankings` is one current board dated 2026-10-25, after the test-set competitions. The closest source is each event's "Seeding for Round 1" page on FencingTimeLive. Nolan took a screenshot of each; they were transcribed into `analysis/seeds_ftl.csv`, and `analysis/enter_seeds.mjs` matched each name to an entrant on the sheet from `analysis/fetch_seeds.py` (`analysis/seeds_template.csv`) and wrote `analysis/seeds.csv`. No seeds were fetched by a script.
+2. **Unranked fencers.** The portal does not mark them. A fencer counts as ranked when the FencingTimeLive seeding page shows a Rank for them, and as unranked when it shows none (the `ranked` and `rank` columns of the sheet). In 16 events it shows no Rank for anyone. Nolan decided on 14 November 2026, before section 6 was run, that the FeNZ ranking was not used to seed those events and nothing can be read from their seed order, so every bout of those events is left out.
 3. **Events with no pools.** The Central Open foil ran one mixed pool, then a men's and a women's DE. The three DE bouts use the mixed pool's seeding.
 4. **P-black cards.** The plan leaves them out. The data does not mark them (section 2), so none could be left out.
 5. **Loading the data.** The run instructions were to load every CSV in `ingest/` through the site's parse and dedupe steps. That alone does not reproduce the Method tab (68.3% against 68.4%), because the site also applies name merges from its override store. The run applies the site's merges, which reproduces the tab exactly (section 2).
@@ -444,7 +472,7 @@ Prior bouts are a fencer's rated bouts in the same weapon and the same stream (p
 - **Prior bouts.** Rated bouts in the same weapon and stream at earlier competitions.
 - **Disagreement bouts.** Equal ratings are not a disagreement. Equal seeds are left out.
 
-Every merge of a group under 100 bouts is listed under its table and in `results/merge_log.csv` (7 in all).
+Every merge of a group under 100 bouts is listed under its table and in `results/merge_log.csv` (9 in all).
 
 ## 13. How to reproduce
 

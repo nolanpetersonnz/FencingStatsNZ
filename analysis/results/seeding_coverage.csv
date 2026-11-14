@@ -1,32 +1,32 @@
-competition,weapon,label,entrants,on_ftl,seeded,ranked,same_rank,status,counted,both_ranked
-Central Open Championship 2026 - Mens,epee,Epee Men Senior,13,13,13,0,,no Rank shown,48,0
-Central Open Championship 2026 - Mens,foil,Foil Men Senior,3,,3,0,,no Rank shown,2,0
-Central Open Championship 2026 - Mens,sabre,Sabre Men Senior,8,8,8,0,,no Rank shown,35,0
-Central Open Championship 2026 - Womens,epee,Epee Women Senior,10,10,10,0,,no Rank shown,29,0
-Central Open Championship 2026 - Womens,foil,Foil Women Senior,2,,2,0,,no Rank shown,1,0
-Central Open Championship 2026 - Womens,sabre,Sabre Women Senior,8,8,8,0,,no Rank shown,35,0
-Central Open Championship 2026 Mixed,foil,Foil Mixed Senior,5,5,5,0,,no Rank shown,10,0
-Mid-South Open Championships 2026 - Mens,epee,Epee Men Senior,14,14,14,0,,no Rank shown,54,0
-Mid-South Open Championships 2026 - Womens,epee,Epee Women Senior,6,6,6,0,,no Rank shown,20,0
-Mid-South Open Championships 2026,foil,Foil Mixed Senior,10,10,10,0,,no Rank shown,54,0
-Mid-South Open Championships 2026,sabre,Sabre Mixed Senior,6,6,6,0,,no Rank shown,20,0
-NZL National Senior Championships 2026 - Mens,epee,Epee Men Senior,50,,0,0,,not entered,181,0
-NZL National Senior Championships 2026 - Mens,foil,Foil Men Senior,29,,0,0,,not entered,98,0
-NZL National Senior Championships 2026 - Mens,sabre,Sabre Men Senior,9,,0,0,,not entered,44,0
-NZL National Senior Championships 2026 - Womens,epee,Epee Women Senior,37,,0,0,,not entered,132,0
-NZL National Senior Championships 2026 - Womens,foil,Foil Women Senior,15,,0,0,,not entered,44,0
-NZL National Senior Championships 2026 - Womens,sabre,Sabre Women Senior,5,,0,0,,not entered,14,0
-NZL National Veteran Championships 2026 - Mens,epee,Epee Men Veteran,15,,0,0,,not entered,44,0
-NZL National Veteran Championships 2026 - Womens,epee,Epee Women Veteran,6,,0,0,,not entered,20,0
-NZL National Veteran Championships 2026,foil,Foil Mixed Veteran,11,,0,0,,not entered,35,0
-North Open Championships 2026 - Mens,epee,Epee Men Senior,35,35,35,23,35,usable,139,63
-North Open Championships 2026 - Mens,foil,Foil Men Senior,14,15,14,9,,usable,55,21
-North Open Championships 2026 - Womens,epee,Epee Women Senior,12,12,12,11,,usable,41,35
-North Open Championships 2026 - Womens,foil,Foil Women Senior,8,8,8,7,,usable,35,27
-North Open Championships 2026,sabre,Sabre Mixed Senior,8,9,8,7,3,usable,35,27
-Russell Towns Open 2026,epee,Epee Mixed Senior,10,10,10,8,,usable,54,35
-Russell Towns Open 2026,foil,Foil Mixed Senior,10,10,10,0,,no Rank shown,54,0
-South Open Championship 2026 - Mens,foil,Foil Men Senior,7,7,7,0,,no Rank shown,27,0
-South Open Championship 2026 - Womens,foil,Foil Women Senior,5,5,5,0,,no Rank shown,14,0
-South Open Championship 2026,epee,Epee Mixed Senior,19,19,19,0,,no Rank shown,69,0
-South Open Championship 2026,sabre,Sabre Mixed Senior,7,7,7,0,,no Rank shown,27,0
+competition,weapon,label,entrants,on_ftl,seeded,ranked,same_rank,status,counted,both_ranked,same_rank_bouts
+Central Open Championship 2026 - Mens,epee,Epee Men Senior,13,13,13,0,,no Rank shown,48,0,0
+Central Open Championship 2026 - Mens,foil,Foil Men Senior,3,,3,0,,no Rank shown,2,0,0
+Central Open Championship 2026 - Mens,sabre,Sabre Men Senior,8,8,8,0,,no Rank shown,35,0,0
+Central Open Championship 2026 - Womens,epee,Epee Women Senior,10,10,10,0,,no Rank shown,29,0,0
+Central Open Championship 2026 - Womens,foil,Foil Women Senior,2,,2,0,,no Rank shown,1,0,0
+Central Open Championship 2026 - Womens,sabre,Sabre Women Senior,8,8,8,0,,no Rank shown,35,0,0
+Central Open Championship 2026 Mixed,foil,Foil Mixed Senior,5,5,5,0,,no Rank shown,10,0,0
+Mid-South Open Championships 2026 - Mens,epee,Epee Men Senior,14,14,14,0,,no Rank shown,54,0,0
+Mid-South Open Championships 2026 - Womens,epee,Epee Women Senior,6,6,6,0,,no Rank shown,20,0,0
+Mid-South Open Championships 2026,foil,Foil Mixed Senior,10,10,10,0,,no Rank shown,54,0,0
+Mid-South Open Championships 2026,sabre,Sabre Mixed Senior,6,6,6,0,,no Rank shown,20,0,0
+NZL National Senior Championships 2026 - Mens,epee,Epee Men Senior,50,50,50,48,122 55 22,usable,181,164,0
+NZL National Senior Championships 2026 - Mens,foil,Foil Men Senior,29,29,29,20,,usable,98,48,0
+NZL National Senior Championships 2026 - Mens,sabre,Sabre Men Senior,9,9,9,7,,usable,44,27,0
+NZL National Senior Championships 2026 - Womens,epee,Epee Women Senior,37,37,37,33,,usable,132,106,0
+NZL National Senior Championships 2026 - Womens,foil,Foil Women Senior,15,15,15,15,,usable,44,44,0
+NZL National Senior Championships 2026 - Womens,sabre,Sabre Women Senior,5,5,5,5,,usable,14,14,0
+NZL National Veteran Championships 2026 - Mens,epee,Epee Men Veteran,15,15,15,10,,usable,44,19,0
+NZL National Veteran Championships 2026 - Womens,epee,Epee Women Veteran,6,6,6,3,,usable,20,5,0
+NZL National Veteran Championships 2026,foil,Foil Mixed Veteran,11,12,11,7,12,usable,35,14,1
+North Open Championships 2026 - Mens,epee,Epee Men Senior,35,35,35,23,35,usable,139,63,1
+North Open Championships 2026 - Mens,foil,Foil Men Senior,14,15,14,9,,usable,55,21,0
+North Open Championships 2026 - Womens,epee,Epee Women Senior,12,12,12,11,,usable,41,35,0
+North Open Championships 2026 - Womens,foil,Foil Women Senior,8,8,8,7,,usable,35,27,0
+North Open Championships 2026,sabre,Sabre Mixed Senior,8,9,8,7,3,usable,35,27,1
+Russell Towns Open 2026,epee,Epee Mixed Senior,10,10,10,8,,usable,54,35,0
+Russell Towns Open 2026,foil,Foil Mixed Senior,10,10,10,0,,no Rank shown,54,0,0
+South Open Championship 2026 - Mens,foil,Foil Men Senior,7,7,7,0,,no Rank shown,27,0,0
+South Open Championship 2026 - Womens,foil,Foil Women Senior,5,5,5,0,,no Rank shown,14,0,0
+South Open Championship 2026,epee,Epee Mixed Senior,19,19,19,0,,no Rank shown,69,0,0
+South Open Championship 2026,sabre,Sabre Mixed Senior,7,7,7,0,,no Rank shown,27,0,0
