@@ -67,6 +67,21 @@ const OUT = resolve(arg('out', HERE));
 const REHEARSAL = FROM !== PLAN_FROM || TO !== null;
 if (REHEARSAL && OUT === HERE) throw new Error('A run on other dates is a rehearsal: give it --out, so it cannot overwrite the analysis.');
 const RESULTS = resolve(OUT, 'results');
+
+// Nolan's interpretation, one entry per section, kept in INTERPRETATION.md so
+// that rerunning this script does not overwrite it. A rehearsal never uses it.
+const INTERP = new Map();
+const INTERP_FILE = resolve(HERE, 'INTERPRETATION.md');
+if (!REHEARSAL && existsSync(INTERP_FILE)) {
+  let key = null;
+  for (const line of readFileSync(INTERP_FILE, 'utf8').split(/\r?\n/)) {
+    const h = line.match(/^## (\d+)\s*$/);
+    if (h) { key = h[1]; INTERP.set(key, []); continue; }
+    if (key) INTERP.get(key).push(line);
+  }
+  for (const [k, lines] of INTERP) INTERP.set(k, lines.join('\n').trim());
+}
+const slot = (section) => INTERP.get(section) || SLOT;
 mkdirSync(RESULTS, { recursive: true });
 
 // ---- Small helpers ----------------------------------------------------------
@@ -453,10 +468,10 @@ const add = (...lines) => out.push(...lines, '');
 
 if (REHEARSAL) add(`**REHEARSAL of the code on bouts ${window}. This is not the preregistered test set and these are not results.**`);
 add('# Accuracy analysis: results');
-add('Written by `analysis/run.mjs`. It holds tables, sample sizes and settings. Each `[NOLAN: ...]` line is a slot for the interpretation, and each `[CHECK n]` is one fact to look at.');
+add('Written by `analysis/run.mjs`. It holds tables, sample sizes and settings. The interpretation under each section is Nolan\'s, read from `analysis/INTERPRETATION.md`; a `[NOLAN: ...]` line is a slot that has none yet. Each `[CHECK n]` is one fact to look at.');
 
 add('## 1. Question');
-add(SLOT);
+add(slot('1'));
 
 add('## 2. Data and test set');
 add('### Bouts');
@@ -554,14 +569,14 @@ add(table(['', 'Bouts', 'Brier', 'Accuracy', 'Expected accuracy'], headlineRows.
 add('The full dataset includes the test set. "As the Method page shows it now" is `predictiveAccuracy` with the site\'s own merges.');
 add(check(`Test-set Brier is ${dec(test.brier)} and full-dataset Brier (the plan's rules) is ${dec(full.brier)}: a difference of ${dec(Math.abs(test.brier - full.brier))}.`));
 if (levelCalls) add(check(`${levelCalls} counted test-set bout${levelCalls > 1 ? 's have' : ' has'} a predicted chance of exactly 50% (equal ratings). The favourite is then taken as fencer A, as \`predictiveAccuracy\` does.`));
-add(SLOT);
+add(slot('4'));
 
 add('## 5. Calibration');
 add('Test set only. Each bout is counted for its favourite, the fencer with the higher predicted chance. Predicted is the mean predicted chance in the band; observed is how often the favourite won.');
 for (const [subset] of SUBSETS) add(`**${subset}**`, '', table(['Confidence band', 'Bouts', 'Predicted', 'Observed'], calibration.filter((r) => r.subset === subset).map(bandCells), [1, 2, 3]));
 add(tableLog('Calibration'));
 add('![Calibration: observed win rate of the favourite against the predicted rate, by confidence band, for all bouts and for established bouts only](results/calibration.svg)');
-add(SLOT);
+add(slot('5'));
 
 add('## 6. FeNZ ranking vs FencingStatsNZ rating');
 if (!seeding.entered) {
@@ -587,7 +602,7 @@ if (!seeding.entered) {
     `${int(r.fenzHigherWon)} (${pct(r.disagree ? r.fenzHigherWon / r.disagree : null)})`, `${int(r.fsnzHigherWon)} (${pct(r.disagree ? r.fsnzHigherWon / r.disagree : null)})`]), [2, 3, 4]));
   add(tableLog('Disagreement bouts by stream'));
 }
-add(SLOT);
+add(slot('6'));
 
 add('## 7. Linearity');
 add('Test set only. Each bout is counted for its higher-rated fencer, or for fencer A where the two ratings are equal. Predicted is that fencer\'s mean predicted chance in the group; observed is how often they won. A band includes its lower bound.');
@@ -605,7 +620,7 @@ if (levelMerges.length) add(check(`The plan names three rating levels. After mer
 add('### By rating gap within each rating level');
 for (const [subset] of SUBSETS) add(`**${subset}**`, '', table(['Rating level', 'Rating gap', 'Bouts', 'Predicted', 'Observed'], gapInLevel.filter((r) => r.subset === subset).map((r) => [r.level, ...bandCells(r)]), [2, 3, 4]));
 add(tableLog('Rating gap within level', true));
-add(SLOT);
+add(slot('7'));
 
 add('## 8. Splits');
 add('Test set only.');
@@ -615,12 +630,12 @@ add(tableLog('Pool and DE'));
 add('### By weapon');
 add(table(['', 'Weapon', 'Bouts', 'Brier', 'Accuracy', 'Expected accuracy'], byWeapon.map((r) => [r.subset, r.group, ...headlineCells(r)]), [2, 3, 4, 5]));
 add(tableLog('Weapon'));
-add(SLOT);
+add(slot('8'));
 
 add('## 9. All vs established');
 add(`Test set only. An established bout is one where both fencers' RD was below ${S.initialRD} before the competition.`);
 add(table(['', 'Bouts', 'Brier', 'Accuracy', 'Expected accuracy'], SUBSETS.map(([subset, pick]) => [subset, ...headlineCells(M.headline(pick(testRows)))]), [1, 2, 3, 4]));
-add(SLOT);
+add(slot('9'));
 
 add('## 10. Method page figures');
 add('The held-out figures for each filter on the Method page: test set only, the plan\'s rules.');
@@ -639,7 +654,7 @@ add([
   ...fewPrior.map((f) => `- ${f.subset}: ${int(f.few)} of ${int(f.n)} counted test-set bouts (${pct(f.few / f.n)}) involve a fencer with fewer than ${FEW_PRIOR} prior bouts. ${int(f.none)} involve a fencer with none.`),
 ].join('\n'));
 add('Prior bouts are a fencer\'s rated bouts in the same weapon and the same stream (pool or DE) at earlier competitions in the dataset.');
-add(SLOT);
+add(slot('11'));
 
 add('## 12. Deviations');
 add('### What could not be done as the plan says');
@@ -674,7 +689,7 @@ add('The entrant sheet comes from the results portal pages already in `ingest/ca
 add('```', 'python analysis/fetch_seeds.py           # writes analysis/seeds_template.csv; sends no requests', '```');
 
 add('## 14. How AI was used');
-add(SLOT);
+add(slot('14'));
 
 writeFileSync(resolve(OUT, 'ANALYSIS.md'), out.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
 
